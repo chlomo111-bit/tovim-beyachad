@@ -80,18 +80,18 @@ def main():
         # A. Hook (1,5 s) : la barque en gros plan qui tangue
         scene("hook", 1.5,
               "R.reset(8);setShip(0);mode='sea';started=true;R.hideTop();flash(1,.6)",
-              "R.orbit(K,6.2,2.2,0.4,0.6,0.25);R.cap('המשחק שבו כולם רוצים <em>להטביע</em> את הספינה 😈')")
+              "R.orbit(K,7.6,2.7,0.5,0.6,0.25);R.cap('המשחק שבו כולם רוצים <em>להטביע</em> את הספינה 😈')")
 
         # B. Intro (8,75 s) : la Terre → la mer, textes calés sur la voix 1
         scene("intro", 8.75,
               "R.cap('');mode='intro';introT=-1;camIntro.f=0;started=true",
-              "")
+              "if(introT-IT.space>IT.b)R.cap('עלו <em>לסיפון!</em> 🚢')")
 
         # C. Remplissage (4 s) : 0 → 24 passagers anonymes, l'eau monte
         scene("remplissage", 3.65,
               "mode='sea';R.reset(0);setShip(0);window._fill=demoData(24);window._fi=0",
               "{const want=Math.min(24,Math.floor(K*7.2));while(_fi<want){ingest([_fill[_fi++]]);}rebuild();"
-              "R.top(fmtN(totalN())+'/25','🛶 סירת המשוטים');R.orbit(K,8,3.2,0.3,0.9,0.12);"
+              "R.top(fmtN(totalN())+'/25','🛶 סירת המשוטים');R.orbit(K,10,4,0.4,0.9,0.12);"
               "R.cap('כל עוקב חדש = הספינה <em>שוקעת עוד</em> 🌊')}")
 
         # D. Naufrage (10,5 s) : le 25e passager monte → la barque coule → le bateau de pêche sort de l'eau
