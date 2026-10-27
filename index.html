@@ -790,7 +790,7 @@ function snd(k){const ac=SND.ac;if(!ac||SND.muted)return;const t=ac.currentTime;
   else if(k==="rise"){const o=ac.createOscillator(),g=ac.createGain();o.type="sine";o.frequency.setValueAtTime(120,t);o.frequency.exponentialRampToValueAtTime(600,t+2.5);g.gain.setValueAtTime(.12,t);g.gain.exponentialRampToValueAtTime(.001,t+2.8);o.connect(g);g.connect(SND.master);o.start(t);o.stop(t+2.9)}
   else if(k==="whoosh"){noiseHit(t,.5,900,.25,"bandpass")}
 }catch(e){}}
-$("#muteBtn").onclick=()=>{SND.muted=!SND.muted;$("#muteBtn").textContent=SND.muted?"🔇":"🔊";if(SND.master)SND.master.gain.value=SND.muted?0:.9;if(!SND.muted)ensureAudio()};
+$("#muteBtn").onclick=()=>{SND.muted=!SND.muted;$("#muteBtn").textContent=SND.muted?"🔇":"🔊";if(SND.master)SND.master.gain.value=SND.muted?0:.9;if(SND.muted)stopVoice();if(!SND.muted)ensureAudio()};
 
 /* ================= UI ================= */
 const capEl=$("#cap");
@@ -1004,23 +1004,27 @@ renderer.domElement.addEventListener("pointerup",e=>{if(!downAt||mode!=="sea"||p
   else{deselect();closeSheets()}});
 
 /* ================= INTRO / REEL ================= */
-let introT=-1,END=7.6,started=false;const camIntro={};
+const IT={space:3.2,cap1:1.5,a:1.1,b:3.6,end:9}; // phases de l'intro (secondes), calées sur la voix
+let introT=-1,END=IT.end,started=false;const camIntro={};
 function introFrame(t,dt){
   if(introT<0)introT=0;introT+=dt;const k=introT;
-  if(k<4.4){const u=ease(prog(k,0,4.4)),dist=lerp(7,1.12,u);camera.position.copy(ED).multiplyScalar(dist).add(new THREE.Vector3(0,lerp(.8,0,u),0));camera.up.set(0,1,0);camera.lookAt(ED.clone().multiplyScalar(lerp(0,.95,u)));earth.rotation.y=k*.03;
-    caption(k<1.6?"יש ספינה אחת…":k<3.4?"וכולנו <em>עליה</em> 🚢":"");renderer.render(space,camera);if(k>4.15&&!camIntro.f){camIntro.f=1;flash(1,.9);snd("whoosh")}return}
-  const k2=k-4.4,c=ship.view,u=ease(prog(k2,0,3.2));
+  if(k<IT.space){const u=ease(prog(k,0,IT.space)),dist=lerp(7,1.12,u);camera.position.copy(ED).multiplyScalar(dist).add(new THREE.Vector3(0,lerp(.8,0,u),0));camera.up.set(0,1,0);camera.lookAt(ED.clone().multiplyScalar(lerp(0,.95,u)));earth.rotation.y=k*.03;
+    caption(k<IT.cap1?"יש ספינה אחת בים…":"וכולנו <em>עליה</em> 🚢");renderer.render(space,camera);if(k>IT.space-.25&&!camIntro.f){camIntro.f=1;flash(1,.9);snd("whoosh")}return}
+  const k2=k-IT.space,c=ship.view,u=ease(prog(k2,0,4.2));
   camera.position.set(lerp(c.d*.2,c.d*.95,u),lerp(c.d*2.2,c.h*1.3,u),lerp(c.d*.1,c.d*.75,u));controls.target.set(0,c.h*.3,0);camera.lookAt(controls.target);
   const n=totalN(),cap=SHIPS[shipI].cap;
-  caption(k2<1.4?"כל עוקב = <em>נוסע</em> 🧍":k2<2.8?"המטרה: <em>להטביע אותה</em> 🌊":`עוד <em>${fmtN(cap-n)}</em> נוסעים… והיא טובעת!`);
+  caption(k2<IT.a?"כל עוקב = <em>נוסע</em> 🧍":k2<IT.b?"המטרה: <em>להטביע אותה</em> 🌊":`עלו לסיפון! עוד <em>${fmtN(cap-n)}</em> והיא טובעת`);
   if(k>=END)endIntro();
 }
 function endIntro(){if(mode==="sea")return;mode="sea";$("#gate").hidden=true;caption("");$("#skip").hidden=true;controls.enabled=true;lstore("tb_seen","1");
   if(REEL){startReel();return}showUI();showNews();
   const last=lstore("tb_ship");if(last!==null&&+last<shipI&&shipI>=1){setTimeout(()=>startSink(shipI-1,shipI),600)}else lstore("tb_ship",String(shipI));
   if(lstore("tb_ref"))setTimeout(()=>{if(!meName)openSheet("#joinSheet")},1500)}
-$("#skip").onclick=()=>{if(SINK.on){endSink();return}introT=END;caption("");endIntro()};
-$("#enter").onclick=()=>{ensureAudio();$("#gate").hidden=true;$("#skip").hidden=false;started=true};
+$("#skip").onclick=()=>{if(SINK.on){endSink();return}stopVoice();introT=END;caption("");endIntro()};
+const VOICE=(()=>{try{const a=new Audio(window.INTRO_VOICE||"media/intro_voix.mp3");a.preload="auto";return a}catch(e){return null}})();
+function playVoice(){if(!VOICE||SND.muted)return;try{VOICE.currentTime=0;VOICE.volume=1;const p=VOICE.play();if(p)p.catch(()=>{});if(SND.music){SND.music.gain.setTargetAtTime(.05,SND.ac.currentTime,.3);setTimeout(()=>{if(SND.music)SND.music.gain.setTargetAtTime(.16,SND.ac.currentTime,.8)},9000)}}catch(e){}}
+function stopVoice(){try{if(VOICE)VOICE.pause()}catch(e){}}
+$("#enter").onclick=()=>{ensureAudio();playVoice();$("#gate").hidden=true;$("#skip").hidden=false;started=true};
 
 /* reel : tour des nouveaux passagers du jour */
 const REELS={on:false,t:0,list:[]};
@@ -1039,7 +1043,7 @@ function loop(){
   if(window.CAP&&window.capHook)window.capHook(t);
   if(SND.ac)musicTick();
   if(mode==="intro"&&!started){earth.rotation.y=t*.04;camera.position.copy(ED).multiplyScalar(4.2).add(new THREE.Vector3(0,.9,0));camera.lookAt(0,0,0);renderer.render(space,camera);return}
-  if(mode==="intro"&&started&&ship){introFrame(t,dt);if(introT<4.4)return}
+  if(mode==="intro"&&started&&ship){introFrame(t,dt);if(introT<IT.space)return}
   updateWater(t);evFrame(t,dt);
   if(ship&&!SINK.on){const y=baseShipY();ship.group.position.y=y+waveY(0,0,t)*.45;ship.group.rotation.z=-fill()*.06+(waveY(3,0,t)-waveY(-3,0,t))*.02;ship.group.rotation.x=(waveY(0,2,t)-waveY(0,-2,t))*.03}
   if(SINK.on)sinkFrame(t,dt);
