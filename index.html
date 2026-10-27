@@ -1,0 +1,1072 @@
+<!doctype html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,maximum-scale=1">
+<title>טובעים ביחד</title>
+<meta name="description" content="כל עוקב = נוסע. המטרה של כולנו: להטביע את הספינה. חפשו את עצמכם על הסיפון.">
+<meta property="og:title" content="טובעים ביחד 🚢">
+<meta property="og:description" content="חפשו את השם שלכם על הסיפון ועזרו להטביע את הספינה">
+<meta name="theme-color" content="#06213A">
+<link rel="icon" href="icon.png">
+</head>
+<body>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;700;900&display=swap">
+<style>
+:root{
+  --ink:#04192C; --deep:#06213A; --sea:#0E4C7A; --gold:#FFC24B; --orange:#FF8A1F; --foam:#EAF7FF; --muted:#9DC0DA;
+  --glass:rgba(4,25,44,.74); --line:rgba(255,194,75,.3); --danger:#FF5A4E;
+  --display:"Heebo",system-ui,-apple-system,"Segoe UI",Arial,sans-serif;
+  color-scheme:dark;
+}
+[hidden]{display:none!important}
+html,body{height:100%;margin:0;overflow:hidden;background:var(--ink);color:var(--foam);font-family:var(--display)}
+#stage{position:fixed;inset:0;touch-action:none}
+#stage canvas{display:block;width:100%;height:100%}
+.ui{position:fixed;inset:0;pointer-events:none;direction:rtl;z-index:5}
+.ui>*{pointer-events:auto}
+.hide{opacity:0!important;pointer-events:none!important}
+.top{position:absolute;top:calc(env(safe-area-inset-top,0px) + 12px);left:calc(env(safe-area-inset-left,0px) + 12px);right:calc(env(safe-area-inset-right,0px) + 12px);display:flex;flex-direction:column;gap:8px;align-items:stretch;transition:opacity .5s;max-width:520px;margin-inline:auto}
+.searchwrap{position:relative;z-index:3}
+#q{width:100%;box-sizing:border-box;font:700 16px var(--display);padding:13px 46px 13px 16px;border-radius:16px;border:1.5px solid var(--line);background:var(--glass);color:var(--foam);outline:none;backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px)}
+#q::placeholder{color:var(--muted);font-weight:400}
+#q:focus{border-color:var(--gold)}
+.searchwrap .ico{position:absolute;right:14px;top:50%;transform:translateY(-50%);font-size:18px;pointer-events:none}
+#sugg{position:absolute;top:calc(100% + 6px);inset-inline:0;background:var(--glass);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border:1px solid var(--line);border-radius:14px;overflow:hidden;display:flex;flex-direction:column}
+#sugg button{all:unset;cursor:pointer;padding:11px 16px;font:700 15px var(--display);direction:ltr;text-align:left;display:flex;justify-content:space-between;gap:8px}
+#sugg button:hover,#sugg button:focus-visible{background:rgba(255,194,75,.15)}
+#sugg .none{padding:12px 16px;font-size:14px;color:var(--muted)}
+.stats{display:flex;gap:8px;justify-content:center;flex-wrap:wrap}
+.pill{font:700 14px var(--display);padding:7px 13px;border-radius:999px;background:var(--glass);border:1px solid var(--line);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);font-variant-numeric:tabular-nums;white-space:nowrap;color:var(--foam)}
+.pill b{color:var(--gold);font-weight:900}
+.pill.demo{color:var(--ink);background:var(--gold);border-color:var(--gold)}
+/* jauge de flottaison */
+.sinkbar{display:flex;align-items:center;gap:10px;padding:8px 12px;border-radius:16px;background:var(--glass);border:1px solid var(--line);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)}
+.sinkbar .lbl{font:900 14px var(--display);white-space:nowrap}
+.sinkbar .lbl b{color:var(--gold)}
+.sinkbar .track{flex:1;height:12px;border-radius:6px;background:rgba(255,255,255,.12);overflow:hidden;position:relative}
+.sinkbar .track i{position:absolute;inset:0 auto 0 0;width:0;background:linear-gradient(90deg,#2FA8FF,#FF5A4E);border-radius:6px;transition:width .8s}
+.sinkbar .left{font:900 13px var(--display);color:var(--danger);white-space:nowrap}
+.bottom{position:absolute;bottom:calc(env(safe-area-inset-bottom,0px) + 16px);left:calc(env(safe-area-inset-left,0px) + 12px);right:calc(env(safe-area-inset-right,0px) + 12px);display:flex;justify-content:center;transition:opacity .5s;pointer-events:none!important}
+.bottom>*{pointer-events:auto}
+.btn{all:unset;cursor:pointer;box-sizing:border-box;font:900 16px var(--display);padding:14px 22px;border-radius:16px;background:var(--gold);color:var(--ink);text-align:center;box-shadow:0 6px 0 #B86E0A,0 10px 24px rgba(0,0,0,.35);transition:transform .1s,box-shadow .1s}
+.btn:active{transform:translateY(4px);box-shadow:0 2px 0 #B86E0A}
+.btn:focus-visible{outline:3px solid var(--foam);outline-offset:2px}
+.btn.ghost{background:var(--glass);color:var(--foam);border:1.5px solid var(--line);box-shadow:none;font-weight:700}
+.sheet{position:absolute;bottom:0;left:0;right:0;margin-inline:auto;max-width:520px;background:linear-gradient(180deg,#0C3456,#05182A);border-top:2px solid var(--gold);border-radius:22px 22px 0 0;padding:18px max(18px,env(safe-area-inset-right,0px)) calc(env(safe-area-inset-bottom,0px) + 18px) max(18px,env(safe-area-inset-left,0px));box-sizing:border-box;transition:transform .35s cubic-bezier(.2,.9,.3,1.1);box-shadow:0 -12px 40px rgba(0,0,0,.5);max-height:78vh;overflow-y:auto;overscroll-behavior:contain}
+.sheet.closed{transform:translateY(110%)}
+.sheet .x{all:unset;cursor:pointer;position:absolute;top:12px;left:14px;font-size:22px;color:var(--muted);padding:4px 8px}
+.handle{font:900 30px var(--display);direction:ltr;text-align:right;margin:2px 0 4px;word-break:break-all}
+.meta{color:var(--muted);font-size:14px;margin-bottom:14px;display:flex;gap:6px;flex-wrap:wrap}
+.tag{background:rgba(255,194,75,.14);color:var(--gold);border-radius:999px;padding:4px 10px;font-weight:700;font-size:13px}
+.row{display:flex;gap:10px}
+.row .btn{flex:1}
+.sheet h2{font:900 24px var(--display);margin:4px 0 6px}
+.sheet p{margin:0 0 14px;color:var(--muted);font-size:15px;line-height:1.5}
+.field{width:100%;box-sizing:border-box;font:700 18px var(--display);padding:14px 16px;border-radius:14px;border:1.5px solid var(--line);background:rgba(0,0,0,.3);color:var(--foam);outline:none;direction:ltr;margin-bottom:12px}
+.field:focus{border-color:var(--gold)}
+textarea.field{font-size:15px;min-height:150px;resize:vertical;direction:rtl}
+select.field{direction:rtl;font-size:16px}
+.err{color:#FF9B7A;font-size:14px;min-height:18px;margin:-4px 0 10px}
+.bonus{margin-top:14px;padding:12px 14px;border-radius:14px;border:1px dashed var(--gold);background:rgba(255,194,75,.08);font-size:14px;line-height:1.5;display:flex;flex-direction:column;gap:10px}
+.bonus b{color:var(--gold)}
+.igbtn{display:block;padding:10px 14px;font-size:14px}
+#toast{position:absolute;left:50%;top:calc(env(safe-area-inset-top,0px) + 150px);transform:translate(-50%,-10px);background:var(--gold);color:var(--ink);font:900 15px var(--display);padding:10px 18px;border-radius:999px;opacity:0;transition:opacity .3s,transform .3s;white-space:nowrap;pointer-events:none;max-width:92vw;overflow:hidden;text-overflow:ellipsis}
+#toast.on{opacity:1;transform:translate(-50%,0)}
+.lbls{position:fixed;inset:0;pointer-events:none;z-index:3;overflow:hidden}
+.lbl3{position:absolute;left:0;top:0;transform:translate(-50%,-100%);font:900 12px var(--display);direction:ltr;white-space:nowrap;padding:2px 7px;border-radius:999px;background:rgba(4,25,44,.72);color:#fff;border:1px solid rgba(255,255,255,.18);will-change:transform}
+.lbl3.vip{background:var(--gold);color:var(--ink);border-color:var(--gold)}
+.lbl3.me{background:#2FBF71;color:#fff;border-color:#2FBF71}
+.lbl3.cap{background:#fff;color:var(--ink);font-size:13px}
+/* pilotage */
+.pilot{position:absolute;inset:0;pointer-events:none}
+.pilot>*{pointer-events:auto}
+#joy{position:absolute;left:calc(env(safe-area-inset-left,0px) + 24px);bottom:calc(env(safe-area-inset-bottom,0px) + 28px);width:130px;height:130px;border-radius:50%;background:rgba(4,25,44,.55);border:2px solid var(--line);touch-action:none}
+#knob{position:absolute;left:50%;top:50%;width:56px;height:56px;margin:-28px 0 0 -28px;border-radius:50%;background:var(--gold);box-shadow:0 4px 12px rgba(0,0,0,.4)}
+.ud{position:absolute;right:calc(env(safe-area-inset-right,0px) + 24px);bottom:calc(env(safe-area-inset-bottom,0px) + 28px);display:flex;flex-direction:column;gap:12px}
+.ud button{all:unset;cursor:pointer;width:64px;height:64px;border-radius:18px;background:rgba(4,25,44,.6);border:2px solid var(--line);font-size:24px;text-align:center;line-height:64px;touch-action:none;user-select:none;-webkit-user-select:none}
+.ud button:active{background:var(--gold);color:var(--ink)}
+#exitPilot{position:absolute;top:calc(env(safe-area-inset-top,0px) + 14px);left:calc(env(safe-area-inset-left,0px) + 14px)}
+.pilothint{position:absolute;top:calc(env(safe-area-inset-top,0px) + 18px);right:calc(env(safe-area-inset-right,0px) + 16px);font:900 16px var(--display);direction:ltr;text-shadow:0 2px 8px #000}
+.coinpill{position:absolute;top:calc(env(safe-area-inset-top,0px) + 60px);left:50%;transform:translateX(-50%);background:rgba(4,25,44,.75);border:1px solid rgba(255,194,75,.6);border-radius:999px;padding:6px 14px;font:800 14px var(--display);white-space:nowrap;transition:transform .15s}
+.coinpill.pop{transform:translateX(-50%) scale(1.15)}
+.coinpill b{color:var(--gold)}
+/* intro & reel */
+#fade{position:fixed;inset:0;pointer-events:none;z-index:4;opacity:0;background:#fff}
+#cap{position:fixed;left:0;right:0;bottom:22%;text-align:center;z-index:6;pointer-events:none;font:900 clamp(28px,8vw,56px)/1.15 var(--display);color:#fff;text-shadow:0 4px 24px rgba(0,0,0,.6);padding-inline:20px;transition:opacity .6s;direction:rtl;text-wrap:balance}
+#cap em{font-style:normal;color:var(--gold)}
+#gate{position:fixed;inset:0;z-index:8;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;gap:18px;padding-bottom:calc(env(safe-area-inset-bottom,0px) + 16vh);direction:rtl;background:radial-gradient(circle at 50% 35%,rgba(2,6,14,0) 0,rgba(2,6,14,.6) 70%)}
+#gate .glogo{font-size:60px}
+#gate .gt{font:900 clamp(40px,11vw,72px)/1 var(--display);color:#fff;text-shadow:0 4px 24px #000}
+#gate .gt em{font-style:normal;color:var(--gold)}
+#gate .gs{font:700 17px var(--display);color:var(--foam);text-shadow:0 2px 10px #000;text-align:center;padding-inline:20px}
+#skip{position:fixed;top:calc(env(safe-area-inset-top,0px) + 14px);left:calc(env(safe-area-inset-left,0px) + 14px);z-index:7;font-size:14px;padding:9px 16px}
+#reelTop{position:fixed;top:calc(env(safe-area-inset-top,0px) + 7%);left:0;right:0;text-align:center;z-index:6;pointer-events:none;direction:rtl;transition:opacity .6s}
+#reelTop .d{display:inline-block;font:900 clamp(44px,13vw,88px)/1 var(--display);color:var(--ink);background:var(--gold);padding:8px 26px 14px;border-radius:22px;box-shadow:0 8px 0 #B86E0A}
+#reelTop .n{font:900 clamp(22px,6vw,36px) var(--display);color:#fff;margin-top:16px;text-shadow:0 3px 14px #000}
+#alarm{position:fixed;inset:0;z-index:4;pointer-events:none;box-shadow:inset 0 0 0 0 rgba(255,40,40,0);transition:box-shadow .3s}
+#alarm.on{box-shadow:inset 0 0 120px 30px rgba(255,40,40,.55)}
+.overlay{position:fixed;inset:0;z-index:21;display:flex;align-items:center;justify-content:center;background:rgba(2,10,20,.82);padding-inline:max(16px,env(safe-area-inset-left,0px));direction:rtl}
+#found{background:radial-gradient(circle at 50% 40%,rgba(255,194,75,.35),rgba(2,10,20,.92) 70%)}
+.fcard{background:linear-gradient(180deg,#0C3456,#04192C);border:2px solid var(--gold);border-radius:26px;padding:26px 22px;max-width:380px;width:100%;box-sizing:border-box;text-align:center;box-shadow:0 20px 60px #000}
+.fcard .big{font:900 44px var(--display);color:var(--gold)}
+.fcard .sub{font-size:17px;line-height:1.55;margin:8px 0 16px}
+.fcard .sub b{color:var(--gold)}
+.fcard .code{font:900 30px var(--display);letter-spacing:.08em;background:var(--gold);color:var(--ink);border-radius:14px;padding:12px 8px;margin-bottom:8px}
+.fcard .when{color:var(--muted);font-size:14px;margin-bottom:16px;font-variant-numeric:tabular-nums}
+#shareView{position:fixed;inset:0;z-index:20;background:rgba(2,10,20,.94);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;padding:20px max(16px,env(safe-area-inset-right,0px)) 20px max(16px,env(safe-area-inset-left,0px));direction:rtl;text-align:center}
+#shareView img{max-height:70vh;max-width:100%;border-radius:16px;box-shadow:0 10px 40px #000}
+.mybox{margin:2px 0 14px;padding:12px;border-radius:14px;background:rgba(255,194,75,.1);border:1px solid var(--line);font-size:14px;line-height:1.55}
+.mybox b{color:var(--gold)}
+.mybox .btn{display:block;margin-top:10px;width:100%}
+.hint{font-size:13px;color:var(--muted);margin:-6px 0 12px;line-height:1.4}
+.chatfab{all:unset;pointer-events:auto;cursor:pointer;position:absolute;right:calc(env(safe-area-inset-right,0px) + 14px);bottom:calc(env(safe-area-inset-bottom,0px) + 18px);width:54px;height:54px;border-radius:50%;background:var(--glass);border:1.5px solid var(--line);font-size:24px;text-align:center;line-height:54px;backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);transition:opacity .4s}
+.chatfab span{position:absolute;top:-2px;left:-2px;min-width:20px;height:20px;border-radius:10px;background:var(--danger);color:#fff;font:900 12px/20px var(--display);padding:0 5px}
+.side{position:absolute;top:0;bottom:0;right:0;width:min(340px,88vw);background:linear-gradient(180deg,rgba(12,52,86,.95),rgba(4,25,44,.97));border-left:1.5px solid var(--line);display:flex;flex-direction:column;padding:calc(env(safe-area-inset-top,0px) + 12px) max(12px,env(safe-area-inset-right,0px)) calc(env(safe-area-inset-bottom,0px) + 12px) 12px;box-sizing:border-box;transition:transform .35s cubic-bezier(.2,.9,.3,1);z-index:6}
+.side.closed{transform:translateX(105%);pointer-events:none!important}
+.sidehead{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:10px}
+.tabs{display:flex;gap:6px}
+.tabs button{all:unset;cursor:pointer;padding:8px 11px;border-radius:999px;font:700 14px var(--display);color:var(--muted);border:1px solid var(--line)}
+.tabs button.on{background:var(--gold);color:var(--ink);border-color:var(--gold)}
+.side .x{all:unset;cursor:pointer;font-size:20px;color:var(--muted);padding:4px 8px}
+.list{flex:1;overflow-y:auto;display:flex;flex-direction:column;gap:8px;min-height:0}
+.msg{background:rgba(255,194,75,.07);border:1px solid rgba(255,194,75,.14);border-radius:14px;padding:8px 11px;font-size:15px;line-height:1.45;word-break:break-word}
+.msg .who{font-weight:900;color:var(--gold);direction:ltr;unicode-bidi:isolate;font-size:13px;cursor:pointer}
+.msg .when{color:var(--muted);font-size:11px;margin-inline-start:6px}
+.msg .del{all:unset;cursor:pointer;float:left;font-size:13px;opacity:.7}
+.msg.mine{background:rgba(255,194,75,.18)}
+.newrow{all:unset;cursor:pointer;display:flex;justify-content:space-between;align-items:center;gap:8px;padding:9px 11px;border-radius:12px;background:rgba(255,255,255,.05)}
+.newrow b{direction:ltr;unicode-bidi:isolate}
+.newrow span{color:var(--muted);font-size:12px;white-space:nowrap}
+.sec{font-weight:900;color:var(--gold);margin:6px 2px 2px;font-size:14px}
+.empty{color:var(--muted);text-align:center;padding:24px 8px;font-size:14px}
+.chatform{display:flex;gap:8px;margin-top:10px}
+.chatform input{flex:1;min-width:0;font:700 15px var(--display);padding:11px 12px;border-radius:12px;border:1.5px solid var(--line);background:rgba(0,0,0,.3);color:var(--foam);outline:none}
+.chatform .btn{padding:10px 16px;font-size:15px;box-shadow:0 4px 0 #B86E0A}
+.bottom:not(.hide)>*,.pilot>*{pointer-events:auto}
+@media (prefers-reduced-motion:reduce){.sheet,#toast,.top,.bottom,.side{transition:none}}
+</style>
+
+<div id="stage"></div>
+<div class="lbls" id="lbls"></div>
+<div id="fade"></div>
+<div id="alarm"></div>
+<div id="cap"></div>
+<button id="skip" class="btn ghost" hidden>דלגו ›</button>
+<div id="gate">
+  <div class="glogo">🚢</div>
+  <div class="gt">טובעים <em>ביחד</em></div>
+  <div class="gs">כל עוקב = נוסע. המטרה של כולנו: להטביע את הספינה 🌊</div>
+  <button class="btn" id="enter">עלו לסיפון 🔊</button>
+</div>
+<div id="reelTop" hidden><div class="d" id="reelDay">יום 1</div><div class="n" id="reelN"></div></div>
+
+<div class="ui" id="ui">
+  <div class="top hide" id="top">
+    <div class="searchwrap">
+      <input id="q" type="search" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="חפשו את השם שלכם על הסיפון" aria-label="חיפוש שם">
+      <span class="ico" aria-hidden="true">🔍</span>
+      <div id="sugg" hidden></div>
+    </div>
+    <div class="sinkbar" title="כמה הספינה כבר שקעה">
+      <span class="lbl" id="shipLbl">🛶 <b>0</b>/25</span>
+      <span class="track"><i id="sinkFill"></i></span>
+      <span class="left" id="sinkLeft"></span>
+    </div>
+    <div class="stats">
+      <span class="pill" id="dayPill" hidden></span>
+      <span class="pill">⭐ <b id="nVip">0</b> VIP</span>
+      <span class="pill">🌊 <b id="nSunk">0</b> טביעות</span>
+      <button class="pill" id="muteBtn" aria-label="צליל" style="cursor:pointer;font:inherit;color:inherit">🔊</button>
+      <span class="pill demo" id="demoPill" hidden>הדגמה</span>
+      <span class="pill" id="huntPill" hidden style="white-space:normal;text-align:center"></span>
+    </div>
+  </div>
+  <div class="bottom hide" id="bottom"><button class="btn" id="joinBtn">🧍 עלו לסיפון</button></div>
+
+  <div class="sheet closed" id="pSheet" role="dialog" aria-label="נוסע">
+    <button class="x" data-close aria-label="סגירה">✕</button>
+    <div class="handle" id="sHandle"></div>
+    <div class="meta" id="sMeta"></div>
+    <div id="myBox"></div>
+    <div class="row" id="walkRow"><button class="btn" id="walkBtn">🚶 להזיז את הנוסע שלי</button></div>
+    <div class="row" id="joinRow" style="margin-top:10px"><button class="btn" id="joinFromSheet">🧍 גם אני עולה לסיפון</button></div>
+    <div class="row" id="shareRow" style="margin-top:10px"><button class="btn ghost" id="shareBtn">📸 שיתוף לסטורי</button></div>
+    <div class="bonus" id="bonusBox">
+      <div><b>⭐ בונוס VIP:</b> עקבו אחרי הספינה וכתבו <b>"עולה"</b> בתגובות לרילס של היום, והנוסע שלכם יעלה לסיפון ה־VIP ✨</div>
+      <a class="btn ghost igbtn" id="igLink1" target="_blank" rel="noopener">לעקוב באינסטגרם</a>
+    </div>
+  </div>
+
+  <div class="sheet closed" id="joinSheet" role="dialog" aria-label="הצטרפות">
+    <button class="x" data-close aria-label="סגירה">✕</button>
+    <h2>עלו לסיפון 🚢</h2>
+    <p>כתבו את שם המשתמש שלכם באינסטגרם, והנוסע שלכם יעלה לספינה עם השם על הראש. כל נוסע חדש מקרב את הטביעה 🌊</p>
+    <input class="field" id="joinIn" type="text" lang="en" inputmode="email" enterkeyhint="go" placeholder="@your_name" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" aria-label="שם משתמש">
+    <div class="hint">🌐 כותבים באנגלית בלבד, בדיוק כמו באינסטגרם (אפשר גם להדביק קישור לפרופיל)</div>
+    <div class="err" id="joinErr"></div>
+    <div class="row"><button class="btn" id="joinGo">העלו אותי לספינה</button></div>
+    <div class="bonus">
+      <div><b>⭐ בונוס:</b> עוקבים אחרי הספינה וכותבים <b>"עולה"</b> בתגובות? הנוסע שלכם עובר לסיפון ה־VIP</div>
+      <a class="btn ghost igbtn" id="igLink2" target="_blank" rel="noopener">לעקוב באינסטגרם</a>
+    </div>
+  </div>
+
+  <div class="sheet closed" id="adminSheet" role="dialog" aria-label="ניהול">
+    <button class="x" data-close aria-label="סגירה">✕</button>
+    <h2>ניהול הספינה ⚓</h2>
+    <p>שם בכל שורה. <b>עוקב</b> = נוסע 🧍, <b>תגובה</b> = VIP ⭐, <b>הסר</b> = מוריד מהספינה. אפשר להוסיף: משקפי שמש, כובע, כובע קש, כובע גרב, מגבעת, כתר, אדום, כחול, ירוק, סגול, ורוד, כתום, צהוב, לבן.</p>
+    <input class="field" id="adminPass" type="password" placeholder="סיסמת ניהול" autocomplete="current-password" aria-label="סיסמה">
+    <textarea class="field" id="adminList" placeholder="@dana_k עוקב&#10;@yossi22 תגובה&#10;@noa.levi עוקב משקפי שמש כובע קש&#10;@old_user הסר" aria-label="רשימת שמות"></textarea>
+    <div class="err" id="adminErr"></div>
+    <div class="row"><button class="btn" id="adminGo">הוספה / עדכון</button></div>
+    <h2 style="margin-top:18px;font-size:20px">🌪️ האירוע של היום</h2>
+    <select class="field" id="evType" aria-label="אירוע">
+      <option value="none">בלי אירוע</option>
+      <option value="storm">⛈️ סערה</option>
+      <option value="shark">🦈 כריש</option>
+      <option value="iceberg">🧊 קרחון</option>
+      <option value="party">🎉 מסיבה על הסיפון</option>
+      <option value="whale">🐋 לוויתן</option>
+      <option value="kraken">🐙 קראקן</option>
+    </select>
+    <input class="field" id="evTitle" placeholder="משפט קצר (למשל: כריש מקיף את הספינה!)" style="direction:rtl" aria-label="כותרת האירוע">
+    <div class="row"><button class="btn ghost" id="evGo">שמירת האירוע</button></div>
+    <h2 style="margin-top:18px;font-size:20px">📰 חדשות לשחקנים</h2>
+    <input class="field" id="newsT" placeholder="כותרת" style="direction:rtl" aria-label="כותרת">
+    <textarea class="field" id="newsB" placeholder="מה חדש? כל השחקנים יראו את זה בכניסה הבאה" style="min-height:90px" aria-label="תוכן"></textarea>
+    <div class="row"><button class="btn ghost" id="newsGo">פרסום לכל השחקנים</button></div>
+  </div>
+
+  <div class="pilot" id="pilot" hidden>
+    <div class="pilothint" id="pilotName"></div>
+    <div class="coinpill" id="coinPill">🪙 אספו מטבעות · <b id="coinsToday">0</b> היום</div>
+    <button class="btn ghost" id="exitPilot">סיום</button>
+    <div id="joy"><div id="knob"></div></div>
+    <div class="ud"><button id="jumpB" aria-label="קפיצה">⤴️</button><button id="deckB" aria-label="סיפון אחר">🔄</button></div>
+  </div>
+  <button id="chatBtn" class="chatfab hide" aria-label="צ'אט">💬<span id="chatBadge" hidden></span></button>
+  <aside id="side" class="side closed" aria-label="צ'אט וחדשים">
+    <div class="sidehead">
+      <div class="tabs"><button data-tab="chat" class="on">💬 צ'אט</button><button data-tab="new">🧍 חדשים</button><button data-tab="top">🏆 שיאים</button></div>
+      <button class="x" id="sideX" aria-label="סגירה">✕</button>
+    </div>
+    <div id="chatList" class="list"></div>
+    <div id="newList" class="list" hidden></div>
+    <div id="topList" class="list" hidden></div>
+    <form id="chatForm" class="chatform">
+      <input id="chatIn" maxlength="140" autocomplete="off" placeholder="כתבו משהו לנוסעים…" aria-label="הודעה">
+      <button class="btn" type="submit">שלח</button>
+    </form>
+  </aside>
+  <div id="toast" role="status"></div>
+</div>
+
+<div id="newsModal" class="overlay" hidden><div class="fcard">
+  <div class="big" id="newsTitle" style="font-size:32px"></div>
+  <div class="sub" id="newsBody" style="white-space:pre-line;text-align:right"></div>
+  <button class="btn" id="newsOk" style="width:100%">יאללה! 🚢</button>
+</div></div>
+<div id="found" class="overlay" hidden><div class="fcard">
+  <div id="fAsk">
+    <div class="big">מצאת! 🎉</div>
+    <div class="sub">רק אחד זוכה בשטר הזה. כתבו מהר את שם המשתמש שלכם:</div>
+    <input class="field" id="fHandle" placeholder="@your_name" autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="שם משתמש">
+    <div class="err" id="fErr"></div>
+    <button class="btn" id="fClaim" style="width:100%">אני מצאתי ראשון!</button>
+  </div>
+  <div id="fWin" hidden>
+    <div class="big">זכית! 🏆</div>
+    <div class="sub">צלמו מסך <b>עכשיו</b> ושלחו בהודעה ל־<span dir="ltr" class="acc"></span> כדי לקבל <b id="fPrize"></b>.</div>
+    <div class="code" dir="ltr" id="fCode"></div>
+    <div class="when" id="fWhen"></div>
+  </div>
+  <div id="fLate" hidden>
+    <div class="big">כמעט! 😅</div>
+    <div class="sub" id="fLateTxt"></div>
+  </div>
+  <button class="btn ghost" id="fClose" style="width:100%;margin-top:10px">חזרה לסיפון</button>
+</div></div>
+<div id="shareView" hidden>
+  <img id="shareImg" alt="תמונה לשיתוף">
+  <div style="font-weight:700">לחיצה ארוכה על התמונה כדי לשמור, ואז להעלות לסטורי ולתייג את <span dir="ltr" class="acc"></span></div>
+  <button class="btn" id="shareClose">סגירה</button>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+<script>
+/* ================= CONFIG ================= */
+const CONFIG = {
+  SUPABASE_URL: "",          // à remplir : https://xxxx.supabase.co
+  SUPABASE_KEY: "",          // clé publishable / anon
+  DAY_START: "2026-10-28",   // jour 1 du jeu
+  ACCOUNT: "tovim_beyachad",
+  KEYWORD: "עולה",
+  BILLET: { on: true, secret: "tovim-beyachad-sea-7Q" }
+};
+const LIVE = !!(CONFIG.SUPABASE_URL && CONFIG.SUPABASE_KEY);
+const IG = "https://www.instagram.com/"+CONFIG.ACCOUNT+"/";
+
+/* ================= utils ================= */
+const $ = s => document.querySelector(s);
+const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
+const ease=t=>t<.5?4*t*t*t:1-Math.pow(-2*t+2,3)/2;
+const prog=(t,a,b)=>clamp((t-a)/(b-a),0,1);
+const lerp=(a,b,t)=>a+(b-a)*t;
+function hashStr(s){let h=2166136261;for(let i=0;i<s.length;i++){h^=s.charCodeAt(i);h=Math.imul(h,16777619)}return h>>>0}
+function rng(seed){return function(){seed|=0;seed=seed+0x6D2B79F5|0;let t=Math.imul(seed^seed>>>15,1|seed);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
+function cleanHandle(s){s=(s||"").trim();const m=s.match(/instagram\.com\/([A-Za-z0-9._]+)/i);if(m)s=m[1];return s.replace(/^@+/,"").replace(/\s+/g,"").replace(/\/$/,"").toLowerCase()}
+const HANDLE_RE=/^[a-z0-9._]{1,30}$/;
+const esc=s=>String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+function lstore(k,v){try{if(v===undefined)return localStorage.getItem(k);localStorage.setItem(k,v)}catch(e){return null}}
+function toast(msg){const t=$("#toast");t.textContent=msg;t.classList.add("on");clearTimeout(toast._t);toast._t=setTimeout(()=>t.classList.remove("on"),2800)}
+const NQ=[];let nqBusy=false;
+function notify(msg){NQ.push(msg);if(NQ.length>6)NQ.splice(0,NQ.length-6);pumpN()}
+function pumpN(){if(nqBusy||!NQ.length||mode!=="sea")return;nqBusy=true;toast(NQ.shift());setTimeout(()=>{nqBusy=false;pumpN()},3100)}
+function dayNumber(){const s=new Date(CONFIG.DAY_START+"T00:00:00");return Math.max(1,Math.floor((Date.now()-s)/864e5)+1)}
+const fmtN=n=>n.toLocaleString("he-IL");
+document.querySelectorAll(".acc").forEach(e=>e.textContent="@"+CONFIG.ACCOUNT);
+$("#igLink1").href=IG;$("#igLink2").href=IG;
+async function sb(path,opts={}){return fetch(CONFIG.SUPABASE_URL.replace(/\/$/,"")+"/rest/v1/"+path,{...opts,headers:{apikey:CONFIG.SUPABASE_KEY,"Content-Type":"application/json",...(opts.headers||{})}})}
+const rpc=(fn,body)=>sb("rpc/"+fn,{method:"POST",body:JSON.stringify(body||{})});
+
+/* ================= LES BATEAUX ================= */
+const SHIPS=[
+  {cap:25,name:"סירת המשוטים",emoji:"🛶",kind:"row"},
+  {cap:100,name:"ספינת הדייגים",emoji:"🎣",kind:"fish"},
+  {cap:1000,name:"המעבורת",emoji:"⛴️",kind:"ferry"},
+  {cap:10000,name:"אוניית הקיטור",emoji:"🚢",kind:"liner"},
+  {cap:100000,name:"ספינת הקרוז הענקית",emoji:"🛳️",kind:"cruise"},
+  {cap:1000000,name:"העיר הצפה",emoji:"🌊",kind:"mega"}
+];
+function shipIdx(n){for(let i=0;i<SHIPS.length;i++)if(n<SHIPS[i].cap)return i;return SHIPS.length-1}
+const ARTICLE=i=>SHIPS[i].name;
+
+/* ================= THREE ================= */
+const renderer=new THREE.WebGLRenderer({antialias:true,preserveDrawingBuffer:true});
+renderer.setPixelRatio(Math.min(devicePixelRatio,2));renderer.setSize(innerWidth,innerHeight);
+$("#stage").appendChild(renderer.domElement);
+const camera=new THREE.PerspectiveCamera(50,innerWidth/innerHeight,.1,3000);
+const SKY=new THREE.Color("#8FD3FF"),STORM_SKY=new THREE.Color("#2A3644"),NIGHT_SKY=new THREE.Color("#0B1530");
+const sea=new THREE.Scene();sea.background=SKY.clone();sea.fog=new THREE.Fog(SKY.clone(),60,420);
+const hemi=new THREE.HemisphereLight(0xffffff,0x2a6a9a,.75);sea.add(hemi);
+const sun=new THREE.DirectionalLight(0xffffff,.85);sun.position.set(40,80,30);sea.add(sun);
+const controls=new THREE.OrbitControls(camera,renderer.domElement);
+controls.enableDamping=true;controls.dampingFactor=.08;controls.enablePan=false;controls.maxPolarAngle=Math.PI*.49;controls.minDistance=3;controls.maxDistance=160;
+controls.autoRotate=true;controls.autoRotateSpeed=.35;controls.enabled=false;
+addEventListener("resize",()=>{camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();renderer.setSize(innerWidth,innerHeight)});
+
+/* soleil + nuages */
+{const s=new THREE.Mesh(new THREE.SphereGeometry(14,16,12),new THREE.MeshBasicMaterial({color:0xFFF3C4,fog:false}));s.position.set(-260,140,-380);sea.add(s);
+ const R=rng(31),cm=new THREE.MeshLambertMaterial({color:0xffffff});
+ for(let i=0;i<14;i++){const g=new THREE.Group(),n=3+Math.floor(R()*4);for(let k=0;k<n;k++){const b=new THREE.Mesh(new THREE.BoxGeometry(8+R()*10,3+R()*3,6+R()*6),cm);b.position.set(k*6-n*3,R()*2,R()*4);g.add(b)}
+  const a=R()*Math.PI*2,r=180+R()*160;g.position.set(Math.cos(a)*r,55+R()*40,Math.sin(a)*r);sea.add(g)}}
+
+/* eau */
+let waveAmp=.32,waveAmpT=.32;
+function waveY(x,z,t){return waveAmp*(Math.sin(x*.16+t*1.1)*.5+Math.sin(z*.21+t*.85)*.35+Math.sin((x+z)*.09+t*1.55)*.3)}
+const WATER_N=96,water=new THREE.Mesh(new THREE.PlaneGeometry(700,700,WATER_N,WATER_N),new THREE.MeshPhongMaterial({color:0x1F7FBF,flatShading:true,shininess:60,specular:0x99ddff,transparent:true,opacity:.93}));
+water.geometry.rotateX(-Math.PI/2);sea.add(water);
+const WPOS=water.geometry.attributes.position;
+function updateWater(t){const a=WPOS.array;for(let i=0;i<a.length;i+=3)a[i+1]=waveY(a[i],a[i+2],t);WPOS.needsUpdate=true}
+
+/* ================= VOXEL ================= */
+const UNIT=new THREE.BoxGeometry(1,1,1).toNonIndexed();
+function addBox(L,sx,sy,sz,x,y,z,c){L.push([sx,sy,sz,x,y,z,c])}
+function mergeBoxes(L){
+  const up=UNIT.attributes.position.array,un=UNIT.attributes.normal.array,n=L.length*36;
+  const P=new Float32Array(n*3),N=new Float32Array(n*3),C=new Float32Array(n*3);let o=0;const col=new THREE.Color();
+  for(const [sx,sy,sz,x,y,z,c] of L){col.set(c);for(let v=0;v<36;v++){P[o]=up[v*3]*sx+x;P[o+1]=up[v*3+1]*sy+y;P[o+2]=up[v*3+2]*sz+z;N[o]=un[v*3];N[o+1]=un[v*3+1];N[o+2]=un[v*3+2];C[o]=col.r;C[o+1]=col.g;C[o+2]=col.b;o+=3}}
+  const g=new THREE.BufferGeometry();g.setAttribute("position",new THREE.BufferAttribute(P,3));g.setAttribute("normal",new THREE.BufferAttribute(N,3));g.setAttribute("color",new THREE.BufferAttribute(C,3));return g}
+const VMAT=new THREE.MeshLambertMaterial({vertexColors:true});
+function vmesh(L){return new THREE.Mesh(mergeBoxes(L),VMAT)}
+
+function hull(L,o){
+  const {len,W,yb,yt,step,cMid,cBot,stripeY,cStripe,cDeck,bow=.55,stern=.85,rail}=o;
+  const out=[];
+  for(let x=-len/2+step/2;x<len/2;x+=step){
+    const xn=x/(len/2);let w=W;
+    if(xn>bow)w=W*(1-Math.pow((xn-bow)/(1-bow),1.5)*.92);
+    if(xn<-stern)w=W*(1-((-xn-stern)/(1-stern))*.25);
+    const layers=Math.max(2,Math.round((yt-yb)/step)),lh=(yt-yb)/layers;
+    for(let k=0;k<layers;k++){const y=yb+lh*(k+.5),f=.55+.45*(k+1)/layers;
+      const c=y<0?cBot:(stripeY!=null&&Math.abs(y-stripeY)<lh*.55?cStripe:cMid);
+      addBox(L,step*1.002,lh*1.002,Math.max(.3,w*f),x,y,0,c)}
+    if(cDeck)addBox(L,step*1.002,.1,Math.max(.2,w-.3),x,yt+.05,0,cDeck);
+    if(rail&&Math.round(x/step)%2===0){addBox(L,.08,.55,.08,x,yt+.32,w/2-.1,"#FFFFFF");addBox(L,.08,.55,.08,x,yt+.32,-w/2+.1,"#FFFFFF")}
+    out.push([x,w]);
+  }
+  if(rail)for(const [x,w] of out){addBox(L,step,.07,.07,x,yt+.6,w/2-.1,"#FFFFFF");addBox(L,step,.07,.07,x,yt+.6,-w/2+.1,"#FFFFFF")}
+  return out;
+}
+function deckBlock(L,x0,x1,w,y0,h,cWall,cWin,winStep=.8){
+  addBox(L,x1-x0,h,w,(x0+x1)/2,y0+h/2,0,cWall);
+  for(let x=x0+.5;x<x1-.3;x+=winStep){addBox(L,winStep*.55,h*.36,.06,x,y0+h*.55,w/2+.02,cWin);addBox(L,winStep*.55,h*.36,.06,x,y0+h*.55,-w/2-.02,cWin)}
+  addBox(L,.06,h*.4,w*.8,x1+.02,y0+h*.55,0,cWin);
+}
+function lifeboats(L,x0,x1,y,w){for(let x=x0;x<x1;x+=3.2){addBox(L,2.2,.55,.9,x,y,w/2+.45,"#FF7A1A");addBox(L,2.2,.55,.9,x,y,-w/2-.45,"#FF7A1A")}}
+function funnel(L,x,y,w,h,c,cTop,cBand){addBox(L,w,h,w*.8,x,y+h/2,0,c);if(cBand)addBox(L,w*1.02,h*.14,w*.82,x,y+h*.7,0,cBand);addBox(L,w*1.04,h*.16,w*.84,x,y+h*.92,0,cTop)}
+
+/* chaque bateau : géométrie + zones où marchent les passagers (rects) */
+function buildShip(kind){
+  const L=[],walk=[],top=[];let bridge,len,beam,draft,view;
+  if(kind==="row"){
+    len=7;beam=2.8;const h=hull(L,{len,W:beam,yb:-.55,yt:.15,step:.5,cMid:"#9A6233",cBot:"#6E4422",bow:.5,stern:.75});
+    for(const [x,w] of h){addBox(L,.5,.5,.14,x,.4,w/2-.07,"#B97A40");addBox(L,.5,.5,.14,x,.4,-w/2+.07,"#B97A40");addBox(L,.5,.06,.2,x,.68,w/2-.07,"#D9A066");addBox(L,.5,.06,.2,x,.68,-w/2+.07,"#D9A066")}
+    addBox(L,6,.06,beam-.6,0,.19,0,"#5C3A1C");addBox(L,.4,.12,beam-.4,-1,.4,0,"#C08A4B");addBox(L,.4,.12,beam-.4,1.2,.4,0,"#C08A4B");
+    addBox(L,.14,.08,5.4,0,.62,0,"#D9A066");addBox(L,.7,.06,.32,0,.62,2.75,"#D9A066");addBox(L,.7,.06,.32,0,.62,-2.75,"#D9A066");
+    walk.push({x0:-2.3,x1:2.2,z0:-.72,z1:.72,y:.22});bridge=new THREE.Vector3(-2.85,.22,0);draft=1.0;view={d:13,h:2};
+  }else if(kind==="fish"){
+    len=13;beam=4.6;hull(L,{len,W:beam,yb:-1,yt:.8,step:.5,cMid:"#2F6FB3",cBot:"#B23A3A",stripeY:.55,cStripe:"#FFFFFF",cDeck:"#C8955A",rail:true});
+    deckBlock(L,-5.4,-2.6,3.4,.85,2,"#F2F2F2","#1F3A5F");addBox(L,3.1,.18,3.7,-4,2.94,0,"#2F6FB3");
+    addBox(L,.22,4.6,.22,3,3.1,0,"#7A5230");addBox(L,.14,.14,3.2,3,4.6,0,"#7A5230");
+    addBox(L,1.4,.35,1.6,-5.6,1.05,1.2,"#2E8B57");addBox(L,1.2,.3,1.2,-5.7,1.05,-1.3,"#3BA36B");
+    walk.push({x0:-2.1,x1:4.6,z0:-1.75,z1:1.75,y:.9});top.push({x0:-5.1,x1:-2.9,z0:-1.4,z1:1.4,y:3.03});
+    bridge=new THREE.Vector3(-1.9,.9,0);draft=1.9;view={d:22,h:3};
+  }else if(kind==="ferry"){
+    len=24;beam=8;hull(L,{len,W:beam,yb:-1.5,yt:1.5,step:.6,cMid:"#F4F4F4",cBot:"#C0392B",stripeY:1,cStripe:"#1F4E9C",cDeck:"#9AA3AD",rail:true});
+    deckBlock(L,-10,6,7,1.55,1.6,"#FFFFFF","#1F3A5F");deckBlock(L,-9,4,6.6,3.15,1.5,"#FFFFFF","#1F3A5F");
+    funnel(L,-7.6,4.65,1.7,2.4,"#1F4E9C","#C0392B",null);lifeboats(L,-8,4,2.5,7);
+    walk.push({x0:6.6,x1:9,z0:-2.3,z1:2.3,y:1.6},{x0:4.3,x1:5.8,z0:-3.1,z1:3.1,y:3.15});top.push({x0:-6,x1:3.6,z0:-3,z1:3,y:4.65});
+    bridge=new THREE.Vector3(4.9,3.15,0);draft=2.6;view={d:36,h:5};
+  }else if(kind==="liner"){
+    len=36;beam=10;hull(L,{len,W:beam,yb:-2,yt:2,step:.7,cMid:"#1C1C22",cBot:"#A3262A",stripeY:1.65,cStripe:"#F2E6C8",cDeck:"#C8955A",rail:true});
+    deckBlock(L,-13,8,8.4,2.05,1.7,"#FFFFFF","#22324A");deckBlock(L,-12,6,8,3.75,1.6,"#FFFFFF","#22324A");deckBlock(L,-10,4,7.4,5.35,1.5,"#FFFFFF","#22324A");
+    for(const fx of [-7,-2,3])funnel(L,fx,6.85,1.8,3.6,"#E8A33D","#1C1C22",null);
+    lifeboats(L,-11,5,4.1,8);addBox(L,.2,9,.2,13,6.5,0,"#5A4632");addBox(L,.2,8,.2,-15,6,0,"#5A4632");
+    walk.push({x0:9,x1:13.8,z0:-3,z1:3,y:2.1},{x0:-17,x1:-13.6,z0:-3.6,z1:3.6,y:2.1},{x0:6.3,x1:7.7,z0:-3.8,z1:3.8,y:3.75});
+    top.push({x0:-10,x1:4,z0:1.2,z1:3.4,y:6.85},{x0:-10,x1:4,z0:-3.4,z1:-1.2,y:6.85});
+    bridge=new THREE.Vector3(5,5.35,0);draft=3.4;view={d:52,h:7};
+  }else{ // cruise & mega
+    len=52;beam=13;hull(L,{len,W:beam,yb:-2.4,yt:3,step:.8,cMid:"#F7F7F7",cBot:"#233A73",stripeY:2.3,cStripe:"#233A73",cDeck:"#9AA3AD",rail:true});
+    let x0=-23,x1=14,w=12,y=3.05;const H=1.3;
+    for(let d=0;d<6;d++){deckBlock(L,x0,x1,w,y,H,"#FFFFFF",d%2?"#1E5A8C":"#164C7A",.7);
+      if(d>0)walk.push({x0:x1+.2,x1:x1+1.8,z0:-(w/2-.5),z1:w/2-.5,y});
+      y+=H;x0+=.6;x1-=2;w-=.3}
+    const ty=y;funnel(L,-16,ty,3,4,"#FFFFFF","#233A73","#E23B3B");
+    addBox(L,6,.3,5,-3,ty+.15,0,"#2EC4F1");addBox(L,6.6,.25,.3,-3,ty+.2,2.65,"#E8E8E8");addBox(L,6.6,.25,.3,-3,ty+.2,-2.65,"#E8E8E8");
+    for(let k=0;k<7;k++)addBox(L,1.2,.35,1.2,-11+Math.cos(k*.9)*1.4,ty+.4+k*.55,Math.sin(k*.9)*1.4,["#FF4D6D","#FFC24B","#2FBF71","#3E8BFF"][k%4]);
+    lifeboats(L,-20,8,4.2,12.4);
+    walk.push({x0:15,x1:20,z0:-3.5,z1:3.5,y:3.15});
+    top.push({x0:.5,x1:x1+1.5,z0:-4.6,z1:4.6,y:ty},{x0:-6,x1:0,z0:3,z1:4.6,y:ty},{x0:-6,x1:0,z0:-4.6,z1:-3,y:ty},{x0:-14,x1:-6.5,z0:-4.6,z1:4.6,y:ty});
+    bridge=new THREE.Vector3(x1+1.2,ty,0);draft=4.8;view={d:74,h:9};
+  }
+  const g=new THREE.Group();g.add(vmesh(L));
+  return {group:g,walk,top,bridge,len,beam,draft,view,kind};
+}
+
+/* ================= PASSAGERS (instanced) ================= */
+const SKIN=["#F2D0B1","#E0B48C","#C68E62","#8D5A3B"],PANTS=["#2E3A59","#3A3A3A","#6B4F2A","#1F5E8C"],
+  SHIRTS=["#E5484D","#3E8BFF","#2FBF71","#A35CFF","#FF7AB6","#FF8A1F","#14B8C4","#FFFFFF","#FFD23F","#222222"];
+const COLOR_WORDS={"אדום":"#E5484D","כחול":"#3E8BFF","ירוק":"#2FBF71","סגול":"#A35CFF","ורוד":"#FF7AB6","כתום":"#FF8A1F","צהוב":"#FFD23F","לבן":"#FFFFFF","שחור":"#222222"};
+const HAT_WORDS={"כובע":"cap","כובע קש":"straw","כובע גרב":"beanie","מגבעת":"tophat","כתר":"crown"};
+const PARTS={legs:[.34,.46,.2,0,.23,0],torso:[.44,.5,.26,0,.71,0],head:[.32,.32,.32,0,1.12,0],hat:null,glasses:[.34,.08,.05,0,1.15,.17],vest:[.48,.38,.3,0,.73,0]};
+const HATS={cap:[.36,.1,.38,0,1.33,.03],straw:[.64,.07,.64,0,1.31,0],beanie:[.34,.16,.34,0,1.34,0],tophat:[.28,.32,.28,0,1.44,0],crown:[.34,.14,.34,0,1.36,0]};
+const HAT_COL={cap:null,straw:"#E8C77A",beanie:null,tophat:"#1B1B1B",crown:"#FFD23F"};
+function looks(p){
+  const R=rng(hashStr(p.handle)+7),st=p.style||{};
+  const L={skin:SKIN[Math.floor(R()*4)],pants:PANTS[Math.floor(R()*4)],shirt:SHIRTS[Math.floor(R()*SHIRTS.length)],hat:R()<.45?["cap","straw","beanie"][Math.floor(R()*3)]:null,hatCol:SHIRTS[Math.floor(R()*8)],glasses:R()<.2,yaw:R()*Math.PI*2,ph:R()*6.28};
+  if(st.color)L.shirt=st.color;if(st.hat)L.hat=st.hat==="none"?null:st.hat;if(st.glasses)L.glasses=true;
+  if((p.streak||0)>=3)L.glasses=true;if((p.streak||0)>=7&&!st.hat)L.hat="tophat";
+  if((p.refs||0)>=1&&!st.hat&&!L.hat)L.hat="tophat";
+  if((p.streak||0)>=30||(p.refs||0)>=10)L.hat="crown";
+  L.vest=p.vip||(p.refs||0)>=3;return L}
+
+let P=[],byH=new Map(),meName=lstore("tb_me")||"";
+let ship=null,shipI=-1,shipRoot=new THREE.Group();sea.add(shipRoot);
+const inst={};let instCap=0,draw=[],slots=[],figS=1;
+const PMAT=new THREE.MeshLambertMaterial({color:0xffffff});
+const VEST_GOLD=new THREE.Color("#FFC24B"),WHITE=new THREE.Color("#FFFFFF");
+function ensureInst(n){
+  if(n<=instCap&&inst.legs)return;
+  instCap=Math.max(64,Math.ceil(n*1.3));
+  for(const k of Object.keys(PARTS)){if(inst[k]){inst[k].parent&&inst[k].parent.remove(inst[k]);inst[k].dispose&&inst[k].dispose()}
+    const m=new THREE.InstancedMesh(UNIT,PMAT,instCap);m.frustumCulled=false;
+    for(let i=0;i<instCap;i++)m.setColorAt(i,WHITE); // OBLIGATOIRE (avant de changer count) : sinon crash/noir
+    m.count=0;inst[k]=m}
+}
+const MAXD=2500;
+function pickDraw(){
+  if(P.length<=MAXD)return P.slice();
+  const keep=new Set();const out=[];const add=p=>{if(p&&!keep.has(p.handle)){keep.add(p.handle);out.push(p)}};
+  add(byH.get(meName));P.filter(p=>p.vip).slice(-800).forEach(add);for(let i=P.length-1;i>=0&&out.length<MAXD;i--)add(P[i]);return out}
+function computeSlots(n){
+  const rects=[...ship.top.map(r=>({...r,top:1})),...ship.walk.map(r=>({...r,top:0}))];
+  let area=0;rects.forEach(r=>area+=(r.x1-r.x0)*(r.z1-r.z0));
+  let sp=clamp(Math.sqrt(area/Math.max(n,1))*.92,.18,1.05);let pts=[];
+  for(let tries=0;tries<6;tries++){pts=[];for(const r of rects){for(let x=r.x0+sp/2;x<=r.x1-sp/2+1e-6;x+=sp)for(let z=r.z0+sp/2;z<=r.z1-sp/2+1e-6;z+=sp)pts.push({x,z,y:r.y,top:r.top})}
+    if(pts.length>=n)break;sp*=.88}
+  const R=rng(1234+shipI);for(let i=pts.length-1;i>0;i--){const j=Math.floor(R()*(i+1));[pts[i],pts[j]]=[pts[j],pts[i]]}
+  pts.sort((a,b)=>b.top-a.top); // le haut d'abord (VIP)
+  figS=clamp(sp/.95,.22,1);return pts}
+const M4=new THREE.Matrix4(),M5=new THREE.Matrix4(),Q=new THREE.Quaternion(),V=new THREE.Vector3(),S3=new THREE.Vector3(),YA=new THREE.Vector3(0,1,0);
+let inWater=false; // pendant un naufrage, les passagers flottent
+const myPos=new THREE.Vector3(),myOff={jump:0};
+function setPart(m,i,box,base,col){
+  if(!box){S3.set(0,0,0);M5.makeScale(0,0,0)}else{M5.makeScale(box[0],box[1],box[2]);M5.setPosition(box[3],box[4],box[5])}
+  M4.multiplyMatrices(base,M5);m.setMatrixAt(i,M4);if(col)m.setColorAt(i,col)}
+const TMP_C=new THREE.Color();
+function rebuild(){
+  if(!ship)return;
+  draw=pickDraw();const n=draw.length;ensureInst(n);
+  const vipFirst=draw.map((p,i)=>i).sort((a,b)=>(draw[b].vip?1:0)-(draw[a].vip?1:0));
+  slots=computeSlots(n);const slotOf=new Array(n);vipFirst.forEach((di,k)=>slotOf[di]=slots[k]||slots[k%slots.length]);
+  draw.forEach((p,i)=>{p.di=i;p.slot=slotOf[i];p.look=looks(p)});
+  for(const k in inst){inst[k].count=n;if(inst[k].parent!==ship.group&&!inWater)ship.group.add(inst[k])}
+  if(captain)captain.scale.setScalar(clamp(figS*1.7,.9,1.6));
+  writeAll(0,true);
+}
+function figMatrix(p,t,out){
+  const s=p.slot,L=p.look;let x=s.x,y=s.y,z=s.z,yaw=L.yaw,sc=figS;
+  if(inWater){const a=p.di*2.399,r=ship.len*.42+3+(p.di%9)*.7*Math.max(1,ship.len/20);x=Math.cos(a)*r;z=Math.sin(a)*r*.75;y=waveY(x,z,t)-.75*figS;yaw=-a}
+  else{
+    if(p.handle===meName&&pilotOn){x=myPos.x;z=myPos.z;y=myPos.y+myOff.jump;yaw=myYaw}
+    y+=Math.max(0,Math.sin(t*(ev.type==="party"?7:2.2)+L.ph))*(ev.type==="party"?.25:.035)*sc;
+  }
+  if(p.handle===meName)sc*=1.15;
+  Q.setFromAxisAngle(YA,yaw);V.set(x,y,z);S3.set(sc,sc,sc);out.compose(V,Q,S3);return out}
+const BASE=new THREE.Matrix4();
+function writeAll(t,colors){
+  for(const p of draw){const i=p.di,L=p.look;figMatrix(p,t,BASE);
+    setPart(inst.legs,i,PARTS.legs,BASE,colors&&TMP_C.set(L.pants));
+    setPart(inst.torso,i,PARTS.torso,BASE,colors&&TMP_C.set(L.shirt));
+    setPart(inst.head,i,PARTS.head,BASE,colors&&TMP_C.set(L.skin));
+    setPart(inst.hat,i,L.hat?HATS[L.hat]:null,BASE,colors&&TMP_C.set(L.hat&&HAT_COL[L.hat]||L.hatCol));
+    setPart(inst.glasses,i,L.glasses?PARTS.glasses:null,BASE,colors&&TMP_C.set("#111111"));
+    setPart(inst.vest,i,L.vest?PARTS.vest:null,BASE,colors&&VEST_GOLD)}
+  for(const k in inst){inst[k].instanceMatrix.needsUpdate=true;if(colors&&inst[k].instanceColor)inst[k].instanceColor.needsUpdate=true}
+}
+function moveWaterParts(toWater){
+  inWater=toWater;for(const k in inst){const m=inst[k];if(m.parent)m.parent.remove(m);(toWater?sea:ship.group).add(m)}}
+
+/* capitaine = le compte du jeu */
+let captain=null;
+function buildCaptain(){
+  const L=[];addBox(L,.36,.5,.22,0,.25,0,"#1B2A4A");addBox(L,.46,.56,.28,0,.78,0,"#FFFFFF");addBox(L,.1,.1,.03,.1,.9,.15,"#FFC24B");addBox(L,.1,.1,.03,-.1,.9,.15,"#FFC24B");
+  addBox(L,.34,.34,.34,0,1.23,0,"#F2D0B1");addBox(L,.4,.12,.4,0,1.45,0,"#FFFFFF");addBox(L,.42,.05,.18,0,1.39,.2,"#111111");addBox(L,.1,.08,.03,0,1.46,.21,"#FFC24B");
+  addBox(L,.22,.06,.04,0,1.28,.18,"#5A3A22");
+  const g=new THREE.Group();g.add(vmesh(L));
+  const halo=new THREE.Mesh(new THREE.TorusGeometry(.26,.04,6,20),new THREE.MeshBasicMaterial({color:0xFFE27A}));halo.rotation.x=Math.PI/2;halo.position.y=1.82;g.add(halo);g.userData.halo=halo;
+  g.scale.setScalar(1.4);return g}
+
+/* ================= DONNÉES ================= */
+let sinks=[],ev={type:"none"},billet=null;
+function totalN(){return P.length}
+const CAP_HANDLE=()=>CONFIG.ACCOUNT;
+function ingest(rows,announce){
+  let added=0;
+  for(const r of rows){if(!r||!HANDLE_RE.test(r.handle||""))continue;const old=byH.get(r.handle);
+    if(old){Object.assign(old,r);continue}
+    const p={...r};P.push(p);byH.set(p.handle,p);added++;
+    if(announce&&p.handle!==CAP_HANDLE())notify("🧍 @"+p.handle+" עלה/תה לסיפון!")}
+  P.sort((a,b)=>new Date(a.created_at)-new Date(b.created_at));
+  return added}
+function demoData(n){
+  const A=["yam","gal","sea","noa","itay","shir","dor","maya","tal","omer","lia","ben","roni","adi","eli","neta","ido","yael","guy","mika"],B=["_sail",".boat","_wave","22","_il","x","_99",".tlv","_blue","007"];
+  const R=rng(42),out=[],now=Date.now(),used=new Set();
+  for(let i=0;i<n;i++){let h;do{h=A[Math.floor(R()*A.length)]+B[Math.floor(R()*B.length)]+(R()<.4?Math.floor(R()*90):"")}while(used.has(h));used.add(h);
+    out.push({handle:h,vip:R()<.25,style:{},joined_ship:shipIdx(i),refs:R()<.15?1+Math.floor(R()*3):0,streak:Math.floor(R()*5),best_streak:5,created_at:new Date(now-(n-i)*3.6e6*(R()*2)).toISOString()})}
+  return out}
+async function loadAll(){
+  if(!LIVE){const m=location.hash.match(/demo=(\d+)/);ingest(demoData(m?Math.min(+m[1],200000):17));$("#demoPill").hidden=false;return}
+  let from=0,rows=[];
+  for(;;){const r=await sb("passengers?select=handle,vip,style,joined_ship,refs,streak,best_streak,created_at&order=id.asc",{headers:{Range:from+"-"+(from+999),"Range-Unit":"items"}});if(!r.ok)break;const j=await r.json();rows=rows.concat(j);if(j.length<1000)break;from+=1000}
+  ingest(rows);
+  try{const r=await sb("sinks?select=ship_idx,handle,sunk_at&order=ship_idx.asc");if(r.ok)sinks=await r.json()}catch(e){}
+}
+async function poll(){
+  if(!LIVE)return;
+  try{const last=P.length?P[P.length-1].created_at:"1970-01-01";
+    const r=await sb("passengers?select=handle,vip,style,joined_ship,refs,streak,best_streak,created_at&created_at=gt."+encodeURIComponent(last)+"&order=id.asc&limit=500");
+    if(r.ok){const j=await r.json();if(ingest(j,true)){const s=await sb("sinks?select=ship_idx,handle,sunk_at&order=ship_idx.asc");if(s.ok)sinks=await s.json();onCount()}}}catch(e){}
+}
+
+/* ================= BATEAU COURANT ================= */
+function setShip(i){
+  if(ship){shipRoot.remove(ship.group)}
+  shipI=i;ship=buildShip(SHIPS[i].kind);
+  if(SHIPS[i].kind==="mega"){ship.group.scale.setScalar(1)} // même modèle, plus de monde
+  shipRoot.add(ship.group);
+  if(!captain)captain=buildCaptain();ship.group.add(captain);captain.position.copy(ship.bridge);captain.rotation.y=Math.PI/2;
+  controls.minDistance=Math.max(3,ship.view.d*.18);controls.maxDistance=ship.view.d*2.6;
+  placeEventProps();rebuild();placeBillet();spawnCoins();
+}
+function fill(){const n=totalN(),c=SHIPS[shipI].cap;return clamp(n/c,0,1)}
+function updateHud(){
+  const n=totalN(),i=shipIdx(n),c=SHIPS[i].cap;
+  $("#shipLbl").innerHTML=SHIPS[i].emoji+" <b>"+fmtN(n)+"</b>/"+fmtN(c);
+  $("#sinkFill").style.width=(clamp(n/c,0,1)*100).toFixed(1)+"%";
+  $("#sinkLeft").textContent="עוד "+fmtN(c-n)+" והיא טובעת!";
+  $("#nVip").textContent=fmtN(P.filter(p=>p.vip).length);$("#nSunk").textContent=i;
+  const d=$("#dayPill");d.hidden=false;d.textContent="📅 יום "+dayNumber();
+}
+let pendingSink=null;
+function onCount(){
+  const i=shipIdx(totalN());updateHud();
+  if(i!==shipI){if(mode==="sea"&&!SINK.on&&shipI>=0)startSink(shipI,i);else if(!SINK.on)setShip(i)}
+  else rebuild();
+  lstore("tb_ship",String(i));
+}
+
+/* ================= ÉVÉNEMENTS DU JOUR ================= */
+const evRoot=new THREE.Group();sea.add(evRoot);
+let rain=null,confetti=null,partyLights=[],evProps={},lightningT=8;
+function points(n,size,color){const g=new THREE.BufferGeometry();g.setAttribute("position",new THREE.BufferAttribute(new Float32Array(n*3),3));return new THREE.Points(g,new THREE.PointsMaterial({size,color,transparent:true,opacity:.85,depthWrite:false}))}
+function placeEventProps(){
+  while(evRoot.children.length)evRoot.remove(evRoot.children[0]);evProps={};partyLights=[];rain=null;confetti=null;
+  if(!ship)return;const Ls=ship.len,type=ev.type;
+  waveAmpT=type==="storm"?1.1:.32;
+  if(type==="storm"){rain=points(900,.35,0xCFE8FF);evRoot.add(rain);rain.userData.v=new Float32Array(900).map(()=>18+Math.random()*12);const a=rain.geometry.attributes.position.array;for(let i=0;i<900;i++){a[i*3]=(Math.random()-.5)*Ls*3;a[i*3+1]=Math.random()*40;a[i*3+2]=(Math.random()-.5)*Ls*3}}
+  if(type==="shark"){const L=[];addBox(L,.9,.25,.25,0,.12,0,"#5B6670");addBox(L,.6,.35,.22,-.1,.42,0,"#5B6670");addBox(L,.35,.35,.18,-.2,.75,0,"#5B6670");addBox(L,.15,.3,.14,-.3,1.05,0,"#5B6670");const m=vmesh(L);m.scale.setScalar(Math.max(1.5,Ls/9));evRoot.add(m);evProps.fin=m}
+  if(type==="iceberg"){const L=[],R=rng(5);for(let i=0;i<70;i++){const h=R()*7+1,x=(R()-.5)*8,z=(R()-.5)*7;addBox(L,2+R()*2.5,h,2+R()*2.5,x,h/2-1,z,R()<.3?"#BFE6FF":"#F4FBFF")}addBox(L,3,10,3,0,4,0,"#FFFFFF");const m=vmesh(L);m.scale.setScalar(Math.max(.8,Ls/18));m.position.set(Ls*.5+10*Math.max(1,Ls/18),0,Ls*.15);evRoot.add(m);evProps.berg=m}
+  if(type==="party"){const cols=[0xFF4D6D,0x3E8BFF,0x2FBF71,0xFFC24B];for(let i=0;i<4;i++){const l=new THREE.PointLight(cols[i],1.4,Ls*1.4+10);evRoot.add(l);partyLights.push(l)}
+    confetti=points(600,.3,0xffffff);confetti.material.vertexColors=true;const c=new Float32Array(1800),a=confetti.geometry.attributes.position.array,C=new THREE.Color();for(let i=0;i<600;i++){C.set(["#FF4D6D","#FFC24B","#2FBF71","#3E8BFF","#A35CFF"][i%5]);c[i*3]=C.r;c[i*3+1]=C.g;c[i*3+2]=C.b;a[i*3]=(Math.random()-.5)*Ls*1.4;a[i*3+1]=Math.random()*25;a[i*3+2]=(Math.random()-.5)*Ls*.6}confetti.geometry.setAttribute("color",new THREE.BufferAttribute(c,3));evRoot.add(confetti)}
+  if(type==="whale"){const L=[];for(let k=0;k<7;k++){const s=1-Math.abs(k-2)/6;addBox(L,1.4,1.6*s+.4,1.8*s+.4,k*1.3,0,0,"#2D4B73")}addBox(L,1,.4,2.6,9.4,.3,0,"#2D4B73");addBox(L,6,.5,1.4,2.4,-.8,0,"#C9D6E3");addBox(L,.2,.2,.2,-.6,.3,.7,"#111");addBox(L,.2,.2,.2,-.6,.3,-.7,"#111");
+    const m=vmesh(L);m.scale.setScalar(Math.max(1,Ls/14));evRoot.add(m);evProps.whale=m;const sp=points(160,.4,0xEAF7FF);evRoot.add(sp);evProps.spout=sp}
+  if(type==="kraken"){evProps.tent=[];const n=6;for(let k=0;k<n;k++){const g=new THREE.Group(),L=[];for(let j=0;j<9;j++){const s=1-j*.09;addBox(L,.9*s,1,.9*s,0,j+.5,0,j%2?"#7B3FB8":"#8E4FD0");addBox(L,.25,.25,.1,0,j+.5,.46*s,"#E7C6FF")}
+      const m=vmesh(L);g.add(m);const side=k%2?1:-1,x=(k/(n-1)-.5)*ship.len*.8;g.position.set(x,-1,side*(ship.beam/2+.6));g.userData={side,ph:k*1.3,m};g.scale.setScalar(Math.max(.8,ship.len/16));evRoot.add(g);evProps.tent.push(g)}}
+}
+function evFrame(t,dt){
+  waveAmp=lerp(waveAmp,waveAmpT,dt*.8);
+  const target=ev.type==="storm"?STORM_SKY:(ev.type==="party"?NIGHT_SKY:SKY);
+  sea.background.lerp(target,dt*.8);sea.fog.color.copy(sea.background);
+  hemi.intensity=lerp(hemi.intensity,ev.type==="storm"?.45:ev.type==="party"?.4:.75,dt);sun.intensity=lerp(sun.intensity,ev.type==="storm"?.35:ev.type==="party"?.25:.85,dt);
+  if(!ship)return;const Ls=ship.len;
+  if(rain){const a=rain.geometry.attributes.position.array,v=rain.userData.v;for(let i=0;i<v.length;i++){a[i*3+1]-=v[i]*dt;if(a[i*3+1]<0)a[i*3+1]=40}rain.geometry.attributes.position.needsUpdate=true;
+    lightningT-=dt;if(lightningT<0){lightningT=5+Math.random()*7;flash(.75,.35);snd("thunder")}}
+  if(evProps.fin){const a=t*.35,r=Ls*.6+4;evProps.fin.position.set(Math.cos(a)*r,waveY(Math.cos(a)*r,Math.sin(a)*r,t)-.2,Math.sin(a)*r);evProps.fin.rotation.y=-a-Math.PI/2}
+  if(evProps.berg)evProps.berg.position.y=Math.sin(t*.5)*.3-1;
+  partyLights.forEach((l,i)=>{const a=t*1.4+i*Math.PI/2;l.position.set(Math.cos(a)*Ls*.3,ship.view.h*1.4+3,Math.sin(a)*ship.beam*.6)});
+  if(confetti){const a=confetti.geometry.attributes.position.array;for(let i=0;i<600;i++){a[i*3+1]-=dt*(2+(i%5));a[i*3]+=Math.sin(t*2+i)*dt*.6;if(a[i*3+1]<0)a[i*3+1]=25}confetti.geometry.attributes.position.needsUpdate=true}
+  if(evProps.whale){const per=12,k=(t%per)/per,w=evProps.whale,sc=w.scale.x,z=ship.beam/2+6*sc;
+    if(k<.35){const u=k/.35,x=lerp(-Ls*.6,Ls*.6,u);w.position.set(x,Math.sin(u*Math.PI)*6*sc-2*sc,z);w.rotation.z=Math.cos(u*Math.PI)*.6;w.visible=true}else{w.visible=false}
+    const sp=evProps.spout,a=sp.geometry.attributes.position.array;for(let i=0;i<160;i++){const q=((t*1.5+i/160)%1);a[i*3]=w.position.x+Math.sin(i)*q*1.5;a[i*3+1]=(w.visible?w.position.y+1.5*sc:-50)+q*5*sc;a[i*3+2]=w.position.z+Math.cos(i)*q*1.5}sp.geometry.attributes.position.needsUpdate=true}
+  if(evProps.tent)for(const g of evProps.tent){const u=g.userData;g.position.y=-1+Math.sin(t*.6+u.ph)*1.2;g.rotation.x=u.side*(-.35+Math.sin(t*1.3+u.ph)*.25);g.rotation.z=Math.sin(t*.9+u.ph)*.2}
+}
+
+/* ================= BILLET CACHÉ ================= */
+const noteMesh=(()=>{const L=[];addBox(L,.9,.04,.46,0,0,0,"#E7637A");addBox(L,.8,.05,.36,0,.002,0,"#F59AAA");addBox(L,.22,.06,.22,.2,.004,0,"#B83250");addBox(L,.12,.065,.12,-.25,.005,.08,"#FFFFFF");
+  const m=vmesh(L);const g=new THREE.Group();g.add(m);const glow=new THREE.Mesh(new THREE.SphereGeometry(.8,12,10),new THREE.MeshBasicMaterial({color:0xFFE27A,transparent:true,opacity:.25,depthWrite:false}));g.add(glow);g.userData.glow=glow;g.visible=false;return g})();
+const IL_FMT=new Intl.DateTimeFormat("en-CA",{timeZone:"Asia/Jerusalem",year:"numeric",month:"2-digit",day:"2-digit"});
+const ilDay=()=>IL_FMT.format(new Date());
+function billetActive(){return CONFIG.BILLET.on&&billet&&billet.slot&&!billet.winner}
+function placeBillet(){
+  if(!ship)return;if(noteMesh.parent)noteMesh.parent.remove(noteMesh);
+  if(!billetActive()){noteMesh.visible=false;return}
+  const rects=[...ship.walk,...ship.top],R=rng(hashStr(CONFIG.BILLET.secret+billet.day+":"+billet.slot+":"+shipI)),r=rects[Math.floor(R()*rects.length)];
+  noteMesh.position.set(lerp(r.x0+.3,r.x1-.3,R()),r.y+.45,lerp(r.z0+.3,r.z1-.3,R()));ship.group.add(noteMesh);noteMesh.visible=true}
+function demoBillet(){const h=+new Date().toLocaleString("en-US",{timeZone:"Asia/Jerusalem",hour:"numeric",hour12:false});return {day:ilDay(),slot:h>=9?1:null,prize:20,winner:null,next_at:null}}
+let billetBusy=0,billetSkew=0;
+async function refreshBillet(){
+  if(!CONFIG.BILLET.on)return;
+  if(!LIVE){billet=demoBillet();applyBillet();return}
+  if(Date.now()<billetBusy)return;billetBusy=Date.now()+4000;
+  try{const r=await rpc("billet_state",{h:meName||""});if(r.ok){billet=await r.json();if(billet.now)billetSkew=Date.parse(billet.now)-Date.now();applyBillet()}}catch(e){}}
+let lastBilletKey="";
+function applyBillet(){const k=billet?billet.day+":"+billet.slot+":"+(billet.winner||""):"";if(k!==lastBilletKey){lastBilletKey=k;placeBillet()}renderHunt()}
+function fmtCd(s){const h=Math.floor(s/3600),m=Math.floor(s%3600/60),x=s%60;return (h?h+":":"")+String(m).padStart(2,"0")+":"+String(x).padStart(2,"0")}
+function secsToNext(){if(!billet||!billet.next_at)return null;return Math.max(0,Math.round((Date.parse(billet.next_at)-(Date.now()+billetSkew))/1000))}
+function renderHunt(){
+  const p=$("#huntPill");if(!CONFIG.BILLET.on||!billet){p.hidden=true;return}p.hidden=false;
+  const s=secsToNext(),nx=s!=null?` · הבא בעוד <b style="font-variant-numeric:tabular-nums">${fmtCd(s)}</b>`:"";
+  if(billetActive())p.innerHTML=`💸 שטר של <b>${billet.prize||20} ₪</b> מוסתר על הסיפון! <span style="opacity:.8">(הזיזו את הנוסע שלכם כדי למצוא)</span>`;
+  else if(billet.winner)p.innerHTML=`🏆 <b dir="ltr">@${esc(billet.winner)}</b> מצא/ה את השטר${nx}`;
+  else p.innerHTML=`💸 3 שטרות של 20 ₪ ביום${nx}`;
+  if(s===0&&LIVE)setTimeout(refreshBillet,1500)}
+function billetCode(h){return "TB-"+(hashStr(CONFIG.BILLET.secret+billet.day+billet.slot+h)>>>0).toString(36).toUpperCase().slice(0,5)}
+let foundOpen=false;
+function treasureFound(){
+  if(foundOpen)return;foundOpen=true;snd("coin");flash(.5,.3);
+  $("#found").hidden=false;$("#fAsk").hidden=false;$("#fWin").hidden=true;$("#fLate").hidden=true;$("#fErr").textContent="";$("#fHandle").value=meName?"@"+meName:"";
+}
+$("#fClaim").onclick=async()=>{
+  const h=cleanHandle($("#fHandle").value);if(!HANDLE_RE.test(h)){$("#fErr").textContent="שם משתמש לא תקין";return}
+  if(!byH.has(h)){$("#fErr").textContent="קודם צריך לעלות לסיפון 🧍";return}
+  $("#fClaim").disabled=true;let w,me;
+  try{if(LIVE){const r=await rpc("claim_treasure",{h});const rows=await r.json();if(!r.ok){$("#fErr").textContent=String(rows&&rows.message||"").includes("no_billet")?"השטר הבא עוד לא הוסתר… 💸":"משהו לא עבד, נסו שוב";$("#fClaim").disabled=false;return}w=rows[0];me=!!(w&&w.is_me)}
+    else{w={handle:h,found_at:new Date().toISOString()};me=true}}catch(e){$("#fErr").textContent="אין חיבור, נסו שוב";$("#fClaim").disabled=false;return}
+  $("#fClaim").disabled=false;$("#fAsk").hidden=true;
+  if(me){$("#fWin").hidden=false;$("#fPrize").textContent=(billet.prize||20)+" ₪";$("#fCode").textContent=billetCode(h);$("#fWhen").textContent=new Date(w.found_at).toLocaleString("he-IL",{timeZone:"Asia/Jerusalem"});snd("win");burstAt(noteMesh)}
+  else{$("#fLate").hidden=false;$("#fLateTxt").innerHTML=`<b dir="ltr">@${esc(w.handle)}</b> היה/תה מהיר/ה יותר. השטר הבא מגיע בקרוב ⏳`}
+  billet.winner=w.handle;applyBillet();
+};
+$("#fClose").onclick=()=>{$("#found").hidden=true;foundOpen=false};
+
+/* ================= PIÈCES D'OR (en marchant) ================= */
+const COIN_N=24,coinMesh=new THREE.InstancedMesh(new THREE.CylinderGeometry(.18,.18,.05,10),new THREE.MeshLambertMaterial({color:0xFFC93C,emissive:0x664400}),COIN_N);
+coinMesh.frustumCulled=false;const coins=[];let coinsToday=0,coinsPending=0;
+function randWalk(R=Math.random){const rects=[...ship.walk,...ship.top],r=rects[Math.floor(R()*rects.length)];return {x:lerp(r.x0+.2,r.x1-.2,R()),y:r.y+.5,z:lerp(r.z0+.2,r.z1-.2,R())}}
+function spawnCoins(){if(!ship)return;if(coinMesh.parent)coinMesh.parent.remove(coinMesh);ship.group.add(coinMesh);coins.length=0;for(let i=0;i<COIN_N;i++)coins.push(randWalk());coinMesh.visible=false}
+function updateCoins(t){if(!pilotOn){coinMesh.visible=false;return}coinMesh.visible=true;
+  for(let i=0;i<COIN_N;i++){const c=coins[i];Q.setFromEuler(new THREE.Euler(Math.PI/2,t*3+i,0));V.set(c.x,c.y+Math.sin(t*3+i)*.08,c.z);S3.set(1,1,1);M4.compose(V,Q,S3);coinMesh.setMatrixAt(i,M4);
+    if(Math.hypot(c.x-myPos.x,c.z-myPos.z)<.6*Math.max(1,figS*1.4)&&Math.abs(c.y-.5-myPos.y)<1){coins[i]=randWalk();coinsToday++;coinsPending++;snd("blip");const el=$("#coinsToday");el.textContent=coinsToday;const pl=$("#coinPill");pl.classList.add("pop");setTimeout(()=>pl.classList.remove("pop"),150)}}
+  coinMesh.instanceMatrix.needsUpdate=true}
+setInterval(async()=>{if(!coinsPending||!LIVE||!meName)return;const n=Math.min(15,coinsPending);
+  try{const r=await rpc("add_coins",{h:meName,n});if(r.ok){coinsPending-=n;const j=await r.json();if(j&&typeof j.today==="number"){coinsToday=j.today+coinsPending;$("#coinsToday").textContent=coinsToday}}}catch(e){}},2500);
+
+/* ================= NAUFRAGE ================= */
+const SINK={on:false,t0:0,from:0,to:0,old:null,who:null};
+const bubbles=points(260,.16,0xEAF7FF);bubbles.visible=false;sea.add(bubbles);
+function startSink(from,to){
+  SINK.on=true;SINK.t0=-1;SINK.horn=0;SINK.swapped=0;SINK.back=0;SINK.fake=undefined;SINK.from=from;SINK.to=to;const s=sinks.find(x=>x.ship_idx===from);SINK.who=s?s.handle:null;
+  if(ship){shipRoot.remove(ship.group)}
+  SINK.old=buildShip(SHIPS[from].kind);shipRoot.add(SINK.old.group);
+  shipI=-1;ship=SINK.old;rebuild();
+  const c=SINK.old.view;camera.position.set(c.d*.85,c.h*1.1+1,c.d*.65);controls.target.set(0,c.h*.2,0);SINK.old.group.position.y=-SINK.old.draft*.62;
+  closeSheets();if(pilotOn)stopPilot();hideUI(true);$("#skip").hidden=false;
+}
+function sinkFrame(t,dt){
+  if(SINK.t0<0)SINK.t0=t;const k=t-SINK.t0,O=SINK.old,D=O.draft;
+  const c=O.view;if(k<6.2){camera.position.lerp(new THREE.Vector3(c.d*.85,c.h*1.1+1,c.d*.65),dt*1.5);controls.target.lerp(new THREE.Vector3(0,c.h*.2,0),dt*2)}
+  if(!SINK.horn){SINK.horn=1;snd("horn");$("#alarm").classList.add("on")}
+  if(k<2)caption(SINK.who?`<em dir="ltr">@${esc(SINK.who)}</em> עלה/תה לסיפון…`:"עוד נוסע אחד עלה…");
+  else if(k<5)caption(`ו${esc(SHIPS[SINK.from].name)} <em>טובעת!</em> 🌊`);
+  const u=prog(k,1.5,6);O.group.position.y=-D*.62-ease(u)*D*4;O.group.rotation.z=-.08-ease(u)*.5;O.group.rotation.x=Math.sin(k*3)*.03*(1-u);
+  if(k>2.2&&!inWater){moveWaterParts(true);snd("splash");$("#alarm").classList.remove("on")}
+  // bulles
+  bubbles.visible=k>1.8&&k<8;if(bubbles.visible){const a=bubbles.geometry.attributes.position.array,bs=Math.max(1,O.len/10);bubbles.material.size=.16*bs;for(let i=0;i<260;i++){const q=((k*.8+i/260)%1),r=Math.sqrt((i*.618)%1)*O.len*.45;a[i*3]=Math.cos(i*2.4)*r;a[i*3+1]=q*1.1*bs-.4;a[i*3+2]=Math.sin(i*2.4)*r*.5}bubbles.geometry.attributes.position.needsUpdate=true}
+  if(k>6.2&&!SINK.swapped){SINK.swapped=1;shipRoot.remove(O.group);ship=buildShip(SHIPS[SINK.to].kind);shipI=SINK.to;shipRoot.add(ship.group);ship.group.add(captain);captain.position.copy(ship.bridge);ship.group.position.y=-ship.draft*4;placeEventProps();rebuild();moveWaterParts(true);snd("rise")}
+  if(k>=6.3){const v=prog(k,6.3,9);ship.group.position.y=lerp(-ship.draft*4,baseShipY(),ease(v));ship.group.rotation.z=0;
+    camera.position.lerp(new THREE.Vector3(ship.view.d*.95,ship.view.h*1.3,ship.view.d*.75),dt*1.2);
+    caption(`${SHIPS[SINK.to].emoji} הספינה הבאה: <em>${esc(SHIPS[SINK.to].name)}</em>`)}
+  if(k>9.2&&inWater&&!SINK.back){SINK.back=1;moveWaterParts(false);rebuild();snd("coin");flash(.6,.4)}
+  if(k>9.5)caption(`כולם על הסיפון! עכשיו צריך <em>${fmtN(SHIPS[SINK.to].cap)}</em> נוסעים כדי להטביע אותה 😈`);
+  if(k>13)endSink();
+}
+function endSink(){if(!SINK.on)return;SINK.on=false;bubbles.visible=false;$("#alarm").classList.remove("on");if(inWater)moveWaterParts(false);
+  const want=SINK.fake!==undefined?SINK.to:shipIdx(totalN());if(shipI!==want||!ship)setShip(want);else{placeBillet();spawnCoins();rebuild()}
+  caption("");$("#skip").hidden=true;if(!REEL)showUI();lstore("tb_ship",String(want));updateHud();
+  controls.minDistance=Math.max(3,ship.view.d*.18);controls.maxDistance=ship.view.d*2.6}
+function baseShipY(){return -Math.pow(fill(),1.5)*ship.draft*.7}
+
+/* ================= INTRO (la Terre → la mer) ================= */
+const space=new THREE.Scene();space.background=new THREE.Color("#02040B");
+{const n=2500,g=new THREE.BufferGeometry(),a=new Float32Array(n*3);for(let i=0;i<n;i++){const v=new THREE.Vector3().randomDirection?new THREE.Vector3().randomDirection():new THREE.Vector3(Math.random()-.5,Math.random()-.5,Math.random()-.5).normalize();v.multiplyScalar(60+Math.random()*40);a.set([v.x,v.y,v.z],i*3)}g.setAttribute("position",new THREE.BufferAttribute(a,3));space.add(new THREE.Points(g,new THREE.PointsMaterial({size:.18,color:0xffffff})))}
+space.add(new THREE.AmbientLight(0xffffff,.35));{const l=new THREE.DirectionalLight(0xffffff,1.1);l.position.set(5,2,6);space.add(l)}
+function noise2(seed){const R=rng(seed),g=new Float32Array(64*64).map(()=>R());const S=t=>t*t*(3-2*t);
+  return (x,y)=>{let s=0,a=.5,f=4;for(let o=0;o<5;o++){const X=x*f,Y=y*f,xi=Math.floor(X),yi=Math.floor(Y),xf=S(X-xi),yf=S(Y-yi),v=(i,j)=>g[((yi+j)&63)*64+((xi+i)&63)];s+=a*lerp(lerp(v(0,0),v(1,0),xf),lerp(v(0,1),v(1,1),xf),yf);a*=.5;f*=2}return s}}
+const earth=(()=>{const W=512,H=256,c=document.createElement("canvas");c.width=W;c.height=H;const x=c.getContext("2d"),img=x.createImageData(W,H),nz=noise2(3);
+  for(let j=0;j<H;j++)for(let i=0;i<W;i++){const v=nz(i/W,j/H),lat=Math.abs(j/H-.5)*2,k=(j*W+i)*4;let r,g,b;
+    if(lat>.86){r=g=b=240}else if(v>.53){const d=(v-.53)*5;r=60+d*90;g=140-d*30;b=60;if(lat<.35&&v>.6){r=196;g=170;b=110}}else{const d=v*.6;r=10+d*30;g=60+d*90;b=140+d*90}
+    img.data[k]=r;img.data[k+1]=g;img.data[k+2]=b;img.data[k+3]=255}
+  x.putImageData(img,0,0);const m=new THREE.Mesh(new THREE.SphereGeometry(1,64,48),new THREE.MeshLambertMaterial({map:new THREE.CanvasTexture(c)}));space.add(m);
+  const atm=new THREE.Mesh(new THREE.SphereGeometry(1.04,48,32),new THREE.MeshBasicMaterial({color:0x6FC3FF,transparent:true,opacity:.15,side:THREE.BackSide}));space.add(atm);return m})();
+const ED=new THREE.Vector3(Math.cos(33*Math.PI/180)*Math.cos(-33*Math.PI/180),Math.sin(33*Math.PI/180),Math.cos(33*Math.PI/180)*Math.sin(-33*Math.PI/180)).normalize();
+
+/* ================= SON ================= */
+const SND={ac:null,muted:false,master:null};
+function ensureAudio(){
+  if(SND.ac){if(SND.ac.state==="suspended")SND.ac.resume();return}
+  const AC=window.AudioContext||window.webkitAudioContext;if(!AC)return;const ac=new AC();SND.ac=ac;
+  const m=ac.createGain();m.gain.value=SND.muted?0:.9;m.connect(ac.destination);SND.master=m;
+  // vagues
+  const nb=ac.createBuffer(1,ac.sampleRate*3,ac.sampleRate),d=nb.getChannelData(0);for(let i=0;i<d.length;i++)d[i]=Math.random()*2-1;SND.noise=nb;
+  const src=ac.createBufferSource();src.buffer=nb;src.loop=true;const lp=ac.createBiquadFilter();lp.type="lowpass";lp.frequency.value=520;const wg=ac.createGain();wg.gain.value=.12;
+  const lfo=ac.createOscillator(),lg=ac.createGain();lfo.frequency.value=.13;lg.gain.value=.08;lfo.connect(lg);lg.connect(wg.gain);lfo.start();
+  src.connect(lp);lp.connect(wg);wg.connect(m);src.start();SND.waves=wg;
+  SND.music=ac.createGain();SND.music.gain.value=.16;SND.music.connect(m);SND.next=ac.currentTime+.2;SND.step=0;
+}
+function tone(f,t,dur,type,vol,dest,att=.01){const ac=SND.ac,o=ac.createOscillator(),g=ac.createGain();o.type=type;o.frequency.value=f;g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(vol,t+att);g.gain.exponentialRampToValueAtTime(.0008,t+dur);o.connect(g);g.connect(dest||SND.master);o.start(t);o.stop(t+dur+.05);return o}
+function noiseHit(t,dur,freq,vol,type="lowpass"){const ac=SND.ac,s=ac.createBufferSource();s.buffer=SND.noise;const f=ac.createBiquadFilter();f.type=type;f.frequency.value=freq;const g=ac.createGain();g.gain.setValueAtTime(vol,t);g.gain.exponentialRampToValueAtTime(.001,t+dur);s.connect(f);f.connect(g);g.connect(SND.master);s.start(t,Math.random()*2);s.stop(t+dur+.05)}
+const CH=[[196,246.94,293.66],[164.81,207.65,246.94],[174.61,220,261.63],[196,246.94,293.66]],SCALE=[392,440,493.88,587.33,659.25,783.99];
+function musicTick(){const ac=SND.ac;if(!ac||SND.muted)return;const spb=ev.type==="party"?.22:.36;
+  while(SND.next<ac.currentTime+.4){const t=SND.next,s=SND.step;
+    if(s%8===0)CH[(s/8|0)%4].forEach(f=>tone(f/2,t,spb*8,"triangle",.05,SND.music,.3));
+    if(s%2===0)tone(CH[(s/8|0)%4][0]/4,t,spb*1.4,"sine",.13,SND.music);
+    if(Math.random()<.55)tone(SCALE[Math.floor(Math.random()*SCALE.length)],t,spb*1.6,"triangle",.07,SND.music);
+    if(ev.type==="party"&&s%2===1)noiseHit(t,.05,7000,.06,"highpass");
+    SND.next+=spb;SND.step++}
+  if(Math.random()<.004)snd("gull")}
+function snd(k){const ac=SND.ac;if(!ac||SND.muted)return;const t=ac.currentTime;try{
+  if(k==="horn"){[110,116.5,82.4].forEach(f=>{const o=tone(f,t,2.6,"sawtooth",.09,null,.15)})}
+  else if(k==="splash"){noiseHit(t,1.4,1600,.5,"lowpass");noiseHit(t+.1,.8,4000,.15,"highpass")}
+  else if(k==="thunder"){noiseHit(t+.15,2.4,180,.7,"lowpass")}
+  else if(k==="gull"){const o=ac.createOscillator(),g=ac.createGain();o.type="sawtooth";o.frequency.setValueAtTime(1900,t);o.frequency.exponentialRampToValueAtTime(1100,t+.35);g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(.025,t+.04);g.gain.exponentialRampToValueAtTime(.001,t+.4);const f=ac.createBiquadFilter();f.type="bandpass";f.frequency.value=1500;o.connect(f);f.connect(g);g.connect(SND.master);o.start(t);o.stop(t+.45)}
+  else if(k==="blip"){tone(988,t,.12,"square",.05);tone(1318,t+.06,.14,"square",.05)}
+  else if(k==="coin"){[784,988,1318,1568].forEach((f,i)=>tone(f,t+i*.08,.3,"triangle",.09))}
+  else if(k==="win"){[523,659,784,1047,1319].forEach((f,i)=>tone(f,t+i*.1,.5,"triangle",.1))}
+  else if(k==="rise"){const o=ac.createOscillator(),g=ac.createGain();o.type="sine";o.frequency.setValueAtTime(120,t);o.frequency.exponentialRampToValueAtTime(600,t+2.5);g.gain.setValueAtTime(.12,t);g.gain.exponentialRampToValueAtTime(.001,t+2.8);o.connect(g);g.connect(SND.master);o.start(t);o.stop(t+2.9)}
+  else if(k==="whoosh"){noiseHit(t,.5,900,.25,"bandpass")}
+}catch(e){}}
+$("#muteBtn").onclick=()=>{SND.muted=!SND.muted;$("#muteBtn").textContent=SND.muted?"🔇":"🔊";if(SND.master)SND.master.gain.value=SND.muted?0:.9;if(!SND.muted)ensureAudio()};
+
+/* ================= UI ================= */
+const capEl=$("#cap");
+function caption(html){if(window.CAP){if(capEl._h!==html){capEl._h=html;capEl.innerHTML=html;capEl.style.opacity=html?1:0}return}
+  if(capEl._h!==html){capEl._h=html;capEl.style.opacity=0;setTimeout(()=>{if(capEl._h===html){capEl.innerHTML=html;capEl.style.opacity=html?1:0}},html?250:0)}}
+function flash(a=.8,d=.4){const f=$("#fade");f.style.transition="none";f.style.opacity=a;requestAnimationFrame(()=>{f.style.transition="opacity "+d+"s";f.style.opacity=0})}
+let mode="intro";
+function hideUI(h){["#top","#bottom","#chatBtn"].forEach(s=>$(s).classList.toggle("hide",h))}
+function showUI(){if(REEL)return;hideUI(false);mode="sea";pumpN();$("#bottom").hidden=false;updateJoinBtn()}
+function updateJoinBtn(){const b=$("#joinBtn");if(meName&&byH.has(meName)){b.textContent="🧍 הנוסע שלי";b.onclick=()=>{const p=byH.get(meName);if(p)select(p)}}else{b.textContent="🧍 עלו לסיפון";b.onclick=()=>openSheet("#joinSheet")}}
+function openSheet(id){closeSheets(id);$(id).classList.remove("closed");$("#bottom").classList.add("hide");$("#chatBtn").style.visibility="hidden"}
+function closeSheets(except){document.querySelectorAll(".sheet").forEach(s=>{if("#"+s.id!==except)s.classList.add("closed")});if(!except){$("#chatBtn").style.visibility="";if(mode==="sea"&&!REEL&&!pilotOn)$("#bottom").classList.remove("hide")}}
+document.querySelectorAll("[data-close]").forEach(b=>b.onclick=()=>{deselect();closeSheets()});
+
+/* sélection */
+let sel=null;const ring=new THREE.Mesh(new THREE.RingGeometry(.35,.5,24),new THREE.MeshBasicMaterial({color:0xFFC24B,side:THREE.DoubleSide,transparent:true,opacity:.9}));ring.rotation.x=-Math.PI/2;ring.visible=false;
+function worldOf(p,out){if(!p||!p.slot)return out.set(0,0,0);if(p.handle===meName&&pilotOn)out.copy(myPos);else out.set(p.slot.x,p.slot.y,p.slot.z);return ship.group.localToWorld(out)}
+let winsBy={};
+async function loadWins(){try{if(LIVE){const r=await sb("treasure_wins?select=handle");if(r.ok){winsBy={};(await r.json()).forEach(w=>winsBy[w.handle]=(winsBy[w.handle]||0)+1)}}}catch(e){}}
+function survived(p){return Math.max(0,shipI-(p.joined_ship||0))}
+function select(p,fly=true){
+  sel=p;if(!ship.group.children.includes(ring))ship.group.add(ring);ring.visible=true;
+  if(p.isCaptain)ring.position.set(ship.bridge.x,ship.bridge.y+.03,ship.bridge.z);else if(p.slot)ring.position.set(p.slot.x,p.slot.y+.03,p.slot.z);ring.scale.setScalar(p.isCaptain?2.2:figS*1.6);
+  $("#sHandle").textContent="@"+p.handle;
+  const tags=[];if(p.isCaptain)tags.push("👨‍✈️ הקפטן של הספינה");else{tags.push(p.vip?"⭐ VIP":"🧍 נוסע/ת");const s=survived(p);tags.push("🌊 שרד/ה "+s+" טביעות");
+    if(p.streak)tags.push("🔥 "+p.streak+" ימים ברצף");if(p.refs)tags.push("📣 הביא/ה "+p.refs+" חברים");if(winsBy[p.handle])tags.push("💸 "+winsBy[p.handle]+" שטרות");
+    if(sinks.some(s=>s.handle===p.handle))tags.push("💥 הטביע/ה ספינה!")}
+  $("#sMeta").innerHTML=tags.map(t=>`<span class="tag">${esc(t)}</span>`).join("");
+  const mine=p.handle===meName;$("#walkRow").hidden=!mine;$("#joinRow").hidden=mine||!!(meName&&byH.has(meName))||p.isCaptain;$("#shareRow").hidden=!mine;
+  $("#myBox").innerHTML=mine?myProgress(p):"";const ib=$("#inviteBtn");if(ib)ib.onclick=()=>invite(p.handle);
+  openSheet("#pSheet");if(fly)flyTo(p)}
+function deselect(){sel=null;ring.visible=false}
+function myProgress(p){const nx=(cur,steps)=>{for(const [n,l] of steps)if(cur<n)return {n,l};return null};
+  const a=nx(p.streak||0,[[3,"🕶️ משקפי שמש"],[7,"🎩 מגבעת"],[30,"👑 כתר"]]),b=nx(p.refs||0,[[1,"🎩 מגבעת"],[3,"⭐ אפוד זהב"],[10,"👑 כתר"]]);
+  return `<div class="mybox">🔥 <b>${p.streak||0}</b> ימים ברצף${a?` · עוד ${a.n-(p.streak||0)} ימים ל${a.l}`:""}<br>📣 <b>${p.refs||0}</b> חברים${b?` · עוד ${b.n-(p.refs||0)} ל${b.l}`:""}<br>🌊 כל חבר שמצטרף מקרב את הטביעה!<button class="btn ghost" id="inviteBtn">📣 הזמינו חברים (קישור אישי)</button></div>`}
+async function invite(h){const url=location.origin+location.pathname+"?from="+encodeURIComponent(h),text="עלו לספינה שלי! כל עוקב = נוסע, ואנחנו מנסים להטביע אותה 🚢🌊";
+  try{if(navigator.share){await navigator.share({title:"טובעים ביחד",text,url});return}}catch(e){return}
+  try{await navigator.clipboard.writeText(text+" "+url);toast("הקישור הועתק! שלחו לחברים 📣")}catch(e){prompt("העתיקו את הקישור:",url)}}
+const flyS={on:false};
+function flyTo(p,dur=1.4){const w=worldOf(p,new THREE.Vector3());if(p.isCaptain)ship.group.localToWorld(w.copy(ship.bridge));
+  flyS.on=true;flyS.t=0;flyS.dur=dur;flyS.fromT=controls.target.clone();flyS.toT=w.clone().add(new THREE.Vector3(0,.8*figS,0));flyS.fromP=camera.position.clone();
+  const dir=camera.position.clone().sub(controls.target).setY(0).normalize(),dist=Math.max(3.2,ship.view.d*.12);flyS.toP=flyS.toT.clone().add(dir.multiplyScalar(dist)).add(new THREE.Vector3(0,dist*.45,0));controls.autoRotate=false;snd("whoosh")}
+function flyFrame(dt){if(!flyS.on)return;flyS.t+=dt;const k=ease(clamp(flyS.t/flyS.dur,0,1));controls.target.lerpVectors(flyS.fromT,flyS.toT,k);camera.position.lerpVectors(flyS.fromP,flyS.toP,k);if(k>=1)flyS.on=false}
+
+/* recherche */
+const q=$("#q"),sugg=$("#sugg");
+function renderSugg(){const v=cleanHandle(q.value);if(!v){sugg.hidden=true;return}
+  const res=[];if(CAP_HANDLE().includes(v))res.push({handle:CAP_HANDLE(),isCaptain:true});for(const p of P){if(p.handle.includes(v))res.push(p);if(res.length>=7)break}
+  sugg.hidden=false;sugg.innerHTML=res.length?res.map(p=>`<button data-h="${esc(p.handle)}"><span>@${esc(p.handle)}</span><span>${p.isCaptain?"👨‍✈️":p.vip?"⭐":"🧍"}</span></button>`).join(""):`<div class="none" dir="rtl">לא מצאנו… עוד לא על הסיפון? <a href="#" id="sJoin" style="color:var(--gold)">עלו עכשיו</a></div>`;
+  sugg.querySelectorAll("button").forEach(b=>b.onclick=()=>{const h=b.dataset.h;sugg.hidden=true;q.value="";q.blur();if(h===CAP_HANDLE())select(captainP());else{const p=byH.get(h);if(p)select(p)}});
+  const sj=$("#sJoin");if(sj)sj.onclick=e=>{e.preventDefault();sugg.hidden=true;$("#joinIn").value="@"+v;openSheet("#joinSheet")}}
+q.oninput=renderSugg;q.onfocus=renderSugg;q.onkeydown=e=>{if(e.key==="Enter"){const b=sugg.querySelector("button");if(b)b.click()}};
+function captainP(){return {handle:CAP_HANDLE(),isCaptain:true}}
+
+/* inscription */
+async function join(){
+  const h=cleanHandle($("#joinIn").value),err=$("#joinErr");err.textContent="";
+  if(!HANDLE_RE.test(h)){err.textContent="שם משתמש לא תקין (אותיות באנגלית, מספרים, נקודה וקו תחתון)";return}
+  if(meName&&byH.has(meName)&&h!==meName){err.textContent="כבר יש לך נוסע על הסיפון: @"+meName+" (נוסע אחד לכל משתמש)";return}
+  $("#joinGo").disabled=true;
+  try{if(LIVE){const r=await rpc("join_passenger",{h,ref:lstore("tb_ref")||null});const j=await r.json();if(!r.ok){err.textContent="משהו לא עבד, נסו שוב";$("#joinGo").disabled=false;return}ingest(j)}
+    else ingest([{handle:h,vip:false,style:{},joined_ship:shipIdx(totalN()),refs:0,streak:1,best_streak:1,created_at:new Date().toISOString()}])}
+  catch(e){err.textContent="אין חיבור, נסו שוב";$("#joinGo").disabled=false;return}
+  $("#joinGo").disabled=false;meName=h;lstore("tb_me",h);closeSheets();snd("coin");dailyCheckIn();
+  const before=shipI;onCount();updateJoinBtn();
+  if(shipIdx(totalN())===before){const p=byH.get(h);setTimeout(()=>{select(p);toast("ברוכים הבאים לסיפון! 🚢")},300)}
+}
+$("#joinGo").onclick=join;$("#joinIn").onkeydown=e=>{if(e.key==="Enter")join()};$("#joinFromSheet").onclick=()=>openSheet("#joinSheet");
+async function dailyCheckIn(){if(!meName||!byH.has(meName))return;const p=byH.get(meName);
+  try{if(LIVE){const r=await rpc("check_in",{h:meName});if(!r.ok)return;const j=await r.json();if(!j[0])return;const prev=p.streak;p.streak=j[0].streak;p.best_streak=j[0].best_streak;if(p.streak>1&&p.streak!==prev)setTimeout(()=>toast("🔥 "+p.streak+" ימים ברצף על הסיפון!"),4000);rebuild()}}catch(e){}}
+
+/* admin */
+const REEL=/reel/.test(location.hash),ADMIN=location.hash==="#admin",SINKREPLAY=/sink/.test(location.hash);
+let adminPass="";
+function parseLine(line){
+  const parts=line.trim().split(/\s+/);if(!parts[0])return null;const handle=cleanHandle(parts[0]);if(!HANDLE_RE.test(handle))return {bad:parts[0]};
+  const rest=" "+parts.slice(1).join(" ")+" ",it={handle,style:{}};
+  if(/ הסר /.test(rest))return {handle,remove:true};
+  if(/ (תגובה|vip|VIP) /.test(rest))it.vip=true;else if(/ עוקב /.test(rest))it.vip=false;
+  for(const [w,c] of Object.entries(COLOR_WORDS))if(rest.includes(" "+w+" "))it.style.color=c;
+  for(const [w,h] of Object.entries(HAT_WORDS).sort((a,b)=>b[0].length-a[0].length))if(rest.includes(" "+w+" ")){it.style.hat=h;break}
+  if(rest.includes(" משקפי שמש ")||rest.includes(" משקפיים "))it.style.glasses=true;
+  return it}
+$("#adminGo").onclick=async()=>{
+  const lines=$("#adminList").value.split("\n").map(parseLine).filter(Boolean),bad=lines.filter(l=>l.bad),items=lines.filter(l=>!l.bad),err=$("#adminErr");
+  if(bad.length){err.textContent="שמות לא תקינים: "+bad.map(b=>b.bad).join(", ");return}if(!items.length){err.textContent="הרשימה ריקה";return}
+  err.textContent="שולח…";
+  try{if(LIVE){const r=await rpc("admin_upsert",{pass:$("#adminPass").value,items});if(!r.ok){err.textContent="סיסמה שגויה או שגיאה";return}adminPass=$("#adminPass").value;
+      for(const it of items)if(it.remove){const i=P.findIndex(p=>p.handle===it.handle);if(i>=0){P.splice(i,1);byH.delete(it.handle)}}
+      await loadAll();onCount()}
+    else{for(const it of items){if(it.remove){const i=P.findIndex(p=>p.handle===it.handle);if(i>=0){P.splice(i,1);byH.delete(it.handle)}}else{const o=byH.get(it.handle);if(o){if(it.vip!==undefined)o.vip=it.vip;o.style={...o.style,...it.style}}else ingest([{...it,joined_ship:shipIdx(totalN()),refs:0,streak:0,created_at:new Date().toISOString()}])}}onCount()}
+    err.textContent="✅ עודכנו "+items.length+" שמות";$("#adminList").value="";renderChat()}catch(e){err.textContent="שגיאת חיבור"}};
+$("#evGo").onclick=async()=>{const e={type:$("#evType").value,title:$("#evTitle").value.trim()},err=$("#adminErr");
+  try{if(LIVE){const r=await rpc("admin_set_event",{pass:$("#adminPass").value,ev:e});if(!r.ok){err.textContent="סיסמה שגויה או שגיאה";return}}setEvent(e);err.textContent="✅ האירוע עודכן"}catch(x){err.textContent="שגיאת חיבור"}};
+$("#newsGo").onclick=async()=>{const t=$("#newsT").value.trim(),b=$("#newsB").value.trim(),err=$("#adminErr");if(!t||!b){err.textContent="חסרים כותרת או תוכן";return}
+  try{if(LIVE){const r=await rpc("admin_post_news",{pass:$("#adminPass").value,title:t,body:b});if(!r.ok){err.textContent="סיסמה שגויה או שגיאה";return}}err.textContent="✅ פורסם";$("#newsT").value="";$("#newsB").value=""}catch(e){err.textContent="שגיאת חיבור"}};
+function openAdmin(){$("#gate").hidden=true;setTimeout(()=>openSheet("#adminSheet"),400)}
+function setEvent(e){const changed=(e&&e.type)!==ev.type;ev=e&&e.type?e:{type:"none"};$("#evType").value=ev.type;if(changed)placeEventProps();if(changed&&ev.type!=="none"&&ev.title&&mode==="sea")notify("⚠️ "+ev.title)}
+async function loadEvent(){if(!LIVE){const m=location.hash.match(/ev=(\w+)/);if(m)setEvent({type:m[1],title:""});return}try{const r=await sb("game_state?select=value&key=eq.event");if(r.ok){const j=await r.json();if(j[0])setEvent(j[0].value)}}catch(e){}}
+
+/* chat */
+const side=$("#side");let tab="chat",msgs=[],unread=0;
+const sideOpen=()=>!side.classList.contains("closed");
+function openSide(o){side.classList.toggle("closed",!o);if(o){unread=0;updBadge();renderChat(true);renderNew();renderTop()}}
+function updBadge(){const b=$("#chatBadge");b.hidden=!unread||sideOpen();b.textContent=unread>9?"9+":unread}
+$("#chatBtn").onclick=()=>openSide(true);$("#sideX").onclick=()=>openSide(false);
+document.querySelectorAll(".tabs button").forEach(b=>b.onclick=()=>{tab=b.dataset.tab;document.querySelectorAll(".tabs button").forEach(x=>x.classList.toggle("on",x===b));
+  $("#chatList").hidden=tab!=="chat";$("#newList").hidden=tab!=="new";$("#topList").hidden=tab!=="top";$("#chatForm").hidden=tab!=="chat";if(tab==="top")renderTop();if(tab==="new")renderNew()});
+function ago(d){const m=Math.floor((Date.now()-new Date(d))/6e4);if(m<1)return"עכשיו";if(m<60)return"לפני "+m+" דק׳";const h=Math.floor(m/60);if(h<24)return"לפני "+h+" שע׳";return"לפני "+Math.floor(h/24)+" ימים"}
+function renderChat(scroll){const el=$("#chatList");
+  el.innerHTML=msgs.length?msgs.map(m=>`<div class="msg${m.handle===meName?" mine":""}">${adminPass?`<button class="del" data-id="${m.id}" aria-label="מחיקה">🗑️</button>`:""}<span class="who" data-h="${esc(m.handle)}">@${esc(m.handle)}</span><span class="when">${ago(m.created_at)}</span><div>${esc(m.body)}</div></div>`).join(""):`<div class="empty">עוד אין הודעות. תהיו הראשונים לכתוב 👋</div>`;
+  el.querySelectorAll(".who").forEach(w=>w.onclick=()=>{const p=byH.get(w.dataset.h);if(p){openSide(false);select(p)}});
+  el.querySelectorAll(".del").forEach(d=>d.onclick=async()=>{try{const r=await rpc("admin_delete_message",{pass:adminPass,mid:+d.dataset.id});if(!r.ok)throw 0;msgs=msgs.filter(m=>m.id!==+d.dataset.id);renderChat()}catch(e){toast("המחיקה לא עבדה")}});
+  if(scroll)el.scrollTop=el.scrollHeight}
+function renderNew(){const el=$("#newList"),l=P.slice(-30).reverse();el.innerHTML=l.length?l.map(p=>`<button class="newrow" data-h="${esc(p.handle)}"><b>@${esc(p.handle)}</b><span>${p.vip?"⭐ ":""}${ago(p.created_at)}</span></button>`).join(""):`<div class="empty">אין עדיין נוסעים</div>`;
+  el.querySelectorAll(".newrow").forEach(b=>b.onclick=()=>{const p=byH.get(b.dataset.h);if(p){openSide(false);select(p)}})}
+let coinTop=[];
+async function loadCoinTop(){if(!LIVE)return;try{const r=await sb("coins?select=handle,today&day=eq."+ilDay()+"&today=gt.0&order=today.desc&limit=5");if(r.ok)coinTop=await r.json()}catch(e){}}
+function renderTop(){const el=$("#topList");const row=(p,v)=>`<button class="newrow" data-h="${esc(p.handle)}"><b>@${esc(p.handle)}</b><span>${v}</span></button>`;
+  const refs=P.filter(p=>p.refs>0).sort((a,b)=>b.refs-a.refs).slice(0,5),st=P.filter(p=>p.streak>1).sort((a,b)=>b.streak-a.streak).slice(0,5);
+  el.innerHTML=`<div class="sec">💥 מי הטביע את הספינות</div>${sinks.length?sinks.map(s=>row(s,SHIPS[s.ship_idx].emoji+" "+SHIPS[s.ship_idx].name)).join(""):`<div class="empty">עוד אף ספינה לא טבעה… אולי אתם?</div>`}
+  <div class="sec">🪙 מטבעות היום</div>${coinTop.length?coinTop.map(c=>row(c,"🪙 "+c.today)).join(""):`<div class="empty">הזיזו את הנוסע שלכם ואספו מטבעות!</div>`}
+  <div class="sec">📣 הכי הרבה חברים</div>${refs.length?refs.map(p=>row(p,"📣 "+p.refs)).join(""):`<div class="empty">הזמינו חברים עם הקישור האישי</div>`}
+  <div class="sec">🔥 הכי הרבה ימים ברצף</div>${st.length?st.map(p=>row(p,"🔥 "+p.streak)).join(""):`<div class="empty">חזרו מחר כדי להתחיל רצף</div>`}`;
+  el.querySelectorAll(".newrow").forEach(b=>b.onclick=()=>{const p=byH.get(b.dataset.h);if(p){openSide(false);select(p)}})}
+async function loadMsgs(){if(!LIVE)return;try{const r=await sb("messages?select=id,handle,body,created_at&order=id.desc&limit=60");if(!r.ok)return;const j=(await r.json()).reverse();
+  const nNew=j.filter(m=>!msgs.some(x=>x.id===m.id)&&m.handle!==meName).length;msgs=j;if(nNew&&!sideOpen()&&msgs.length){unread+=nNew;updBadge()}if(sideOpen())renderChat(true)}catch(e){}}
+$("#chatForm").onsubmit=async e=>{e.preventDefault();const body=$("#chatIn").value.trim();if(!body)return;
+  if(!meName||!byH.has(meName)){toast("קודם עולים לסיפון 🧍");openSide(false);openSheet("#joinSheet");return}
+  try{if(LIVE){const r=await rpc("post_message",{h:meName,body});if(!r.ok){const j=await r.json().catch(()=>({}));toast(String(j.message||"").includes("too_fast")?"לאט לאט… 10 שניות בין הודעות":String(j.message||"").includes("no_links")?"בלי קישורים בצ'אט 🙏":"ההודעה לא נשלחה");return}}
+    msgs.push({id:Date.now(),handle:meName,body,created_at:new Date().toISOString()});$("#chatIn").value="";renderChat(true);if(LIVE)setTimeout(loadMsgs,800)}catch(x){toast("אין חיבור")}};
+
+/* actualités */
+const DEFAULT_NEWS={id:"local-1",title:"ברוכים הבאים לסיפון! 🚢",body:"🌊 המטרה של כולנו: להטביע את הספינה!\n🧍 כל עוקב = נוסע. כל תגובה = VIP ⭐\n💸 3 שטרות של 20 ₪ מוסתרים על הסיפון כל יום\n📣 הזמינו חברים: כל חבר מקרב את הטביעה!"};
+async function showNews(){let n=DEFAULT_NEWS;try{if(LIVE){const r=await sb("news?select=id,title,body&order=id.desc&limit=1");if(r.ok){const j=await r.json();if(j[0])n=j[0]}}}catch(e){}
+  if(lstore("tb_news")===String(n.id))return;$("#newsTitle").textContent=n.title;$("#newsBody").textContent=n.body;$("#newsModal").hidden=false;
+  $("#newsOk").onclick=()=>{$("#newsModal").hidden=true;lstore("tb_news",String(n.id))}}
+
+/* partage story */
+$("#shareBtn").onclick=()=>{
+  const p=sel;if(!p)return;const W=1080,H=1920,c=document.createElement("canvas");c.width=W;c.height=H;const x=c.getContext("2d"),src=renderer.domElement;
+  renderer.render(sea,camera);const r=Math.max(W/src.width,H*.72/src.height),sw=src.width*r,sh=src.height*r;
+  x.fillStyle="#04192C";x.fillRect(0,0,W,H);x.drawImage(src,(W-sw)/2,0,sw,sh);
+  const g=x.createLinearGradient(0,H*.45,0,H);g.addColorStop(0,"rgba(4,25,44,0)");g.addColorStop(.35,"rgba(4,25,44,.92)");g.addColorStop(1,"#04192C");x.fillStyle=g;x.fillRect(0,0,W,H);
+  x.textAlign="center";x.direction="rtl";x.fillStyle="#fff";x.font="900 92px Heebo";x.fillText("טובעים ביחד 🚢",W/2,H*.7);
+  x.font="900 70px Heebo";x.fillStyle="#FFC24B";x.direction="ltr";x.fillText("@"+p.handle,W/2,H*.78);x.direction="rtl";
+  x.fillStyle="#fff";x.font="700 50px Heebo";const n=totalN(),cap=SHIPS[shipI].cap;x.fillText(`עליתי לסיפון! עוד ${fmtN(cap-n)} והיא טובעת 🌊`,W/2,H*.845);
+  x.font="700 44px Heebo";x.fillStyle="#9DC0DA";x.fillText("חפשו את עצמכם 🔗 בביו של @"+CONFIG.ACCOUNT,W/2,H*.9);
+  $("#shareImg").src=c.toDataURL("image/jpeg",.9);$("#shareView").hidden=false};
+$("#shareClose").onclick=()=>$("#shareView").hidden=true;
+
+/* ================= PILOTAGE ================= */
+let pilotOn=false,myYaw=0,myRect=null,vy=0;const keys={},joyV={x:0,y:0};
+function rectsAll(){return [...ship.walk,...ship.top]}
+function inRect(r,x,z){return x>=r.x0&&x<=r.x1&&z>=r.z0&&z<=r.z1}
+function startPilot(){const p=byH.get(meName);if(!p||!p.slot)return;pilotOn=true;myPos.set(p.slot.x,p.slot.y,p.slot.z);myRect=rectsAll().find(r=>Math.abs(r.y-p.slot.y)<.01&&inRect(r,p.slot.x,p.slot.z))||rectsAll()[0];
+  closeSheets();$("#pilot").hidden=false;$("#top").classList.add("hide");$("#bottom").classList.add("hide");$("#chatBtn").classList.add("hide");$("#pilotName").textContent="@"+meName;
+  controls.autoRotate=false;controls.minDistance=2;flyS.on=false;ring.visible=false;
+  if(billetActive())toast("💸 חפשו את השטר על הסיפון!");else toast("🪙 אספו מטבעות על הסיפון!");loadCoinTop()}
+function stopPilot(){pilotOn=false;$("#pilot").hidden=true;if(mode==="sea"&&!REEL){$("#top").classList.remove("hide");$("#bottom").classList.remove("hide");$("#chatBtn").classList.remove("hide")}controls.minDistance=Math.max(3,ship.view.d*.18);rebuild()}
+$("#walkBtn").onclick=startPilot;$("#exitPilot").onclick=stopPilot;
+$("#jumpB").onclick=()=>{if(myOff.jump<=0.001){vy=4.2;snd("whoosh")}};
+$("#deckB").onclick=()=>{const rs=rectsAll(),i=(rs.indexOf(myRect)+1)%rs.length;myRect=rs[i];myPos.set((myRect.x0+myRect.x1)/2,myRect.y,(myRect.z0+myRect.z1)/2);snd("whoosh")};
+addEventListener("keydown",e=>{keys[e.key.toLowerCase()]=true;if(pilotOn&&e.key===" ")$("#jumpB").click()});addEventListener("keyup",e=>keys[e.key.toLowerCase()]=false);
+{const joy=$("#joy"),knob=$("#knob");let id=null;
+  const mv=e=>{const r=joy.getBoundingClientRect(),cx=r.left+r.width/2,cy=r.top+r.height/2;let dx=e.clientX-cx,dy=e.clientY-cy;const L=Math.hypot(dx,dy),M=r.width/2-14;if(L>M){dx*=M/L;dy*=M/L}knob.style.transform=`translate(${dx}px,${dy}px)`;joyV.x=dx/M;joyV.y=dy/M};
+  joy.onpointerdown=e=>{id=e.pointerId;joy.setPointerCapture(id);mv(e)};joy.onpointermove=e=>{if(e.pointerId===id)mv(e)};
+  joy.onpointerup=joy.onpointercancel=e=>{if(e.pointerId!==id)return;id=null;knob.style.transform="";joyV.x=joyV.y=0}}
+const FWD=new THREE.Vector3(),RIGHT=new THREE.Vector3();
+function pilotFrame(t,dt){
+  let ix=joyV.x,iy=joyV.y;if(keys["arrowleft"]||keys["a"])ix=-1;if(keys["arrowright"]||keys["d"])ix=1;if(keys["arrowup"]||keys["w"])iy=-1;if(keys["arrowdown"]||keys["s"])iy=1;
+  camera.getWorldDirection(FWD);FWD.y=0;FWD.normalize();RIGHT.crossVectors(FWD,YA).normalize();
+  const sp=3*Math.max(.6,figS*1.3),mx=(RIGHT.x*ix-FWD.x*iy)*sp*dt,mz=(RIGHT.z*ix-FWD.z*iy)*sp*dt;
+  if(Math.abs(ix)+Math.abs(iy)>.05){myYaw=Math.atan2(mx,mz);const nx=myPos.x+mx,nz=myPos.z+mz;
+    if(inRect(myRect,nx,nz)){myPos.x=nx;myPos.z=nz}else{const o=rectsAll().find(r=>Math.abs(r.y-myRect.y)<.05&&inRect(r,nx,nz));if(o){myRect=o;myPos.x=nx;myPos.z=nz}else{if(inRect(myRect,nx,myPos.z))myPos.x=nx;if(inRect(myRect,myPos.x,nz))myPos.z=nz}}}
+  myPos.y=myRect.y;vy-=11*dt;myOff.jump=Math.max(0,myOff.jump+vy*dt);if(myOff.jump===0)vy=0;
+  const w=ship.group.localToWorld(myPos.clone()).add(new THREE.Vector3(0,.8*figS,0));controls.target.lerp(w,dt*6);
+  const d=camera.position.distanceTo(controls.target);if(d>5)camera.position.lerp(controls.target.clone().add(camera.position.clone().sub(controls.target).normalize().multiplyScalar(5)),dt*2);
+  if(billetActive()&&noteMesh.visible&&Math.hypot(noteMesh.position.x-myPos.x,noteMesh.position.z-myPos.z)<Math.max(.8,figS*1.2)&&Math.abs(noteMesh.position.y-.45-myPos.y)<1.2)treasureFound();
+  updateCoins(t);
+}
+
+/* ================= ÉTIQUETTES ================= */
+const lblBox=$("#lbls"),POOL=40,pool=[];
+for(let i=0;i<POOL;i++){const d=document.createElement("div");d.className="lbl3";d.style.display="none";lblBox.appendChild(d);pool.push(d)}
+const capLbl=document.createElement("div");capLbl.className="lbl3 cap";capLbl.style.display="none";lblBox.appendChild(capLbl);
+let lblList=[],lblT=0;const TV=new THREE.Vector3();
+function pickLabels(){const cp=camera.position,arr=[];
+  for(const p of draw){if(!p.slot)continue;worldOf(p,TV);if(inWater)TV.set(0,0,0);const d=TV.distanceToSquared(cp);arr.push([d,p])}
+  arr.sort((a,b)=>(b[1].handle===meName)-(a[1].handle===meName)||(b[1]===sel)-(a[1]===sel)||a[0]-b[0]);lblList=arr.slice(0,POOL).map(a=>a[1])}
+function placeLabels(t){
+  if(mode!=="sea"&&!REEL||inWater||!ship||SINK.on){pool.forEach(d=>d.style.display="none");capLbl.style.display="none";return}
+  if(t-lblT>.25){lblT=t;pickLabels()}
+  const W=innerWidth,H=innerHeight;
+  pool.forEach((d,i)=>{const p=lblList[i];if(!p){d.style.display="none";return}
+    worldOf(p,TV);TV.y+=1.6*figS*(p.handle===meName?1.15:1)+(p.handle===meName&&pilotOn?myOff.jump:0);TV.project(camera);
+    if(TV.z>1||Math.abs(TV.x)>1.1||Math.abs(TV.y)>1.1){d.style.display="none";return}
+    const txt="@"+p.handle;if(d._t!==txt){d._t=txt;d.textContent=txt}
+    const cls="lbl3"+(p.handle===meName?" me":p.vip?" vip":"");if(d.className!==cls)d.className=cls;
+    d.style.display="";d.style.transform=`translate(${(TV.x*.5+.5)*W}px,${(-TV.y*.5+.5)*H}px) translate(-50%,-100%)`});
+  if(captain){captain.getWorldPosition(TV);TV.y+=3.3;TV.project(camera);if(TV.z<1&&Math.abs(TV.x)<1.1&&Math.abs(TV.y)<1.1){capLbl.style.display="";capLbl.textContent="👨‍✈️ @"+CAP_HANDLE();capLbl.style.transform=`translate(${(TV.x*.5+.5)*W}px,${(-TV.y*.5+.5)*H}px) translate(-50%,-100%)`}else capLbl.style.display="none"}
+}
+
+/* clic sur un passager */
+const ray=new THREE.Raycaster(),mouse=new THREE.Vector2();let downAt=null;
+renderer.domElement.addEventListener("pointerdown",e=>{downAt=[e.clientX,e.clientY];controls.autoRotate=false;sugg.hidden=true;q.blur()});
+renderer.domElement.addEventListener("pointerup",e=>{if(!downAt||mode!=="sea"||pilotOn)return;if(Math.hypot(e.clientX-downAt[0],e.clientY-downAt[1])>6)return;
+  mouse.set(e.clientX/innerWidth*2-1,-e.clientY/innerHeight*2+1);ray.setFromCamera(mouse,camera);
+  const hits=ray.intersectObjects([inst.torso,inst.head,inst.legs,captain].filter(Boolean),true);
+  if(hits.length){const h=hits[0];if(h.instanceId!==undefined){const p=draw[h.instanceId];if(p)select(p,false)}else select(captainP(),false)}
+  else{deselect();closeSheets()}});
+
+/* ================= INTRO / REEL ================= */
+let introT=-1,END=7.6,started=false;const camIntro={};
+function introFrame(t,dt){
+  if(introT<0)introT=0;introT+=dt;const k=introT;
+  if(k<4.4){const u=ease(prog(k,0,4.4)),dist=lerp(7,1.12,u);camera.position.copy(ED).multiplyScalar(dist).add(new THREE.Vector3(0,lerp(.8,0,u),0));camera.up.set(0,1,0);camera.lookAt(ED.clone().multiplyScalar(lerp(0,.95,u)));earth.rotation.y=k*.03;
+    caption(k<1.6?"יש ספינה אחת…":k<3.4?"וכולנו <em>עליה</em> 🚢":"");renderer.render(space,camera);if(k>4.15&&!camIntro.f){camIntro.f=1;flash(1,.9);snd("whoosh")}return}
+  const k2=k-4.4,c=ship.view,u=ease(prog(k2,0,3.2));
+  camera.position.set(lerp(c.d*.2,c.d*.95,u),lerp(c.d*2.2,c.h*1.3,u),lerp(c.d*.1,c.d*.75,u));controls.target.set(0,c.h*.3,0);camera.lookAt(controls.target);
+  const n=totalN(),cap=SHIPS[shipI].cap;
+  caption(k2<1.4?"כל עוקב = <em>נוסע</em> 🧍":k2<2.8?"המטרה: <em>להטביע אותה</em> 🌊":`עוד <em>${fmtN(cap-n)}</em> נוסעים… והיא טובעת!`);
+  if(k>=END)endIntro();
+}
+function endIntro(){if(mode==="sea")return;mode="sea";$("#gate").hidden=true;caption("");$("#skip").hidden=true;controls.enabled=true;lstore("tb_seen","1");
+  if(REEL){startReel();return}showUI();showNews();
+  const last=lstore("tb_ship");if(last!==null&&+last<shipI&&shipI>=1){setTimeout(()=>startSink(shipI-1,shipI),600)}else lstore("tb_ship",String(shipI));
+  if(lstore("tb_ref"))setTimeout(()=>{if(!meName)openSheet("#joinSheet")},1500)}
+$("#skip").onclick=()=>{if(SINK.on){endSink();return}introT=END;caption("");endIntro()};
+$("#enter").onclick=()=>{ensureAudio();$("#gate").hidden=true;$("#skip").hidden=false;started=true};
+
+/* reel : tour des nouveaux passagers du jour */
+const REELS={on:false,t:0,list:[]};
+function startReel(){REELS.on=true;REELS.t=0;const today=ilDay();let l=P.filter(p=>new Date(p.created_at).toLocaleDateString("en-CA",{timeZone:"Asia/Jerusalem"})===today);if(l.length<3)l=P.slice(-6);REELS.list=l.slice(-8);
+  $("#reelTop").hidden=false;$("#reelDay").textContent="יום "+dayNumber();$("#reelN").textContent=`${fmtN(totalN())}/${fmtN(SHIPS[shipI].cap)} נוסעים`;controls.autoRotate=false}
+function reelFrame(t,dt){REELS.t+=dt;const k=REELS.t,per=1.8,i=Math.floor(k/per);
+  if(i<REELS.list.length){const p=REELS.list[i];if(!flyS.on&&REELS.cur!==p){REELS.cur=p;flyTo(p,.9)}caption(`<em dir="ltr">@${esc(p.handle)}</em> עלה/תה לסיפון 🧍`)}
+  else{const c=ship.view;camera.position.lerp(new THREE.Vector3(c.d*.9,c.h*1.3,c.d*.7),dt);controls.target.lerp(new THREE.Vector3(0,c.h*.3,0),dt*2);
+    caption(`עוד <em>${fmtN(SHIPS[shipI].cap-totalN())}</em> נוסעים… והספינה טובעת 🌊`)}}
+
+/* ================= BOUCLE ================= */
+const clock=new THREE.Clock();
+function loop(){
+  if(!window.CAP)requestAnimationFrame(loop);
+  const dt=window.CAP?1/30:Math.min(clock.getDelta(),.05),t=window.CAP?(window.capT=(window.capT||0)+1/30):clock.elapsedTime;
+  if(window.CAP&&window.capHook)window.capHook(t);
+  if(SND.ac)musicTick();
+  if(mode==="intro"&&!started){earth.rotation.y=t*.04;camera.position.copy(ED).multiplyScalar(4.2).add(new THREE.Vector3(0,.9,0));camera.lookAt(0,0,0);renderer.render(space,camera);return}
+  if(mode==="intro"&&started&&ship){introFrame(t,dt);if(introT<4.4)return}
+  updateWater(t);evFrame(t,dt);
+  if(ship&&!SINK.on){const y=baseShipY();ship.group.position.y=y+waveY(0,0,t)*.45;ship.group.rotation.z=-fill()*.06+(waveY(3,0,t)-waveY(-3,0,t))*.02;ship.group.rotation.x=(waveY(0,2,t)-waveY(0,-2,t))*.03}
+  if(SINK.on)sinkFrame(t,dt);
+  if(captain&&captain.userData.halo)captain.children[1].rotation.z=t;
+  if(draw.length&&(draw.length<=1500||pilotOn||inWater||ev.type==="party"))writeAll(t,false);
+  if(pilotOn)pilotFrame(t,dt);else flyFrame(dt);
+  if(REELS.on)reelFrame(t,dt);
+  if(noteMesh.visible){noteMesh.rotation.y=t*1.5;noteMesh.children[0].position.y=Math.sin(t*2.5)*.12;noteMesh.userData.glow.material.opacity=.18+Math.sin(t*4)*.1}
+  if(mode==="sea"&&controls.enabled&&!SINK.on)controls.update();else if(mode==="sea")camera.lookAt(controls.target);
+  renderer.render(sea,camera);placeLabels(t);
+}
+function burstAt(obj){flash(.5,.5)}
+window.loop=loop;
+
+/* ================= DÉMARRAGE ================= */
+(async function boot(){
+  const ref=new URLSearchParams(location.search).get("from");if(ref&&HANDLE_RE.test(cleanHandle(ref)))lstore("tb_ref",cleanHandle(ref));
+  setShip(shipIdx(0));if(!window.CAP)loop();
+  try{await Promise.race([loadAll(),new Promise(r=>setTimeout(r,6000))])}catch(e){toast("בעיית חיבור… מנסים שוב")}
+  setShip(shipIdx(totalN()));updateHud();updateJoinBtn();
+  await loadEvent();refreshBillet();loadWins();loadMsgs();loadCoinTop();dailyCheckIn();
+  if(ADMIN){mode="sea";controls.enabled=true;$("#gate").hidden=true;showUI();openAdmin();const c=ship.view;camera.position.set(c.d*.95,c.h*1.3,c.d*.75);controls.target.set(0,c.h*.3,0)}
+  else if(REEL||SINKREPLAY||window.CAP){$("#gate").hidden=true;started=true;
+    if(SINKREPLAY){mode="sea";controls.enabled=true;hideUI(true);const c=ship.view;camera.position.set(c.d*.95,c.h*1.3,c.d*.75);controls.target.set(0,c.h*.3,0);
+      if(shipI>=1)startSink(shipI-1,shipI);else{const n=totalN();startSink(0,1);SINK.fake=n}}}
+  setInterval(poll,20000);setInterval(loadMsgs,8000);setInterval(refreshBillet,30000);setInterval(renderHunt,1000);setInterval(loadEvent,60000);setInterval(()=>{loadWins();loadCoinTop()},60000);
+})();
+</script>
+</body>
+</html>
