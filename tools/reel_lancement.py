@@ -1,7 +1,7 @@
 """Reel de lancement « טובעים ביחד » : capture image par image (1080×1920, 30 i/s) du vrai jeu.
 Usage : python3 tools/reel_lancement.py <dossier_three3> <dossier_images>
 Les passagers des scènes de démonstration sont anonymes (aucune étiquette @)."""
-import sys, os, time, json
+import sys, os, time, json, re
 from playwright.sync_api import sync_playwright
 
 SP, OUT = sys.argv[1], sys.argv[2]
@@ -10,6 +10,7 @@ F = SP + "/node_modules/@fontsource/heebo/files/"
 os.makedirs(OUT, exist_ok=True)
 ONLY = os.environ.get("ONLY")  # pour tester une seule scène
 SAMPLE = int(os.environ.get("SAMPLE", "1"))  # 1 = toutes les images
+FROM = int(os.environ.get("FROM", "0"))  # reprendre une capture : images déjà faites jusqu'à FROM-1
 
 src = open("index.html").read()
 html = src.split("<body>", 1)[1].rsplit("</body>", 1)[0]
@@ -63,7 +64,7 @@ def main():
 
         def shot(js=""):
             pg.evaluate("loop();" + js)
-            if frame[0] % SAMPLE == 0:
+            if frame[0] >= FROM and frame[0] % SAMPLE == 0:
                 pg.screenshot(path=f"{OUT}/f{frame[0]:05d}.jpg", type="jpeg", quality=92, timeout=180000)
             frame[0] += 1
 
@@ -74,7 +75,7 @@ def main():
             pg.evaluate(setup)
             n = int(round(seconds * 30))
             for i in range(n):
-                shot(per.replace("K", f"{i/30:.4f}"))
+                shot(re.sub(r"\bK\b", f"{i/30:.4f}", per))
             print(name, "images", start, "->", frame[0] - 1, flush=True)
 
         # A. Hook (1,5 s) : la barque en gros plan qui tangue
