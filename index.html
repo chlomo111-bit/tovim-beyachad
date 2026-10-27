@@ -566,7 +566,7 @@ function ingest(rows,announce){
 function demoData(n){
   const A=["yam","gal","sea","noa","itay","shir","dor","maya","tal","omer","lia","ben","roni","adi","eli","neta","ido","yael","guy","mika"],B=["_sail",".boat","_wave","22","_il","x","_99",".tlv","_blue","007"];
   const R=rng(42),out=[],now=Date.now(),used=new Set();
-  for(let i=0;i<n;i++){let h;do{h=A[Math.floor(R()*A.length)]+B[Math.floor(R()*B.length)]+(R()<.4?Math.floor(R()*90):"")}while(used.has(h));used.add(h);
+  for(let i=0;i<n;i++){let h,tries=0;do{h=A[Math.floor(R()*A.length)]+B[Math.floor(R()*B.length)]+(R()<.4?Math.floor(R()*90):"");if(++tries>20)h+="_"+i}while(used.has(h));used.add(h);
     out.push({handle:h,vip:R()<.25,style:{},joined_ship:shipIdx(i),refs:R()<.15?1+Math.floor(R()*3):0,streak:Math.floor(R()*5),best_streak:5,created_at:new Date(now-(n-i)*3.6e6*(R()*2)).toISOString()})}
   return out}
 async function loadAll(){
