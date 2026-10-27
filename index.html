@@ -1004,16 +1004,16 @@ renderer.domElement.addEventListener("pointerup",e=>{if(!downAt||mode!=="sea"||p
   else{deselect();closeSheets()}});
 
 /* ================= INTRO / REEL ================= */
-const IT={space:3.2,cap1:1.5,a:1.1,b:3.6,end:9}; // phases de l'intro (secondes), calées sur la voix
+const IT={space:2.85,cap1:1.42,a:1.45,q:2.95,b:4.45,end:9.6}; // phases de l'intro (secondes), calées sur la voix
 let introT=-1,END=IT.end,started=false;const camIntro={};
 function introFrame(t,dt){
-  if(introT<0)introT=0;introT+=dt;const k=introT;
+  if(introT<0)introT=0;introT+=dt;if(VOICE&&!VOICE.paused&&VOICE.currentTime>0&&Math.abs(VOICE.currentTime-introT)>.12&&introT<8.5)introT=VOICE.currentTime;const k=introT;
   if(k<IT.space){const u=ease(prog(k,0,IT.space)),dist=lerp(7,1.12,u);camera.position.copy(ED).multiplyScalar(dist).add(new THREE.Vector3(0,lerp(.8,0,u),0));camera.up.set(0,1,0);camera.lookAt(ED.clone().multiplyScalar(lerp(0,.95,u)));earth.rotation.y=k*.03;
     caption(k<IT.cap1?"יש ספינה אחת בים…":"וכולנו <em>עליה</em> 🚢");renderer.render(space,camera);if(k>IT.space-.25&&!camIntro.f){camIntro.f=1;flash(1,.9);snd("whoosh")}return}
   const k2=k-IT.space,c=ship.view,u=ease(prog(k2,0,4.2));
   camera.position.set(lerp(c.d*.2,c.d*.95,u),lerp(c.d*2.2,c.h*1.3,u),lerp(c.d*.1,c.d*.75,u));controls.target.set(0,c.h*.3,0);camera.lookAt(controls.target);
   const n=totalN(),cap=SHIPS[shipI].cap;
-  caption(k2<IT.a?"כל עוקב = <em>נוסע</em> 🧍":k2<IT.b?"המטרה: <em>להטביע אותה</em> 🌊":`עלו לסיפון! עוד <em>${fmtN(cap-n)}</em> והיא טובעת`);
+  caption(k2<IT.a?"כל עוקב = <em>נוסע</em> 🧍":k2<IT.q?"והמטרה של כולנו?":k2<IT.b?"<em>להטביע אותה!</em> 🌊😈":`עלו לסיפון! עוד <em>${fmtN(cap-n)}</em> והיא טובעת`);
   if(k>=END)endIntro();
 }
 function endIntro(){if(mode==="sea")return;mode="sea";$("#gate").hidden=true;caption("");$("#skip").hidden=true;controls.enabled=true;lstore("tb_seen","1");
