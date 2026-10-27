@@ -112,14 +112,14 @@ def main():
 
         # F. Le badge (2,5 s) : gros plan sur un passager avec couronne et gilet doré
         scene("badge", 3.5,
-              "mode='sea';started=true;R.reset(14);setShip(1);R.hideTop();{const p=draw[2];p.style={hat:'crown'};p.vip=true;rebuild();window._bp=p}",
-              "{const w=worldOf(_bp,new THREE.Vector3());R.cam(w.x+2.6-K*.25,w.y+1.3,w.z+1.6,w.x,w.y+.8*figS,w.z)}"
+              "mode='sea';started=true;R.reset(3);setShip(1);R.hideTop();{const p=draw[0];p.style={hat:'crown'};p.vip=true;rebuild();p.look.yaw=0.89;window._bp=p}",
+              "{const w=worldOf(_bp,new THREE.Vector3());R.cam(w.x+3.6-K*.25,w.y+1.5,w.z+2.9,w.x,w.y+.05,w.z)}"
               "R.cap('💥 מי שמטביע את הספינה <em>מקבל תג מיוחד</em><small>🌊 כל טביעה = עוד תג לנוסעים</small>')")
 
         # G. Le billet (3 s) : un billet de 20 ₪ qui brille sur le pont
         scene("billet", 4.6,
-              "mode='sea';started=true;R.reset(6);setShip(1);CONFIG.BILLET.on=true;billet={day:'d',slot:1,prize:20,winner:null};placeBillet();noteMesh.position.set(1.2,1.35,0);noteMesh.scale.setScalar(2.2);flash(.6,.4)",
-              "{const n=noteMesh.position.clone();ship.group.localToWorld(n);R.cam(n.x+1.9-K*.2,n.y+1.3,n.z+1.6,n.x,n.y-.1,n.z)}"
+              "mode='sea';started=true;refreshBillet=()=>{};R.reset(0);setShip(1);CONFIG.BILLET.on=true;billet={day:'d',slot:1,prize:20,winner:null};placeBillet();noteMesh.position.set(1.2,1.35,0);noteMesh.scale.setScalar(2.2);flash(.6,.4)",
+              "{noteMesh.visible=true;if(noteMesh.parent!==ship.group)ship.group.add(noteMesh);const n=noteMesh.position.clone();ship.group.localToWorld(n);R.cam(n.x+3.4-K*.3,n.y+2.3,n.z+2.8,n.x,n.y-.9,n.z)}"
               "R.cap('💸 <em>3 שטרות של 20₪</em> מוסתרים כל יום')")
         pg.evaluate("CONFIG.BILLET.on=false;billet=null;noteMesh.scale.setScalar(1);placeBillet()")
 
