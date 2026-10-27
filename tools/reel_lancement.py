@@ -127,7 +127,7 @@ def main():
         scene("regles", 4.6,
               "R.reset(10);setShip(0);R.hideTop()",
               "R.orbit(K,7,2.6,0.4,2.2,0.15);{const L=['➕ עקבו = <em>עולים לסיפון</em>','💬 כתבו \"עולה\" = <em>נוסע VIP</em> ⭐','❤️ לייק = עוד אנשים <em>מגלים את הספינה</em>'];"
-              "const n=K<1.25?0:K<2.3?1:K<3.3?2:3;R.cap(n?'<span style="font-size:50px;line-height:1.35">'+L.slice(0,n).join('<br>')+'</span>':'אז איך <em>עולים לסיפון?</em>')}")
+              "const n=K<1.25?0:K<2.3?1:K<3.3?2:3;R.cap(n?'<span style=\"font-size:50px;line-height:1.35\">'+L.slice(0,n).join('<br>')+'</span>':'אז איך <em>עולים לסיפון?</em>')}")
 
         # I. Fin (3,5 s)
         scene("fin", 3.6,
