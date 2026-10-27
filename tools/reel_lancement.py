@@ -60,7 +60,7 @@ def main():
         time.sleep(4)
         pg.evaluate(DIRECTOR)
         pg.evaluate("billet=null;applyBillet&&applyBillet();CONFIG.BILLET.on=false;noteMesh.visible=false;SND.muted=true")
-        frame = [0]
+        frame = [int(os.environ.get("START", "0"))]  # START : numéro de la 1re image quand on refait seulement quelques scènes (ONLY)
 
         def shot(js=""):
             pg.evaluate("loop();" + js)
@@ -112,27 +112,27 @@ def main():
 
         # F. Le badge (2,5 s) : gros plan sur un passager avec couronne et gilet doré
         scene("badge", 3.5,
-              "R.reset(60);setShip(1);R.hideTop();{const p=draw[5];p.style={hat:'crown'};p.vip=true;rebuild();window._bp=p}",
-              "{const w=worldOf(_bp,new THREE.Vector3());R.cam(w.x+2.2-K*.3,w.y+1.5,w.z+2.2,w.x,w.y+.7*figS,w.z)}"
+              "R.reset(14);setShip(1);R.hideTop();{const p=draw[2];p.style={hat:'crown'};p.vip=true;rebuild();window._bp=p}",
+              "{const w=worldOf(_bp,new THREE.Vector3());R.cam(w.x+2.6-K*.25,w.y+1.3,w.z+1.6,w.x,w.y+.8*figS,w.z)}"
               "R.cap('💥 מי שמטביע את הספינה <em>מקבל תג מיוחד</em><small>🌊 כל טביעה = עוד תג לנוסעים</small>')")
 
         # G. Le billet (3 s) : un billet de 20 ₪ qui brille sur le pont
         scene("billet", 4.6,
-              "R.reset(40);setShip(1);CONFIG.BILLET.on=true;billet={day:'d',slot:1,prize:20,winner:null};placeBillet();flash(.6,.4)",
-              "{const n=noteMesh.position.clone();ship.group.localToWorld(n);R.cam(n.x+2.4-K*.4,n.y+1.4,n.z+2.4,n.x,n.y,n.z)}"
+              "R.reset(6);setShip(1);CONFIG.BILLET.on=true;billet={day:'d',slot:1,prize:20,winner:null};placeBillet();noteMesh.position.set(1.2,1.35,0);noteMesh.scale.setScalar(2.2);flash(.6,.4)",
+              "{const n=noteMesh.position.clone();ship.group.localToWorld(n);R.cam(n.x+3.2-K*.35,n.y+2.2,n.z+2.6,n.x,n.y-.2,n.z)}"
               "R.cap('💸 <em>3 שטרות של 20₪</em> מוסתרים כל יום')")
-        pg.evaluate("CONFIG.BILLET.on=false;billet=null;placeBillet()")
+        pg.evaluate("CONFIG.BILLET.on=false;billet=null;noteMesh.scale.setScalar(1);placeBillet()")
 
         # H. Les règles (4,5 s)
         scene("regles", 4.6,
               "R.reset(10);setShip(0);R.hideTop()",
               "R.orbit(K,7,2.6,0.4,2.2,0.15);{const L=['➕ עקבו = <em>עולים לסיפון</em>','💬 כתבו \"עולה\" = <em>נוסע VIP</em> ⭐','❤️ לייק = עוד אנשים <em>מגלים את הספינה</em>'];"
-              "const n=K<1.25?0:K<2.3?1:K<3.3?2:3;R.cap(n?L.slice(0,n).join('<br>'):'אז איך <em>עולים לסיפון?</em>')}")
+              "const n=K<1.25?0:K<2.3?1:K<3.3?2:3;R.cap(n?'<span style="font-size:50px;line-height:1.35">'+L.slice(0,n).join('<br>')+'</span>':'אז איך <em>עולים לסיפון?</em>')}")
 
         # I. Fin (3,5 s)
         scene("fin", 3.6,
               "R.reset(0);setShip(0);R.top('25','מקומות בסירה הראשונה')",
-              "R.orbit(K,5.5+K*.6,2+K*.3,0.3,3.0,0.1);R.cap('🚢 הספינה <em>מחכה רק לכם!</em><small>הקישור בביו 🔗</small>')")
+              "R.orbit(K,7.5+K*.5,3+K*.3,0.3,0.7,0.1);R.cap('🚢 הספינה <em>מחכה רק לכם!</em><small>הקישור בביו 🔗</small>')")
 
         print("TOTAL images", frame[0], "ERREURS", errs[:5])
         b.close()
