@@ -24,7 +24,7 @@ Shlomo a donné l'autonomie complète le 28.10.2026 : stories, reels, réponses 
 
 ## Règlement des commentaires (à appliquer à chaque passage)
 1. Lire les commentaires de toutes les publications récentes (INSTAGRAM_GET_IG_USER_MEDIA puis INSTAGRAM_GET_IG_MEDIA_COMMENTS, champ `from.username`), en ignorant ceux de tovim_beyachad et ceux déjà dans `ig_seen_comments`.
-2. Tout commentateur devient passager VIP ⭐ : `insert into passengers(handle, vip, joined_ship) values (lower('<handle>'), true, ship_index((select count(*) from passengers))) on conflict (handle) do update set vip = true;`
+2. Tout commentateur devient passager VIP ⭐ (SAUF chlomo.assouline = Shlomo lui-même : lui répondre normalement mais ne jamais l'ajouter comme passager) : `insert into passengers(handle, vip, joined_ship) values (lower('<handle>'), true, ship_index((select count(*) from passengers))) on conflict (handle) do update set vip = true;`
 3. Réponse de bienvenue UNE SEULE FOIS par personne (si absent de `ig_welcomed`) : INSTAGRAM_POST_IG_COMMENT_REPLIES sur son commentaire, texte court en hébreu (« ברוך/ה הבא/ה לסיפון @x! 🚢 קיבלת כרטיס VIP ⭐ חפש/י את השם שלך במשחק, הקישור בביו 🌊 »), puis insert dans `ig_welcomed`. Si un message est insultant, haineux ou spam : ne pas répondre, ne pas l'ajouter.
 3b. Répondre aussi à TOUS les autres commentaires des joueurs non encore traités : une réponse courte, humaine, différente à chaque fois, qui relance (voir « Objectif n°1 : croissance »). Une seule réponse par commentaire.
 3c. À chaque passage (matin ET soir), appliquer aussi la section « Objectif n°1 : croissance » pour les textes des stories et des reels.
