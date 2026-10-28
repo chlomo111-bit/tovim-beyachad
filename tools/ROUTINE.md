@@ -1,0 +1,42 @@
+# Routine autonome — טובעים ביחד (@tovim_beyachad)
+
+Shlomo a donné l'autonomie complète le 28.10.2026 : stories, reels, réponses de bienvenue et gestion des passagers, SANS lui demander de confirmation. La SEULE chose qu'on lui demande : l'enregistrement vocal (MP3 ElevenLabs) des reels. Le prévenir uniquement en cas de problème grave (connexion cassée, mauvais compte, publication impossible), en français, en une phrase.
+
+## Identifiants
+- Instagram (Composio) : compte `instagram_odoom-cither` UNIQUEMENT (username tovim_beyachad, ig_user_id `39487392790907301`). Vérifier le username avant toute action. JAMAIS hakaveret_shelanu ni chlomo_assouline. Si la connexion est expirée (session invalidée) : envoyer à Shlomo un lien COMPOSIO_MANAGE_CONNECTIONS (add, alias tovim_beyachad_v3) et s'arrêter.
+- Supabase (Composio, SUPABASE_BETA_RUN_SQL_QUERY) : compte `supabase_restow-lise`, ref `xcrlfujevlvwmrswwvfq` (projet tovim-beyachad). Ne jamais toucher au projet de la ruche (ohvmnaymozoxfirkbntt).
+- Site : dépôt GitHub `chlomo111-bit/tovim-beyachad` (add_repo access push puis git clone). Commits : user.name "chlomo111-bit", user.email "chlomo111-bit@users.noreply.github.com". Jeu en ligne : http://tovim.hakaveret.online
+- Médias publiés depuis : https://raw.githubusercontent.com/chlomo111-bit/tovim-beyachad/main/media/AAAA-MM-JJ/...
+- Voix des reels : Juniper (ElevenLabs, voice_id aMSt68OGf4xUZAnLpTU8, modèle Eleven v3, avec balises d'émotion). Shlomo génère et envoie le MP3.
+
+## Règles éditoriales (les plus importantes)
+- Jamais de spam : 1 reel par jour maximum, 2 à 3 stories par jour maximum, rien de dépassé, pas de doublon. Dans le doute, ne pas publier. Vérifier INSTAGRAM_GET_IG_USER_MEDIA / STORIES avant de publier.
+- Toujours une vraie idée + un hook dès la 1re seconde / 1re ligne.
+- Toujours les vrais joueurs (vrais @ de la table passengers) et les vrais chiffres. Jamais de faux joueurs ni de chiffres inventés.
+- Textes en hébreu, humains et courts. Style visuel : Heebo 900, blanc + mots clés #FFC24B, carte bleu nuit bordée de jaune.
+- Mention à la fin de toute description qui parle des billets : « המבצע אינו קשור לאינסטגרם ואינו ממומן על ידה. »
+- 5 hashtags : #טובעים_ביחד #משחק #ספינה #זכייה #ישראל
+- Billets : 3 billets de 20 ₪ par jour (60 ₪/jour), jamais d'autres montants promis.
+
+## Règlement des commentaires (à appliquer à chaque passage)
+1. Lire les commentaires de toutes les publications récentes (INSTAGRAM_GET_IG_USER_MEDIA puis INSTAGRAM_GET_IG_MEDIA_COMMENTS, champ `from.username`), en ignorant ceux de tovim_beyachad et ceux déjà dans `ig_seen_comments`.
+2. Tout commentateur devient passager VIP ⭐ : `insert into passengers(handle, vip, joined_ship) values (lower('<handle>'), true, ship_index((select count(*) from passengers))) on conflict (handle) do update set vip = true;`
+3. Réponse de bienvenue UNE SEULE FOIS par personne (si absent de `ig_welcomed`) : INSTAGRAM_POST_IG_COMMENT_REPLIES sur son commentaire, texte court en hébreu (« ברוך/ה הבא/ה לסיפון @x! 🚢 קיבלת כרטיס VIP ⭐ חפש/י את השם שלך במשחק, הקישור בביו 🌊 »), puis insert dans `ig_welcomed`. Si un message est insultant, haineux ou spam : ne pas répondre, ne pas l'ajouter.
+4. Marquer tous les commentaires traités : `insert into ig_seen_comments(comment_id, handle) values (...) on conflict do nothing;`
+5. Si le nombre de passagers atteint un palier (25, 100, 1 000…), le jeu fait couler le bateau tout seul (table sinks) : c'est l'événement du jour, à mettre en avant dans la story et le reel.
+
+## Le matin (tâche ~08:52)
+1. Passage commentaires (règlement ci-dessus).
+2. Événement du jour : le commentaire le plus liké d'hier sous le reel, s'il est réalisable et sans risque (pas politique, pas haineux, pas de données perso) → `admin_set_event` n'est pas utilisable sans mot de passe : faire `insert into game_state(key,value) values ('event','{"type":"shark","title":"..."}') on conflict (key) do update set value=excluded.value, updated_at=now();` (types : none, storm, shark, iceberg, party, whale, kraken). Sinon en choisir un soi-même pour varier.
+3. Story 09:00 : fond avec `tools/story_fond.py` (vrais passagers depuis Supabase), texte avec `tools/story_texte.py` : « עוד X נוסעים והסירה טובעת » + « 💸 3 שטרות של 20₪ היום », lien en bio. Pousser dans media/AAAA-MM-JJ/, publier (media_type STORIES).
+4. Préparer le reel du soir « יום N » (N = jours depuis le 28.10.2026, +1) : écrire le texte voix (hébreu, 20–30 s, balises d'émotion v3, hook fou au début, événement révélé à la fin, CTA « כתבו "עולה" ») et l'envoyer à Shlomo (SendUserMessage + PushNotification) en lui demandant le MP3 Juniper. Ne jamais publier un reel sans sa voix.
+
+## Le soir (tâche ~21:44)
+1. Passage commentaires.
+2. Gagnants des billets du jour : `select slot, handle, found_at from treasure_wins where day=(now() at time zone 'Asia/Jerusalem')::date order by slot;`
+3. Story du soir : gagnants (« 🏆 היום זכו: @… ») ou « 😱 שטר לא נמצא… מחר 3 שטרות חדשים », + nouveaux passagers du jour. Publier.
+4. Ajouter une actualité dans le jeu si quelque chose de neuf : `insert into news(title, body) values (...)`.
+
+## Reel (quand Shlomo envoie le MP3)
+- Capture du vrai jeu avec `tools/reel_lancement.py` comme modèle (scènes, CAP, 1080×1920 30 i/s), musique `tools/musique_reel.py`, montage ffmpeg (H.264 -preset veryfast -crf 20, AAC), caler les textes sur les pauses de la voix (ffmpeg silencedetect).
+- Description en mini-histoire du jour avec les vrais joueurs tagués, « יום N », CTA « כתבו "עולה" 👇 », « ומה יקרה מחר? התגובה עם הכי הרבה לייקים קובעת 👇 », mention légale, 5 hashtags. Puis commentaire CTA.
