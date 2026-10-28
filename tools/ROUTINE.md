@@ -40,3 +40,18 @@ Shlomo a donné l'autonomie complète le 28.10.2026 : stories, reels, réponses 
 ## Reel (quand Shlomo envoie le MP3)
 - Capture du vrai jeu avec `tools/reel_lancement.py` comme modèle (scènes, CAP, 1080×1920 30 i/s), musique `tools/musique_reel.py`, montage ffmpeg (H.264 -preset veryfast -crf 20, AAC), caler les textes sur les pauses de la voix (ffmpeg silencedetect).
 - Description en mini-histoire du jour avec les vrais joueurs tagués, « יום N », CTA « כתבו "עולה" 👇 », « ומה יקרה מחר? התגובה עם הכי הרבה לייקים קובעת 👇 », mention légale, 5 hashtags. Puis commentaire CTA.
+
+## Objectif n°1 : croissance (consigne de Shlomo, 28.10.2026)
+Autonomie totale. Le but : un maximum d'abonnés, de commentaires et d'interactions, par tous les moyens HONNÊTES. Atout principal : le jeu fait gagner de l'argent réel chaque jour (3 billets de 20 ₪ = 60 ₪/jour).
+- Hooks : mettre l'argent réel en avant dès la 1re seconde (« משחק שמחלק כסף אמיתי כל יום 💸 », « מישהו לקח 20₪ תוך 3 דקות »). Ne jamais écrire « le seul jeu » ni promettre plus que 3×20 ₪/jour.
+- Preuve sociale : chaque soir, montrer les vrais gagnants (@ tagués) ; plus les gens voient que d'autres gagnent, plus ils jouent.
+- Répondre à TOUS les commentaires des joueurs (pas seulement la bienvenue) : réponse courte, humaine, différente à chaque fois, qui pose une question ou relance (« ומי עוד עולה? 👀 »). Une seule réponse par commentaire.
+- Le commentaire le plus liké décide de l'événement du lendemain : le rappeler dans chaque reel et chaque description.
+- Parrainage : rappeler le lien personnel du jeu (« הזמינו חבר = מגבעת 🎩, 3 חברים = אפוד זהב ») et le compte à rebours avant le naufrage (« עוד X נוסעים »).
+- Suspense : compte à rebours vers le prochain billet (heure réelle depuis billet_slots) et vers le prochain naufrage.
+- Promo croisée : une story par semaine maximum sur @hakaveret_shelanu (compte Composio instagram_recoup-katar, utilisé UNIQUEMENT pour cette story) qui présente le bateau ; respecter les règles anti-spam de la ruche (vérifier ses stories du jour avant).
+- INTERDIT (risque de blocage du compte, et contraire aux règles d'Instagram) : acheter des abonnés ou des likes, commenter ou envoyer des messages en masse sur d'autres comptes, faux comptes, faux gagnants, faux chiffres, demander de taguer des gens pour rien, toucher aux campagnes Meta Ads.
+
+## Le midi (tâche ~13:52)
+1. Passage commentaires + réponse à tous les nouveaux commentaires des joueurs.
+2. Story de l'après-midi (si moins de 2 stories publiées aujourd'hui) : compte à rebours vers le prochain billet (heure réelle depuis billet_slots) OU nouveaux passagers du jour, avec un hook argent.
