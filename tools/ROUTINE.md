@@ -27,13 +27,13 @@ Shlomo a donné l'autonomie complète le 28.10.2026 : stories, reels, réponses 
 4. Marquer tous les commentaires traités : `insert into ig_seen_comments(comment_id, handle) values (...) on conflict do nothing;`
 5. Si le nombre de passagers atteint un palier (25, 100, 1 000…), le jeu fait couler le bateau tout seul (table sinks) : c'est l'événement du jour, à mettre en avant dans la story et le reel.
 
-## Le matin (tâche ~08:52)
+## Le matin (tâche 08:00)
 1. Passage commentaires (règlement ci-dessus).
 2. Événement du jour : le commentaire le plus liké d'hier sous le reel, s'il est réalisable et sans risque (pas politique, pas haineux, pas de données perso) → `admin_set_event` n'est pas utilisable sans mot de passe : faire `insert into game_state(key,value) values ('event','{"type":"shark","title":"..."}') on conflict (key) do update set value=excluded.value, updated_at=now();` (types : none, storm, shark, iceberg, party, whale, kraken). Sinon en choisir un soi-même pour varier.
 3. Story 09:00 : fond avec `tools/story_fond.py` (vrais passagers depuis Supabase), texte avec `tools/story_texte.py` : « עוד X נוסעים והסירה טובעת » + « 💸 3 שטרות של 20₪ היום », lien en bio. Pousser dans media/AAAA-MM-JJ/, publier (media_type STORIES).
 4. Préparer le reel du soir « יום N » (N = jours depuis le 28.10.2026, +1) : écrire le texte voix (hébreu, 20–30 s, balises d'émotion v3, hook fou au début, événement révélé à la fin, CTA « כתבו "עולה" ») et l'envoyer à Shlomo (SendUserMessage + PushNotification) en lui demandant le MP3 Juniper. Ne jamais publier un reel sans sa voix.
 
-## Le soir (tâche ~21:44)
+## Le soir (tâche 19:00)
 1. Passage commentaires.
 2. Gagnants des billets du jour : `select slot, handle, found_at from treasure_wins where day=(now() at time zone 'Asia/Jerusalem')::date order by slot;`
 3. Story du soir : gagnants (« 🏆 היום זכו: @… ») ou « 😱 שטר לא נמצא… מחר 3 שטרות חדשים », + nouveaux passagers du jour. Publier.
@@ -54,6 +54,6 @@ Autonomie totale. Le but : un maximum d'abonnés, de commentaires et d'interacti
 - Promo croisée : une story par semaine maximum sur @hakaveret_shelanu (compte Composio instagram_recoup-katar, utilisé UNIQUEMENT pour cette story) qui présente le bateau ; respecter les règles anti-spam de la ruche (vérifier ses stories du jour avant).
 - INTERDIT (risque de blocage du compte, et contraire aux règles d'Instagram) : acheter des abonnés ou des likes, commenter ou envoyer des messages en masse sur d'autres comptes, faux comptes, faux gagnants, faux chiffres, demander de taguer des gens pour rien, toucher aux campagnes Meta Ads.
 
-## Le midi (tâche ~13:52)
+## Le midi (tâche 14:00)
 1. Passage commentaires + réponse à tous les nouveaux commentaires des joueurs.
 2. Story de l'après-midi (si moins de 2 stories publiées aujourd'hui) : compte à rebours vers le prochain billet (heure réelle depuis billet_slots) OU nouveaux passagers du jour, avec un hook argent.
