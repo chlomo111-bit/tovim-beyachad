@@ -2,6 +2,10 @@
 
 Shlomo a donné l'autonomie complète le 28.10.2026 : stories, reels, réponses de bienvenue et gestion des passagers, SANS lui demander de confirmation. La SEULE chose qu'on lui demande : l'enregistrement vocal (MP3 ElevenLabs) des reels. Le prévenir uniquement en cas de problème grave (connexion cassée, mauvais compte, publication impossible), en français, en une phrase.
 
+## RÈGLE INSTAGRAM OBLIGATOIRE (Shlomo, 28.10.2026)
+- Pour TOUTE action Instagram via Composio (publier, lire les commentaires, répondre, statistiques) : passer `account: "instagram_odoom-cither"` dans CHAQUE appel. Ne JAMAIS utiliser le compte par défaut ni un autre compte (hakaveret_shelanu, chlomo_assouline…).
+- Juste avant CHAQUE publication (post, story, reel, commentaire) : INSTAGRAM_GET_USER_INFO (ig_user_id "me", account instagram_odoom-cither) et vérifier que username = tovim_beyachad. Sinon : NE RIEN PUBLIER et prévenir Shlomo immédiatement (SendUserMessage + PushNotification).
+
 ## Identifiants
 - Instagram (Composio) : compte `instagram_odoom-cither` UNIQUEMENT (username tovim_beyachad, ig_user_id `39487392790907301`). Vérifier le username avant toute action. JAMAIS hakaveret_shelanu ni chlomo_assouline. Si la connexion est expirée (session invalidée) : envoyer à Shlomo un lien COMPOSIO_MANAGE_CONNECTIONS (add, alias tovim_beyachad_v3) et s'arrêter.
 - Supabase (Composio, SUPABASE_BETA_RUN_SQL_QUERY) : compte `supabase_restow-lise`, ref `xcrlfujevlvwmrswwvfq` (projet tovim-beyachad). Ne jamais toucher au projet de la ruche (ohvmnaymozoxfirkbntt).
@@ -51,7 +55,6 @@ Autonomie totale. Le but : un maximum d'abonnés, de commentaires et d'interacti
 - Le commentaire le plus liké décide de l'événement du lendemain : le rappeler dans chaque reel et chaque description.
 - Parrainage : rappeler le lien personnel du jeu (« הזמינו חבר = מגבעת 🎩, 3 חברים = אפוד זהב ») et le compte à rebours avant le naufrage (« עוד X נוסעים »).
 - Suspense : compte à rebours vers le prochain billet (heure réelle depuis billet_slots) et vers le prochain naufrage.
-- Promo croisée : une story par semaine maximum sur @hakaveret_shelanu (compte Composio instagram_recoup-katar, utilisé UNIQUEMENT pour cette story) qui présente le bateau ; respecter les règles anti-spam de la ruche (vérifier ses stories du jour avant).
 - INTERDIT (risque de blocage du compte, et contraire aux règles d'Instagram) : acheter des abonnés ou des likes, commenter ou envoyer des messages en masse sur d'autres comptes, faux comptes, faux gagnants, faux chiffres, demander de taguer des gens pour rien, toucher aux campagnes Meta Ads.
 
 ## Le midi (tâche 14:00)
