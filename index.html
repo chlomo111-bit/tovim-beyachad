@@ -498,6 +498,7 @@ function computeSlots(n){
   let sp=clamp(Math.sqrt(area/Math.max(n,1))*.92,.18,1.05);let pts=[];
   for(let tries=0;tries<6;tries++){pts=[];for(const r of rects){for(let x=r.x0+sp/2;x<=r.x1-sp/2+1e-6;x+=sp)for(let z=r.z0+sp/2;z<=r.z1-sp/2+1e-6;z+=sp)pts.push({x,z,y:r.y,top:r.top})}
     if(pts.length>=n)break;sp*=.88}
+  if(hideSpot)pts=pts.filter(q=>Math.abs(q.y-hideSpot.y)>.2||Math.hypot(q.x-hideSpot.x,q.z-hideSpot.z)>.9);
   const R=rng(1234+shipI);for(let i=pts.length-1;i>0;i--){const j=Math.floor(R()*(i+1));[pts[i],pts[j]]=[pts[j],pts[i]]}
   pts.sort((a,b)=>b.top-a.top); // le haut d'abord (VIP)
   figS=clamp(sp/.95,.22,1);return pts}
@@ -604,7 +605,7 @@ function updateHud(){
 }
 let pendingSink=null;
 function onCount(){
-  const i=shipIdx(totalN());updateHud();
+  const i=shipIdx(totalN());updateHud();if(billet&&billet.locked&&totalN()>=UNLOCK_AT){billetBusy=0;refreshBillet()}else renderHunt();
   if(i!==shipI){if(mode==="sea"&&!SINK.on&&shipI>=0)startSink(shipI,i);else if(!SINK.on)setShip(i)}
   else rebuild();
   lstore("tb_ship",String(i));
@@ -651,13 +652,24 @@ const noteMesh=(()=>{const L=[];addBox(L,.9,.04,.46,0,0,0,"#E7637A");addBox(L,.8
   const m=vmesh(L);const g=new THREE.Group();g.add(m);const glow=new THREE.Mesh(new THREE.SphereGeometry(.8,12,10),new THREE.MeshBasicMaterial({color:0xFFE27A,transparent:true,opacity:.25,depthWrite:false}));g.add(glow);g.userData.glow=glow;g.visible=false;return g})();
 const IL_FMT=new Intl.DateTimeFormat("en-CA",{timeZone:"Asia/Jerusalem",year:"numeric",month:"2-digit",day:"2-digit"});
 const ilDay=()=>IL_FMT.format(new Date());
-function billetActive(){return CONFIG.BILLET.on&&billet&&billet.slot&&!billet.winner}
+const UNLOCK_AT=25; // les billets s'ouvrent au premier naufrage
+function billetActive(){return CONFIG.BILLET.on&&billet&&!billet.locked&&billet.slot&&!billet.winner}
+let hideSpot=null;
+/* cachettes : les coins des ponts, loin du centre (là où apparaissent les passagers) ; jamais sur un passager */
+function hideCandidates(){
+  const rects=[...ship.walk,...ship.top],c=[];
+  for(const r of rects){const ix=Math.min(.35,(r.x1-r.x0)/3),iz=Math.min(.35,(r.z1-r.z0)/3);
+    for(const x of [r.x0+ix,r.x1-ix])for(const z of [r.z0+iz,r.z1-iz])c.push({x,y:r.y,z,d:Math.hypot(x,z)})}
+  c.sort((a,b)=>b.d-a.d);return c.slice(0,Math.max(2,Math.ceil(c.length/2)))}
 function placeBillet(){
   if(!ship)return;if(noteMesh.parent)noteMesh.parent.remove(noteMesh);
-  if(!billetActive()){noteMesh.visible=false;return}
-  const rects=[...ship.walk,...ship.top],R=rng(hashStr(CONFIG.BILLET.secret+billet.day+":"+billet.slot+":"+shipI)),r=rects[Math.floor(R()*rects.length)];
-  noteMesh.position.set(lerp(r.x0+.3,r.x1-.3,R()),r.y+.45,lerp(r.z0+.3,r.z1-.3,R()));ship.group.add(noteMesh);noteMesh.visible=true}
-function demoBillet(){const h=+new Date().toLocaleString("en-US",{timeZone:"Asia/Jerusalem",hour:"numeric",hour12:false});return {day:ilDay(),slot:h>=9?1:null,prize:20,winner:null,next_at:null}}
+  const prev=hideSpot&&hideSpot.k;
+  if(!billetActive()){noteMesh.visible=false;hideSpot=null;if(prev)rebuild();return}
+  const k=billet.day+":"+billet.slot+":"+shipI,C=hideCandidates(),R=rng(hashStr(CONFIG.BILLET.secret+k)),h=C[Math.floor(R()*C.length)];
+  hideSpot={...h,k};noteMesh.position.set(h.x,h.y+.45,h.z);ship.group.add(noteMesh);noteMesh.visible=true;
+  if(prev!==k)rebuild()}
+function demoBillet(){const h=+new Date().toLocaleString("en-US",{timeZone:"Asia/Jerusalem",hour:"numeric",hour12:false});
+  if(totalN()<UNLOCK_AT)return {locked:true,need:UNLOCK_AT-totalN()};return {day:ilDay(),slot:h>=9?1:null,prize:20,winner:null,next_at:null}}
 let billetBusy=0,billetSkew=0;
 async function refreshBillet(){
   if(!CONFIG.BILLET.on)return;
@@ -665,12 +677,13 @@ async function refreshBillet(){
   if(Date.now()<billetBusy)return;billetBusy=Date.now()+4000;
   try{const r=await rpc("billet_state",{h:meName||""});if(r.ok){billet=await r.json();if(billet.now)billetSkew=Date.parse(billet.now)-Date.now();applyBillet()}}catch(e){}}
 let lastBilletKey="";
-function applyBillet(){const k=billet?billet.day+":"+billet.slot+":"+(billet.winner||""):"";if(k!==lastBilletKey){lastBilletKey=k;placeBillet()}renderHunt()}
+function applyBillet(){const k=billet?(billet.locked?"locked":billet.day+":"+billet.slot+":"+(billet.winner||"")):"";if(k!==lastBilletKey){lastBilletKey=k;placeBillet()}renderHunt()}
 function fmtCd(s){const h=Math.floor(s/3600),m=Math.floor(s%3600/60),x=s%60;return (h?h+":":"")+String(m).padStart(2,"0")+":"+String(x).padStart(2,"0")}
 function secsToNext(){if(!billet||!billet.next_at)return null;return Math.max(0,Math.round((Date.parse(billet.next_at)-(Date.now()+billetSkew))/1000))}
 function renderHunt(){
   const p=$("#huntPill");if(!CONFIG.BILLET.on||!billet){p.hidden=true;return}p.hidden=false;
   const s=secsToNext(),nx=s!=null?` · הבא בעוד <b style="font-variant-numeric:tabular-nums">${fmtCd(s)}</b>`:"";
+  if(billet.locked){const need=Math.max(0,UNLOCK_AT-totalN());p.innerHTML=`🔒 <b>3 שטרות של 20₪ ביום</b> נפתחים כשהסירה טובעת · עוד <b>${need}</b> נוסעים`;return}
   if(billetActive())p.innerHTML=`💸 שטר של <b>${billet.prize||20} ₪</b> מוסתר על הסיפון! <span style="opacity:.8">(הזיזו את הנוסע שלכם כדי למצוא)</span>`;
   else if(billet.winner)p.innerHTML=`🏆 <b dir="ltr">@${esc(billet.winner)}</b> מצא/ה את השטר${nx}`;
   else p.innerHTML=`💸 3 שטרות של 20 ₪ ביום${nx}`;
@@ -685,7 +698,7 @@ $("#fClaim").onclick=async()=>{
   const h=cleanHandle($("#fHandle").value);if(!HANDLE_RE.test(h)){$("#fErr").textContent="שם משתמש לא תקין";return}
   if(!byH.has(h)){$("#fErr").textContent="קודם צריך לעלות לסיפון 🧍";return}
   $("#fClaim").disabled=true;let w,me;
-  try{if(LIVE){const r=await rpc("claim_treasure",{h});const rows=await r.json();if(!r.ok){$("#fErr").textContent=String(rows&&rows.message||"").includes("no_billet")?"השטר הבא עוד לא הוסתר… 💸":"משהו לא עבד, נסו שוב";$("#fClaim").disabled=false;return}w=rows[0];me=!!(w&&w.is_me)}
+  try{if(LIVE){const r=await rpc("claim_treasure",{h});const rows=await r.json();if(!r.ok){$("#fErr").textContent=String(rows&&rows.message||"").includes("no_billet")?"השטר הבא עוד לא הוסתר… 💸":String(rows&&rows.message||"").includes("locked")?"🔒 השטרות נפתחים כשהסירה טובעת":"משהו לא עבד, נסו שוב";$("#fClaim").disabled=false;return}w=rows[0];me=!!(w&&w.is_me)}
     else{w={handle:h,found_at:new Date().toISOString()};me=true}}catch(e){$("#fErr").textContent="אין חיבור, נסו שוב";$("#fClaim").disabled=false;return}
   $("#fClaim").disabled=false;$("#fAsk").hidden=true;
   if(me){$("#fWin").hidden=false;$("#fPrize").textContent=(billet.prize||20)+" ₪";$("#fCode").textContent=billetCode(h);$("#fWhen").textContent=new Date(w.found_at).toLocaleString("he-IL",{timeZone:"Asia/Jerusalem"});snd("win");burstAt(noteMesh)}
@@ -924,7 +937,7 @@ $("#chatForm").onsubmit=async e=>{e.preventDefault();const body=$("#chatIn").val
     msgs.push({id:Date.now(),handle:meName,body,created_at:new Date().toISOString()});$("#chatIn").value="";renderChat(true);if(LIVE)setTimeout(loadMsgs,800)}catch(x){toast("אין חיבור")}};
 
 /* actualités */
-const DEFAULT_NEWS={id:"local-1",title:"ברוכים הבאים לסיפון! 🚢",body:"🌊 המטרה של כולנו: להטביע את הספינה!\n🧍 כל עוקב = נוסע. כל תגובה = VIP ⭐\n💸 3 שטרות של 20 ₪ מוסתרים על הסיפון כל יום\n📣 הזמינו חברים: כל חבר מקרב את הטביעה!"};
+const DEFAULT_NEWS={id:"local-2",title:"ברוכים הבאים לסיפון! 🚢",body:"🌊 המטרה של כולנו: להטביע את הספינה!\n🧍 כל עוקב = נוסע. כל תגובה = VIP ⭐\n💸 כשהסירה טובעת (25 נוסעים), נפתחים 3 שטרות של 20₪ ביום, מוסתרים בפינות רחוקות של הספינה\n📣 הזמינו חברים: כל חבר מקרב את הטביעה ואת השטרות!"};
 async function showNews(){let n=DEFAULT_NEWS;try{if(LIVE){const r=await sb("news?select=id,title,body&order=id.desc&limit=1");if(r.ok){const j=await r.json();if(j[0])n=j[0]}}}catch(e){}
   if(lstore("tb_news")===String(n.id))return;$("#newsTitle").textContent=n.title;$("#newsBody").textContent=n.body;$("#newsModal").hidden=false;
   $("#newsOk").onclick=()=>{$("#newsModal").hidden=true;lstore("tb_news",String(n.id))}}

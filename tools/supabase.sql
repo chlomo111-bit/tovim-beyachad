@@ -306,3 +306,12 @@ alter table public.ig_seen_comments enable row level security;
 alter table public.ig_welcomed enable row level security;
 revoke all on public.ig_seen_comments from anon, authenticated;
 revoke all on public.ig_welcomed from anon, authenticated;
+
+-- ================= V2 (28.10.2026) : billets bloqués jusqu'au premier naufrage (25 passagers) =================
+create or replace function public.billets_unlocked() returns boolean
+language sql stable security definer set search_path = public as $$
+  select exists(select 1 from sinks where ship_idx = 0) or (select count(*) from passengers) >= 25
+$$;
+revoke all on function public.billets_unlocked() from public;
+-- billet_state renvoie {"locked":true,"need":N} tant que ce n'est pas débloqué ; claim_treasure refuse avec 'locked'
+-- (et refuse le compte du jeu tovim_beyachad). Voir la version en ligne dans Supabase.

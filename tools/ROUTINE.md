@@ -16,7 +16,7 @@ Shlomo a donné l'autonomie complète le 28.10.2026 : stories, reels, réponses 
 - Textes en hébreu, humains et courts. Style visuel : Heebo 900, blanc + mots clés #FFC24B, carte bleu nuit bordée de jaune.
 - Mention à la fin de toute description qui parle des billets : « המבצע אינו קשור לאינסטגרם ואינו ממומן על ידה. »
 - 5 hashtags : #טובעים_ביחד #משחק #ספינה #זכייה #ישראל
-- Billets : 3 billets de 20 ₪ par jour (60 ₪/jour), jamais d'autres montants promis.
+- Billets (règle du 28.10.2026) : 3 billets de 20 ₪ par jour (60 ₪/jour), DÉBLOQUÉS SEULEMENT après le premier naufrage (25 passagers). Avant : le jeu affiche « 🔒 נפתחים כשהסירה טובעת · עוד X נוסעים ». Toujours le dire ainsi dans les textes (« השטרות נפתחים כשהסירה טובעת »). Jamais d'autres montants promis. Le billet est caché dans un coin éloigné du bateau, jamais sur un passager.
 
 ## Règlement des commentaires (à appliquer à chaque passage)
 1. Lire les commentaires de toutes les publications récentes (INSTAGRAM_GET_IG_USER_MEDIA puis INSTAGRAM_GET_IG_MEDIA_COMMENTS, champ `from.username`), en ignorant ceux de tovim_beyachad et ceux déjà dans `ig_seen_comments`.
@@ -44,7 +44,7 @@ Shlomo a donné l'autonomie complète le 28.10.2026 : stories, reels, réponses 
 - Description en mini-histoire du jour avec les vrais joueurs tagués, « יום N », CTA « כתבו "עולה" 👇 », « ומה יקרה מחר? התגובה עם הכי הרבה לייקים קובעת 👇 », mention légale, 5 hashtags. Puis commentaire CTA.
 
 ## Objectif n°1 : croissance (consigne de Shlomo, 28.10.2026)
-Autonomie totale. Le but : un maximum d'abonnés, de commentaires et d'interactions, par tous les moyens HONNÊTES. Atout principal : le jeu fait gagner de l'argent réel chaque jour (3 billets de 20 ₪ = 60 ₪/jour).
+Autonomie totale. Le but : un maximum d'abonnés, de commentaires et d'interactions, par tous les moyens HONNÊTES. Atout principal : le jeu fait gagner de l'argent réel (3 billets de 20 ₪ = 60 ₪/jour) dès que la barque a coulé : chaque nouveau passager rapproche le déblocage, c'est le moteur du parrainage.
 - Hooks : mettre l'argent réel en avant dès la 1re seconde (« משחק שמחלק כסף אמיתי כל יום 💸 », « מישהו לקח 20₪ תוך 3 דקות »). Ne jamais écrire « le seul jeu » ni promettre plus que 3×20 ₪/jour.
 - Preuve sociale : chaque soir, montrer les vrais gagnants (@ tagués) ; plus les gens voient que d'autres gagnent, plus ils jouent.
 - Répondre à TOUS les commentaires des joueurs (pas seulement la bienvenue) : réponse courte, humaine, différente à chaque fois, qui pose une question ou relance (« ומי עוד עולה? 👀 »). Une seule réponse par commentaire.
