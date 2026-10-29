@@ -56,13 +56,13 @@ language plpgsql immutable set search_path = public as $$
 declare b text := lower(coalesce(body,'')); flat text; sq text; w text; L constant text := '[^a-z0-9א-ת]';
 begin
   -- liens
-  if b ~ '(https?://|www\.|://)' or b ~ '[a-z0-9-]{2,}\s*(\.|dot|נקודה)\s*(com|net|org|co|il|io|me|ly|gg|tv|app|xyz|info|link|site|online|ru|to)(' || L || '|$)' then return 'link'; end if;
+  if b ~ '(https?://|www\.|://)' or b ~ ('[a-z0-9-]{2,}\s*(\.|dot|נקודה)\s*(com|net|org|co|il|io|me|ly|gg|tv|app|xyz|info|link|site|online|ru|to)(' || L || '|$)') then return 'link'; end if;
   -- e-mails
-  if b ~ '[a-z0-9._%+-]+\s*@\s*[a-z0-9-]+\s*\.\s*[a-z]{2,}' or b ~ '(gmail|hotmail|walla|yahoo|outlook|icloud)' then return 'email'; end if;
+  if b ~ '[a-z0-9._%+-]+@\s*[a-z0-9-]+\s*\.\s*[a-z]{2,}' or b ~ '(gmail|hotmail|walla|yahoo|outlook|icloud)' then return 'email'; end if;
   -- téléphones (7 chiffres ou plus, même séparés)
   if regexp_replace(b, '[\s\-\.\(\)\+_/]', '', 'g') ~ '[0-9]{7,}' then return 'phone'; end if;
   -- pas de messages privés / sortie vers d'autres apps
-  if b ~ '(whats ?app|וואטסאפ|ווטסאפ|וואצאפ|ווצאפ|טלגרם|telegram|snapchat|סנאפ|סנפצ|בפרטי|(^|' || L || ')(dm|pm|דיאם)(' || L || '|$)|תשלח(י)? לי הודעה|כתבו לי בפרטי)' then return 'private'; end if;
+  if b ~ ('(whats ?app|וואטסאפ|ווטסאפ|וואצאפ|ווצאפ|טלגרם|telegram|snapchat|סנאפ|סנפצ|בפרטי|(^|' || L || ')(dm|pm|דיאם)(' || L || '|$)|תשלח(י)? לי הודעה|כתבו לי בפרטי)') then return 'private'; end if;
   -- insultes et contenus sexuels
   flat := regexp_replace(b, '[^a-z0-9א-ת]', '', 'g');
   sq := regexp_replace(flat, '(.)\1+', '\1', 'g');
