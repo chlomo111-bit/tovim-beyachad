@@ -33,10 +33,24 @@ Shlomo a donné l'autonomie complète le 28.10.2026 : stories, reels, réponses 
 4b. Quand Shlomo envoie la liste de ses abonnés : ajouter chaque @ (sans le nom) comme passager simple, `vip=false`, `on conflict do nothing`.
 5. Si le nombre de passagers atteint un palier (25, 100, 1 000…), le jeu fait couler le bateau tout seul (table sinks) : c'est l'événement du jour, à mettre en avant dans la story et le reel.
 
+## Fonctions communes à tous les jeux (V3, ordre du directeur des jeux validé par Shlomo le 29.10.2026)
+SQL : `tools/supabase_v3.sql` (déjà appliqué en ligne). Dans le jeu : bouton 🎯 en bas à gauche (fiche « היום שלי »), pilule 🎟️ en haut, onglet 🏆 שיאים du panneau 💬.
+- Monnaie unique : les pièces (מטבעות). `coins` (total + jour courant) et `coins_daily(handle, day, coins)` = historique par joueur et par jour (ramassage + bonus de missions).
+- Concours du jour (billet de 20 ₪) : inchangé, 200 pièces dans la journée + commentaire du post du jour (`billet_eligible`), billet seulement après le naufrage. Le joueur voit en permanence « 🪙 X/200 · 💬 ✓/✗ ».
+- Missions du jour : `missions_of(date)` tire 3 missions (1 facile : login/chat/idée · 1 pièces : 50/100/200 · 1 sociale : commenter le post du jour / amener un ami), mêmes pour tous, remise à zéro à minuit heure d'Israël. `missions_sync(h)` valide et crédite les bonus (table `mission_done`). La mission « commenter » se valide grâce à `billet_eligible` (étape 4c) : bien remplir cette table à CHAQUE passage.
+- Boîte à idées : table `ideas` (200 caractères, 3 par jour, filtrée), privée (lecture uniquement par la routine).
+- Chat public en direct (realtime) : 140 caractères, 1 message / 10 s, filtre `mod_check` (insultes, contenu sexuel, liens, téléphones, e-mails, invitations en privé). Aucun message privé entre joueurs (jeu ouvert aux jeunes) : ne JAMAIS ajouter de DM. 🚩 signaler ; masqué automatiquement à 3 signalements ; admin : `#admin` > 🚩.
+- Statistiques : `my_stats(h)` (fiche « הסטטיסטיקות שלי ») et `global_stats()` (passagers, abonnés, restants avant le naufrage, pièces du jour). Les abonnés viennent de `game_state` clé `ig` (mis à jour le matin, voir ci-dessous).
+- Classements : `leaderboard(h, 'today'|'all')` (top 10 + place du joueur).
+- Requêtes utiles pour les textes : `select leaderboard('', 'today');` · `select global_stats();` · `select * from missions_of((now() at time zone 'Asia/Jerusalem')::date);`
+
 ## Le matin (tâche 08:00)
 1. Passage commentaires (règlement ci-dessus).
+1b. Abonnés : INSTAGRAM_GET_USER_INFO (account instagram_odoom-cither) puis `insert into game_state(key,value) values ('ig', jsonb_build_object('followers', <followers_count>)) on conflict (key) do update set value=excluded.value, updated_at=now();`
+1c. Boîte à idées : `select id, handle, body, created_at from ideas where status='new' order by id;`. S'il y a de BONNES idées (réalisables, utiles au jeu, sans risque), les résumer à Shlomo en UNE ligne en français (SendUserMessage + PushNotification). Sinon rien. Puis `update ideas set status='read' where status='new';`. Ne jamais réaliser une idée sans son accord si elle change les règles ou l'argent.
+1d. Modération du chat : `select id, handle, body, reports, hidden from messages where reports > 0 or created_at > now() - interval '1 day' order by id desc limit 100;` Supprimer (`delete from messages where id = …;`) tout message insultant, sexuel, avec coordonnées ou qui invite à parler en privé, même non signalé. Remettre (`update messages set hidden=false, reports=0 where id=…; delete from chat_reports where message_id=…;`) un message masqué à tort.
 2. Événement du jour : le commentaire le plus liké d'hier sous le reel, s'il est réalisable et sans risque (pas politique, pas haineux, pas de données perso) → `admin_set_event` n'est pas utilisable sans mot de passe : faire `insert into game_state(key,value) values ('event','{"type":"shark","title":"..."}') on conflict (key) do update set value=excluded.value, updated_at=now();` (types : none, storm, shark, iceberg, party, whale, kraken). Sinon en choisir un soi-même pour varier.
-3. Story 09:00 : fond avec `tools/story_fond.py` (vrais passagers depuis Supabase), texte avec `tools/story_texte.py` : « עוד X נוסעים והסירה טובעת » + « 💸 שטר של 20₪ היום », lien en bio. Pousser dans media/AAAA-MM-JJ/, publier (media_type STORIES).
+3. Story 09:00 : fond avec `tools/story_fond.py` (vrais passagers depuis Supabase), texte avec `tools/story_texte.py` : « עוד X נוסעים והסירה טובעת » + « 💸 שטר של 20₪ היום », lien en bio. Varier avec les missions du jour (« 🎯 3 משימות חדשות היום = בונוס מטבעות ») ou le n°1 du classement d'hier. Pousser dans media/AAAA-MM-JJ/, publier (media_type STORIES).
 3b. POST DU JOUR (dès que les billets sont débloqués, c.-à-d. après le premier naufrage) : publier vers 09:00 un post image 4:5 (1080×1350, vrais passagers, style du jeu) qui annonce le billet du jour, avec la règle « 🔒 השטר של היום גלוי רק למי שמגיב/ה על הפוסט הזה + אוסף/ת 200 מטבעות במשחק ». Description courte + CTA « הגיבו כאן 👇 » + mention légale + 5 hashtags. C'est CE post qui sert de « post du jour » pour billet_eligible (étape 4c). Avant le premier naufrage : pas de post du jour obligatoire.
 4. Préparer le reel du soir « יום N » (N = jours depuis le 28.10.2026, +1) : écrire le texte voix (hébreu, 20–30 s, balises d'émotion v3, hook fou au début, événement révélé à la fin, CTA « כתבו "עולה" ») l'enregistrer dans media/AAAA-MM-JJ/voix.txt, mais NE PAS l'envoyer le matin : programmer (send_later) l'envoi à Shlomo à 17:00, soit 2 à 3 heures avant la mise en ligne de 19:30 (SendUserMessage + PushNotification, chiffres actualisés), en lui demandant le MP3 Juniper. C'est la SEULE chose qu'on lui demande (consigne du 29.10.2026) ; tout le reste (programmations, montage, publication) se fait sans lui demander. Ne jamais publier un reel sans sa voix.
 
@@ -44,7 +58,9 @@ Shlomo a donné l'autonomie complète le 28.10.2026 : stories, reels, réponses 
 1. Passage commentaires.
 2. Gagnants des billets du jour : `select slot, handle, found_at from treasure_wins where day=(now() at time zone 'Asia/Jerusalem')::date order by slot;`
 3. Story du soir : gagnants (« 🏆 היום זכו: @… ») ou « 😱 שטר לא נמצא… מחר שטר חדש », + nouveaux passagers du jour. Publier.
-4. Ajouter une actualité dans le jeu si quelque chose de neuf : `insert into news(title, body) values (...)`.
+3b. Preuve sociale : top 3 du classement du jour (`select leaderboard('', 'today');`, vrais @, vrais chiffres) dans la story du soir, avec « 🎯 מחר: 3 משימות חדשות ».
+4. Ajouter une actualité dans le jeu si quelque chose de neuf : `insert into news(title, body) values (...)`. Toute nouvelle fonction du jeu DOIT être annoncée dans `news` (titre court + 3 à 6 lignes en hébreu, emojis) : c'est la fenêtre qui s'ouvre à la prochaine visite de chaque joueur.
+5. Modération du chat (comme 1d du matin).
 
 ## Reel (quand Shlomo envoie le MP3)
 - Capture du vrai jeu avec `tools/reel_lancement.py` comme modèle (scènes, CAP, 1080×1920 30 i/s), musique `tools/musique_reel.py`, montage ffmpeg (H.264 -preset veryfast -crf 20, AAC), caler les textes sur les pauses de la voix (ffmpeg silencedetect).
@@ -61,5 +77,6 @@ Autonomie totale. Le but : un maximum d'abonnés, de commentaires et d'interacti
 - INTERDIT (risque de blocage du compte, et contraire aux règles d'Instagram) : acheter des abonnés ou des likes, commenter ou envoyer des messages en masse sur d'autres comptes, faux comptes, faux gagnants, faux chiffres, demander de taguer des gens pour rien, toucher aux campagnes Meta Ads.
 
 ## Le midi (tâche 14:00)
-1. Passage commentaires + réponse à tous les nouveaux commentaires des joueurs.
+1. Passage commentaires + réponse à tous les nouveaux commentaires des joueurs (et billet_eligible : valide aussi la mission « הגיבו על הפוסט של היום »).
+1b. Coup d'œil au chat (signalements : `select id, handle, body, reports from messages where reports > 0;`).
 2. Story de l'après-midi (si moins de 2 stories publiées aujourd'hui) : compte à rebours vers le prochain billet (heure réelle depuis billet_slots) OU nouveaux passagers du jour, avec un hook argent.

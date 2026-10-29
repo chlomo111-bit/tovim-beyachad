@@ -145,7 +145,41 @@ select.field{direction:rtl;font-size:16px}
 .chatform input{flex:1;min-width:0;font:700 15px var(--display);padding:11px 12px;border-radius:12px;border:1.5px solid var(--line);background:rgba(0,0,0,.3);color:var(--foam);outline:none}
 .chatform .btn{padding:10px 16px;font-size:15px;box-shadow:0 4px 0 #B86E0A}
 .bottom:not(.hide)>*,.pilot>*{pointer-events:auto}
-@media (prefers-reduced-motion:reduce){.sheet,#toast,.top,.bottom,.side{transition:none}}
+.hubfab{right:auto;left:calc(env(safe-area-inset-left,0px) + 14px)}
+.hubfab span{left:auto;right:-2px}
+.pill.accp{cursor:pointer;font:inherit;font-weight:700;font-size:14px}
+.card{margin:0 0 12px;padding:12px;border-radius:14px;background:rgba(255,194,75,.07);border:1px solid var(--line);font-size:14px;line-height:1.5}
+.card .ct{font-weight:900;font-size:16px;margin-bottom:8px;display:flex;justify-content:space-between;align-items:baseline;gap:8px}
+.card .ct small{font-weight:400;font-size:12px;color:var(--muted)}
+.muted{color:var(--muted)}
+.ok{color:#2FBF71;font-weight:900}.no{color:#FF9B7A;font-weight:900}
+.bar{height:9px;border-radius:5px;background:rgba(255,255,255,.12);overflow:hidden;margin:5px 0 3px}
+.bar i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--gold),#2FBF71);border-radius:5px;transition:width .8s}
+.mrow{padding:9px 10px;border-radius:12px;background:rgba(255,255,255,.05);margin-bottom:8px;cursor:pointer}
+.mrow .mt{display:flex;justify-content:space-between;gap:8px;font-weight:700}
+.mrow .mt b{color:var(--gold);white-space:nowrap}
+.mrow .mp{font-size:12px;color:var(--muted)}
+.mrow.done{background:rgba(47,191,113,.14)}
+.mrow.done .bar i{background:#2FBF71}
+.mrow.pop{animation:mpop 1s ease}
+@keyframes mpop{0%{transform:scale(1)}30%{transform:scale(1.05);background:rgba(47,191,113,.45)}100%{transform:scale(1)}}
+.mfx{position:fixed;left:50%;top:38%;z-index:30;font:900 32px var(--display);color:var(--gold);text-shadow:0 4px 18px #000;pointer-events:none;white-space:nowrap;direction:rtl;animation:mfx 1.8s ease-out forwards}
+@keyframes mfx{0%{opacity:0;transform:translate(-50%,24px) scale(.6)}18%{opacity:1;transform:translate(-50%,0) scale(1.15)}100%{opacity:0;transform:translate(-50%,-90px) scale(1)}}
+.sgrid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}
+.sgrid div{background:rgba(255,255,255,.05);border-radius:12px;padding:8px 10px;font-size:12px;color:var(--muted)}
+.sgrid b{display:block;font:900 20px var(--display);color:var(--gold);font-variant-numeric:tabular-nums}
+.lbt{display:inline-flex;gap:4px}
+.lbt button{all:unset;cursor:pointer;padding:3px 9px;border-radius:999px;font:700 12px var(--display);color:var(--muted);border:1px solid var(--line)}
+.lbt button.on{background:var(--gold);color:var(--ink);border-color:var(--gold)}
+.newrow.meRow{background:rgba(47,191,113,.22);border:1px solid #2FBF71}
+.lbgap{text-align:center;color:var(--muted);line-height:1}
+.msg .rep{all:unset;cursor:pointer;float:left;font-size:12px;opacity:.45}
+.msg .rep:hover{opacity:1}
+.chatrules{font-size:12px;color:var(--muted);margin:0 2px 8px;line-height:1.4}
+.repl{font-size:13px;padding:8px;border-radius:10px;background:rgba(255,255,255,.05);margin-bottom:6px}
+.repl button{all:unset;cursor:pointer;margin-inline-start:8px;color:var(--gold);font-weight:700}
+#ideaCnt{font-size:12px;color:var(--muted);text-align:left;margin:-8px 0 8px}
+@media (prefers-reduced-motion:reduce){.sheet,#toast,.top,.bottom,.side{transition:none}.mrow.pop,.mfx{animation-duration:.01s}}
 </style>
 
 <div id="stage"></div>
@@ -180,6 +214,7 @@ select.field{direction:rtl;font-size:16px}
       <span class="pill">🌊 <b id="nSunk">0</b> טביעות</span>
       <button class="pill" id="muteBtn" aria-label="צליל" style="cursor:pointer;font:inherit;color:inherit">🔊</button>
       <span class="pill demo" id="demoPill" hidden>הדגמה</span>
+      <button class="pill accp" id="accPill" hidden aria-label="התחרות של היום"></button>
       <span class="pill" id="huntPill" hidden style="white-space:normal;text-align:center"></span>
     </div>
   </div>
@@ -214,6 +249,23 @@ select.field{direction:rtl;font-size:16px}
     </div>
   </div>
 
+  <div class="sheet closed" id="hubSheet" role="dialog" aria-label="היום שלי">
+    <button class="x" data-close aria-label="סגירה">✕</button>
+    <h2>🎯 היום שלי</h2>
+    <div id="hubBody"></div>
+    <div class="row"><button class="btn ghost" id="hubTop">🏆 דירוג</button><button class="btn ghost" id="hubIdea">💡 תיבת רעיונות</button></div>
+  </div>
+
+  <div class="sheet closed" id="ideaSheet" role="dialog" aria-label="תיבת רעיונות">
+    <button class="x" data-close aria-label="סגירה">✕</button>
+    <h2>💡 תיבת רעיונות</h2>
+    <p>יש לכם רעיון למשחק? אירוע חדש, ספינה, פרס, משימה… כתבו בקצרה, אנחנו קוראים הכול 🚢</p>
+    <textarea class="field" id="ideaIn" maxlength="200" style="min-height:110px" placeholder="הרעיון שלי…" aria-label="הרעיון"></textarea>
+    <div id="ideaCnt">0/200</div>
+    <div class="err" id="ideaErr"></div>
+    <div class="row"><button class="btn" id="ideaGo">שליחת הרעיון</button></div>
+  </div>
+
   <div class="sheet closed" id="adminSheet" role="dialog" aria-label="ניהול">
     <button class="x" data-close aria-label="סגירה">✕</button>
     <h2>ניהול הספינה ⚓</h2>
@@ -238,21 +290,27 @@ select.field{direction:rtl;font-size:16px}
     <input class="field" id="newsT" placeholder="כותרת" style="direction:rtl" aria-label="כותרת">
     <textarea class="field" id="newsB" placeholder="מה חדש? כל השחקנים יראו את זה בכניסה הבאה" style="min-height:90px" aria-label="תוכן"></textarea>
     <div class="row"><button class="btn ghost" id="newsGo">פרסום לכל השחקנים</button></div>
+    <h2 style="margin-top:18px;font-size:20px">🚩 הודעות שדווחו בצ'אט</h2>
+    <p>הודעה שדווחה 3 פעמים מוסתרת אוטומטית. אפשר למחוק או להחזיר.</p>
+    <div id="repList"></div>
+    <div class="row"><button class="btn ghost" id="repLoad">הצגת הדיווחים</button></div>
   </div>
 
   <div class="pilot" id="pilot" hidden>
     <div class="pilothint" id="pilotName"></div>
-    <div class="coinpill" id="coinPill">🪙 אספו מטבעות · <b id="coinsToday">0</b>/200 היום</div>
+    <div class="coinpill" id="coinPill">🪙 אספו מטבעות · <b id="coinsToday">0</b>/200 היום<span id="comPill"></span></div>
     <button class="btn ghost" id="exitPilot">סיום</button>
     <div id="joy"><div id="knob"></div></div>
     <div class="ud"><button id="jumpB" aria-label="קפיצה">⤴️</button><button id="deckB" aria-label="סיפון אחר">🔄</button></div>
   </div>
   <button id="chatBtn" class="chatfab hide" aria-label="צ'אט">💬<span id="chatBadge" hidden></span></button>
+  <button id="hubBtn" class="chatfab hubfab hide" aria-label="משימות וסטטיסטיקות">🎯<span id="hubBadge" hidden></span></button>
   <aside id="side" class="side closed" aria-label="צ'אט וחדשים">
     <div class="sidehead">
       <div class="tabs"><button data-tab="chat" class="on">💬 צ'אט</button><button data-tab="new">🧍 חדשים</button><button data-tab="top">🏆 שיאים</button></div>
       <button class="x" id="sideX" aria-label="סגירה">✕</button>
     </div>
+    <div class="chatrules" id="chatRules">🛟 צ'אט פתוח לכל הנוסעים: בלי קללות, בלי קישורים ובלי פרטים אישיים (טלפון, מייל). אין הודעות פרטיות. 🚩 = דיווח</div>
     <div id="chatList" class="list"></div>
     <div id="newList" class="list" hidden></div>
     <div id="topList" class="list" hidden></div>
@@ -736,7 +794,7 @@ function updateCoins(t){if(!pilotOn){coinMesh.visible=false;return}coinMesh.visi
     if(Math.hypot(c.x-myPos.x,c.z-myPos.z)<.6*Math.max(1,figS*1.4)&&Math.abs(c.y-.5-myPos.y)<1){coins[i]=randWalk();coinsToday++;coinsPending++;if(coinsToday===COINS_NEED){if(!LIVE)refreshBillet();toast("🪙 200 מטבעות! עכשיו אפשר לחפש את השטר 💸")}snd("blip");const el=$("#coinsToday");el.textContent=coinsToday;const pl=$("#coinPill");pl.classList.add("pop");setTimeout(()=>pl.classList.remove("pop"),150)}}
   coinMesh.instanceMatrix.needsUpdate=true}
 setInterval(async()=>{if(!coinsPending||!LIVE||!meName)return;const n=Math.min(15,coinsPending);
-  try{const r=await rpc("add_coins",{h:meName,n});if(r.ok){coinsPending-=n;const j=await r.json();if(j&&typeof j.today==="number"){coinsToday=j.today+coinsPending;$("#coinsToday").textContent=coinsToday;if(j.today>=COINS_NEED&&billet&&!billet.locked&&!(billet.access&&billet.access.ok)){billetBusy=0;refreshBillet()}}}}catch(e){}},2500);
+  try{const r=await rpc("add_coins",{h:meName,n});if(r.ok){coinsPending-=n;const j=await r.json();if(j&&typeof j.today==="number"){syncMissions();coinsToday=j.today+coinsPending;$("#coinsToday").textContent=coinsToday;if(j.today>=COINS_NEED&&billet&&!billet.locked&&!(billet.access&&billet.access.ok)){billetBusy=0;refreshBillet()}}}}catch(e){}},2500);
 
 /* ================= NAUFRAGE ================= */
 const SINK={on:false,t0:0,from:0,to:0,old:null,who:null};
@@ -830,11 +888,11 @@ function caption(html){if(window.CAP){if(capEl._h!==html){capEl._h=html;capEl.in
   if(capEl._h!==html){capEl._h=html;capEl.style.opacity=0;setTimeout(()=>{if(capEl._h===html){capEl.innerHTML=html;capEl.style.opacity=html?1:0}},html?250:0)}}
 function flash(a=.8,d=.4){const f=$("#fade");f.style.transition="none";f.style.opacity=a;requestAnimationFrame(()=>{f.style.transition="opacity "+d+"s";f.style.opacity=0})}
 let mode="intro";
-function hideUI(h){["#top","#bottom","#chatBtn"].forEach(s=>$(s).classList.toggle("hide",h))}
+function hideUI(h){["#top","#bottom","#chatBtn","#hubBtn"].forEach(s=>$(s).classList.toggle("hide",h))}
 function showUI(){if(REEL)return;hideUI(false);mode="sea";pumpN();$("#bottom").hidden=false;updateJoinBtn()}
 function updateJoinBtn(){const b=$("#joinBtn");if(meName&&byH.has(meName)){b.textContent="🧍 הנוסע שלי";b.onclick=()=>{const p=byH.get(meName);if(p)select(p)}}else{b.textContent="🧍 עלו לסיפון";b.onclick=()=>openSheet("#joinSheet")}}
-function openSheet(id){closeSheets(id);$(id).classList.remove("closed");$("#bottom").classList.add("hide");$("#chatBtn").style.visibility="hidden"}
-function closeSheets(except){document.querySelectorAll(".sheet").forEach(s=>{if("#"+s.id!==except)s.classList.add("closed")});if(!except){$("#chatBtn").style.visibility="";if(mode==="sea"&&!REEL&&!pilotOn)$("#bottom").classList.remove("hide")}}
+function openSheet(id){closeSheets(id);$(id).classList.remove("closed");$("#bottom").classList.add("hide");$("#chatBtn").style.visibility=$("#hubBtn").style.visibility="hidden"}
+function closeSheets(except){document.querySelectorAll(".sheet").forEach(s=>{if("#"+s.id!==except)s.classList.add("closed")});if(!except){$("#chatBtn").style.visibility=$("#hubBtn").style.visibility="";if(mode==="sea"&&!REEL&&!pilotOn)$("#bottom").classList.remove("hide")}}
 document.querySelectorAll("[data-close]").forEach(b=>b.onclick=()=>{deselect();closeSheets()});
 
 /* sélection */
@@ -891,7 +949,7 @@ async function join(){
   if(shipIdx(totalN())===before){const p=byH.get(h);setTimeout(()=>{select(p);toast("ברוכים הבאים לסיפון! 🚢")},300)}
 }
 $("#joinGo").onclick=join;$("#joinIn").onkeydown=e=>{if(e.key==="Enter")join()};$("#joinFromSheet").onclick=()=>openSheet("#joinSheet");
-async function dailyCheckIn(){if(!meName||!byH.has(meName))return;const p=byH.get(meName);
+async function dailyCheckIn(){if(!meName||!byH.has(meName))return;const p=byH.get(meName);setTimeout(()=>{syncMissions(true);loadStats();loadCoinTop()},1500);
   try{if(LIVE){const r=await rpc("check_in",{h:meName});if(!r.ok)return;const j=await r.json();if(!j[0])return;const prev=p.streak;p.streak=j[0].streak;p.best_streak=j[0].best_streak;if(p.streak>1&&p.streak!==prev)setTimeout(()=>toast("🔥 "+p.streak+" ימים ברצף על הסיפון!"),4000);rebuild()}}catch(e){}}
 
 /* admin */
@@ -930,30 +988,136 @@ function openSide(o){side.classList.toggle("closed",!o);if(o){unread=0;updBadge(
 function updBadge(){const b=$("#chatBadge");b.hidden=!unread||sideOpen();b.textContent=unread>9?"9+":unread}
 $("#chatBtn").onclick=()=>openSide(true);$("#sideX").onclick=()=>openSide(false);
 document.querySelectorAll(".tabs button").forEach(b=>b.onclick=()=>{tab=b.dataset.tab;document.querySelectorAll(".tabs button").forEach(x=>x.classList.toggle("on",x===b));
-  $("#chatList").hidden=tab!=="chat";$("#newList").hidden=tab!=="new";$("#topList").hidden=tab!=="top";$("#chatForm").hidden=tab!=="chat";if(tab==="top")renderTop();if(tab==="new")renderNew()});
+  $("#chatList").hidden=tab!=="chat";$("#newList").hidden=tab!=="new";$("#topList").hidden=tab!=="top";$("#chatForm").hidden=$("#chatRules").hidden=tab!=="chat";if(tab==="top"){renderTop();loadCoinTop().then(renderTop)}if(tab==="new")renderNew()});
 function ago(d){const m=Math.floor((Date.now()-new Date(d))/6e4);if(m<1)return"עכשיו";if(m<60)return"לפני "+m+" דק׳";const h=Math.floor(m/60);if(h<24)return"לפני "+h+" שע׳";return"לפני "+Math.floor(h/24)+" ימים"}
 function renderChat(scroll){const el=$("#chatList");
-  el.innerHTML=msgs.length?msgs.map(m=>`<div class="msg${m.handle===meName?" mine":""}">${adminPass?`<button class="del" data-id="${m.id}" aria-label="מחיקה">🗑️</button>`:""}<span class="who" data-h="${esc(m.handle)}">@${esc(m.handle)}</span><span class="when">${ago(m.created_at)}</span><div>${esc(m.body)}</div></div>`).join(""):`<div class="empty">עוד אין הודעות. תהיו הראשונים לכתוב 👋</div>`;
+  el.innerHTML=msgs.length?msgs.map(m=>`<div class="msg${m.handle===meName?" mine":""}">${adminPass?`<button class="del" data-id="${m.id}" aria-label="מחיקה">🗑️</button>`:(meName&&m.handle!==meName&&!reported.has(m.id)?`<button class="rep" data-id="${m.id}" aria-label="דיווח" title="דיווח">🚩</button>`:"")}<span class="who" data-h="${esc(m.handle)}">@${esc(m.handle)}</span><span class="when">${ago(m.created_at)}</span><div>${esc(m.body)}</div></div>`).join(""):`<div class="empty">עוד אין הודעות. תהיו הראשונים לכתוב 👋</div>`;
   el.querySelectorAll(".who").forEach(w=>w.onclick=()=>{const p=byH.get(w.dataset.h);if(p){openSide(false);select(p)}});
   el.querySelectorAll(".del").forEach(d=>d.onclick=async()=>{try{const r=await rpc("admin_delete_message",{pass:adminPass,mid:+d.dataset.id});if(!r.ok)throw 0;msgs=msgs.filter(m=>m.id!==+d.dataset.id);renderChat()}catch(e){toast("המחיקה לא עבדה")}});
+  el.querySelectorAll(".rep").forEach(d=>d.onclick=()=>reportMsg(+d.dataset.id));
   if(scroll)el.scrollTop=el.scrollHeight}
 function renderNew(){const el=$("#newList"),l=P.slice(-30).reverse();el.innerHTML=l.length?l.map(p=>`<button class="newrow" data-h="${esc(p.handle)}"><b>@${esc(p.handle)}</b><span>${p.vip?"⭐ ":""}${ago(p.created_at)}</span></button>`).join(""):`<div class="empty">אין עדיין נוסעים</div>`;
   el.querySelectorAll(".newrow").forEach(b=>b.onclick=()=>{const p=byH.get(b.dataset.h);if(p){openSide(false);select(p)}})}
-let coinTop=[];
-async function loadCoinTop(){if(!LIVE)return;try{const r=await sb("coins?select=handle,today&day=eq."+ilDay()+"&today=gt.0&order=today.desc&limit=5");if(r.ok)coinTop=await r.json()}catch(e){}}
-function renderTop(){const el=$("#topList");const row=(p,v)=>`<button class="newrow" data-h="${esc(p.handle)}"><b>@${esc(p.handle)}</b><span>${v}</span></button>`;
+let lbScope="today",lbData={today:null,all:null};
+async function loadCoinTop(){if(!LIVE)return;try{const [a,b]=await Promise.all(["today","all"].map(sc=>rpc("leaderboard",{h:meName||"",scope:sc})));if(a.ok)lbData.today=await a.json();if(b.ok)lbData.all=await b.json()}catch(e){}}
+function boardHtml(row){const d=lbData[lbScope],me=meName||"",medal=r=>r===1?"🥇":r===2?"🥈":r===3?"🥉":"#"+r;
+  const tabs=`<span class="lbt"><button data-s="today" class="${lbScope==="today"?"on":""}">היום</button><button data-s="all" class="${lbScope==="all"?"on":""}">כללי</button></span>`;
+  let h=`<div class="sec" style="display:flex;justify-content:space-between;align-items:center">🪙 דירוג המטבעות ${tabs}</div>`;
+  if(!d||!d.top.length)return h+`<div class="empty">${lbScope==="today"?"עוד אף אחד לא אסף מטבעות היום… תהיו ראשונים!":"הזיזו את הנוסע שלכם ואספו מטבעות!"}</div>`;
+  h+=d.top.map(t=>row(t,medal(t.rank)+" · 🪙 "+fmtN(t.coins),t.handle===me)).join("");
+  if(d.me&&!d.top.some(t=>t.handle===me))h+=`<div class="lbgap">⋮</div>`+row(d.me,"#"+d.me.rank+" · 🪙 "+fmtN(d.me.coins),true);
+  else if(me&&byH.has(me)&&!d.me)h+=`<div class="empty" style="padding:8px">${lbScope==="today"?"אתם עוד לא בדירוג של היום: אספו מטבע אחד ונכנסים!":"אספו מטבעות כדי להיכנס לדירוג"}</div>`;
+  return h}
+function renderTop(){const el=$("#topList");const row=(p,v,me)=>`<button class="newrow${me?" meRow":""}" data-h="${esc(p.handle)}"><b>@${esc(p.handle)}</b><span>${v}</span></button>`;
   const refs=P.filter(p=>p.refs>0).sort((a,b)=>b.refs-a.refs).slice(0,5),st=P.filter(p=>p.streak>1).sort((a,b)=>b.streak-a.streak).slice(0,5);
   el.innerHTML=`<div class="sec">💥 מי הטביע את הספינות</div>${sinks.length?sinks.map(s=>row(s,SHIPS[s.ship_idx].emoji+" "+SHIPS[s.ship_idx].name)).join(""):`<div class="empty">עוד אף ספינה לא טבעה… אולי אתם?</div>`}
-  <div class="sec">🪙 מטבעות היום</div>${coinTop.length?coinTop.map(c=>row(c,"🪙 "+c.today)).join(""):`<div class="empty">הזיזו את הנוסע שלכם ואספו מטבעות!</div>`}
+  ${boardHtml(row)}
   <div class="sec">📣 הכי הרבה חברים</div>${refs.length?refs.map(p=>row(p,"📣 "+p.refs)).join(""):`<div class="empty">הזמינו חברים עם הקישור האישי</div>`}
   <div class="sec">🔥 הכי הרבה ימים ברצף</div>${st.length?st.map(p=>row(p,"🔥 "+p.streak)).join(""):`<div class="empty">חזרו מחר כדי להתחיל רצף</div>`}`;
-  el.querySelectorAll(".newrow").forEach(b=>b.onclick=()=>{const p=byH.get(b.dataset.h);if(p){openSide(false);select(p)}})}
+  el.querySelectorAll(".newrow").forEach(b=>b.onclick=()=>{const p=byH.get(b.dataset.h);if(p){openSide(false);select(p)}});
+  el.querySelectorAll(".lbt button").forEach(b=>b.onclick=()=>{lbScope=b.dataset.s;renderTop()})}
 async function loadMsgs(){if(!LIVE)return;try{const r=await sb("messages?select=id,handle,body,created_at&order=id.desc&limit=60");if(!r.ok)return;const j=(await r.json()).reverse();
   const nNew=j.filter(m=>!msgs.some(x=>x.id===m.id)&&m.handle!==meName).length;msgs=j;if(nNew&&!sideOpen()&&msgs.length){unread+=nNew;updBadge()}if(sideOpen())renderChat(true)}catch(e){}}
 $("#chatForm").onsubmit=async e=>{e.preventDefault();const body=$("#chatIn").value.trim();if(!body)return;
+  const lm=modLocal(body);if(lm){toast(MOD_MSG[lm]);return}
   if(!meName||!byH.has(meName)){toast("קודם עולים לסיפון 🧍");openSide(false);openSheet("#joinSheet");return}
-  try{if(LIVE){const r=await rpc("post_message",{h:meName,body});if(!r.ok){const j=await r.json().catch(()=>({}));toast(String(j.message||"").includes("too_fast")?"לאט לאט… 10 שניות בין הודעות":String(j.message||"").includes("no_links")?"בלי קישורים בצ'אט 🙏":"ההודעה לא נשלחה");return}}
-    msgs.push({id:Date.now(),handle:meName,body,created_at:new Date().toISOString()});$("#chatIn").value="";renderChat(true);if(LIVE)setTimeout(loadMsgs,800)}catch(x){toast("אין חיבור")}};
+  try{if(LIVE){const r=await rpc("post_message",{h:meName,body});if(!r.ok){const j=await r.json().catch(()=>({}));toast(errMsg(j,"ההודעה לא נשלחה"));return}const nid=await r.json().catch(()=>null);
+      if(typeof nid==="number"&&!msgs.some(m=>m.id===nid))msgs.push({id:nid,handle:meName,body,created_at:new Date().toISOString()});$("#chatIn").value="";renderChat(true);syncMissions(true);return}
+    msgs.push({id:Date.now(),handle:meName,body,created_at:new Date().toISOString()});$("#chatIn").value="";renderChat(true)}catch(x){toast("אין חיבור")}};
+
+/* ================= V3 (29.10) : missions, stats, classement, idées, chat modéré ================= */
+const MOD_MSG={no_links:"בלי קישורים בצ'אט 🙏",mod_link:"בלי קישורים 🙏",mod_phone:"📵 אסור לשתף מספרי טלפון",mod_email:"📵 אסור לשתף כתובות מייל",mod_private:"🔒 אין הודעות פרטיות במשחק, רק הצ'אט הפתוח",mod_bad:"🙊 בלי קללות ובלי תוכן לא מתאים",too_fast:"לאט לאט… 10 שניות בין הודעות",limit:"אפשר לשלוח 3 רעיונות ביום 💡",bad_length:"ההודעה קצרה או ארוכה מדי",own_message:"אי אפשר לדווח על הודעה שלכם",not_a_passenger:"קודם עולים לסיפון 🧍"};
+function errMsg(j,def){const m=String(j&&j.message||"");for(const k in MOD_MSG)if(m.includes(k))return MOD_MSG[k];return def}
+function modLocal(t){const b=String(t).toLowerCase();
+  if(/(https?:\/\/|www\.|[a-z0-9-]{2,}\s*\.\s*(com|net|org|co|il|io|me|ly|gg|tv|app|xyz|info|link|site|online)\b)/.test(b))return "mod_link";
+  if(/[a-z0-9._%+-]+@\s*[a-z0-9-]+\s*\.\s*[a-z]{2,}/.test(b))return "mod_email";
+  if(/\d{7,}/.test(b.replace(/[\s\-.()+_/]/g,"")))return "mod_phone";return null}
+const reported=new Set();
+async function reportMsg(id){if(!meName||!byH.has(meName)){toast("קודם עולים לסיפון 🧍");return}if(!confirm("לדווח על ההודעה הזאת? 🚩"))return;
+  try{const r=await rpc("report_message",{h:meName,mid:id});const j=await r.json().catch(()=>({}));if(!r.ok){toast(errMsg(j,"הדיווח לא עבד"));return}
+    reported.add(id);if(j.hidden)msgs=msgs.filter(m=>m.id!==id);renderChat();toast("תודה! ההודעה דווחה 🚩")}catch(e){toast("אין חיבור")}}
+
+/* chat en direct (Supabase realtime, protocole Phoenix) ; le polling reste en secours */
+let rtHb=null,rtTry=0;
+function rtConnect(){if(!LIVE||!("WebSocket" in window))return;let ws;
+  try{ws=new WebSocket(CONFIG.SUPABASE_URL.replace(/^http/,"ws").replace(/\/$/,"")+"/realtime/v1/websocket?apikey="+encodeURIComponent(CONFIG.SUPABASE_KEY)+"&vsn=1.0.0")}catch(e){return}
+  ws.onopen=()=>{rtTry=0;ws.send(JSON.stringify({topic:"realtime:tb-chat",event:"phx_join",payload:{config:{broadcast:{self:false},presence:{key:""},postgres_changes:[{event:"INSERT",schema:"public",table:"messages"},{event:"DELETE",schema:"public",table:"messages"}]}},ref:"1",join_ref:"1"}));
+    clearInterval(rtHb);rtHb=setInterval(()=>{if(ws.readyState===1)ws.send(JSON.stringify({topic:"phoenix",event:"heartbeat",payload:{},ref:"hb"}))},25000)};
+  ws.onmessage=e=>{let m;try{m=JSON.parse(e.data)}catch(x){return}if(!m||m.event!=="postgres_changes")return;const d=m.payload&&m.payload.data;if(!d)return;
+    if(d.type==="INSERT"&&d.record){const r=d.record;if(r.hidden||msgs.some(x=>x.id===r.id))return;msgs.push({id:r.id,handle:r.handle,body:r.body,created_at:r.created_at});if(msgs.length>80)msgs.splice(0,msgs.length-80);
+      if(r.handle!==meName&&!sideOpen()){unread++;updBadge()}if(sideOpen())renderChat(true)}
+    else if(d.type==="DELETE"&&d.old_record){const id=d.old_record.id;if(msgs.some(x=>x.id===id)){msgs=msgs.filter(x=>x.id!==id);if(sideOpen())renderChat()}}};
+  ws.onclose=()=>{clearInterval(rtHb);setTimeout(rtConnect,Math.min(60000,2000*Math.pow(2,rtTry++)))};
+  ws.onerror=()=>{try{ws.close()}catch(x){}}}
+
+/* missions du jour */
+let missions=null,msNext=0,msTimer=null,myStats=null,gStats=null;
+async function syncMissions(force){if(!LIVE||!meName||!byH.has(meName))return;const now=Date.now();
+  if(!force&&now<msNext){clearTimeout(msTimer);msTimer=setTimeout(()=>syncMissions(true),msNext-now+50);return}msNext=now+8000;
+  try{const r=await rpc("missions_sync",{h:meName});if(!r.ok)return;const j=await r.json();missions=j.missions||[];
+    const just=missions.filter(m=>m.just);just.forEach((m,i)=>setTimeout(()=>celebrate(m),i*900));
+    coinsToday=Math.max(coinsToday,(j.coins||0)+coinsPending);const el=$("#coinsToday");if(el)el.textContent=coinsToday;
+    if(just.length){billetBusy=0;refreshBillet();loadStats()}
+    renderAccPill();if(hubOpen())renderHub()}catch(e){}}
+function celebrate(m){snd("coin");const d=document.createElement("div");d.className="mfx";d.textContent="✅ +"+m.bonus+" 🪙";document.body.appendChild(d);setTimeout(()=>d.remove(),1900);
+  notify("🎯 משימה הושלמה! +"+m.bonus+" מטבעות")}
+function missionAct(id){const m=missions&&missions.find(x=>x.id===id);if(!m||m.done)return;
+  if(id==="comment")window.open(IG,"_blank","noopener");else if(id==="invite")invite(meName);else if(id==="idea")openIdea();
+  else if(id==="chat"){closeSheets();openSide(true);const t=document.querySelector('.tabs button[data-tab="chat"]');if(t)t.click()}
+  else if(id.startsWith("coins")){closeSheets();startPilot()}}
+
+/* concours du jour : où en est le joueur (X/200 + commentaire) */
+function accNow(){const a=(billet&&billet.access)||(myStats&&myStats.access)||{};const need=a.need||COINS_NEED;return {coins:Math.max(a.coins||0,coinsToday),need,commented:!!a.commented}}
+function renderAccPill(){const p=$("#accPill"),me=!!(meName&&byH.has(meName));p.hidden=!me||REEL;const cp=$("#comPill");
+  if(!me){if(cp)cp.textContent="";return}const a=accNow(),locked=!billet||billet.locked;
+  p.innerHTML=`${locked?"🔒":"🎟️"} 🪙 <b>${Math.min(a.coins,a.need)}</b>/${a.need} · 💬 ${a.commented?'<span class="ok">✓</span>':'<span class="no">✗</span>'}`;
+  if(cp)cp.textContent=" · 💬 "+(a.commented?"✓":"✗");
+  const left=missions?missions.filter(m=>!m.done).length:0,b=$("#hubBadge");b.hidden=!left;b.textContent=left}
+
+/* fiche « היום שלי » : concours, missions, mes stats, stats globales */
+const hubOpen=()=>!$("#hubSheet").classList.contains("closed");
+async function loadStats(){if(!LIVE)return;try{const me=meName&&byH.has(meName);
+  const [g,m]=await Promise.all([rpc("global_stats",{}),me?rpc("my_stats",{h:meName}):Promise.resolve(null)]);
+  if(g&&g.ok)gStats=await g.json();if(m&&m.ok)myStats=await m.json();renderAccPill();if(hubOpen())renderHub()}catch(e){}}
+const tile=(v,l)=>`<div><b>${v}</b>${l}</div>`;
+function renderHub(){const el=$("#hubBody"),me=!!(meName&&byH.has(meName)),a=accNow(),locked=!billet||billet.locked,n=totalN(),need=Math.max(0,SHIPS[shipI].cap-n);let h="";
+  h+=`<div class="card"><div class="ct">🎟️ התחרות של היום <small>שטר של 20₪</small></div>`;
+  if(!me)h+=`<div class="muted">עלו לסיפון כדי להשתתף 🧍</div>`;
+  else{const c=Math.min(a.coins,a.need),ok=a.coins>=a.need;
+    h+=`<div>🪙 מטבעות היום: <b>${c}</b>/${a.need} ${ok?'<span class="ok">✓</span>':""}</div><div class="bar"><i style="width:${Math.round(100*c/a.need)}%"></i></div>`;
+    h+=`<div>💬 תגובה על הפוסט של היום: ${a.commented?'<span class="ok">✓</span>':`<span class="no">✗</span> · <a href="${IG}" target="_blank" rel="noopener" style="color:var(--gold)">להגיב באינסטגרם</a>`}</div>`;
+    h+=`<div class="muted" style="margin-top:6px">${locked?`🔒 השטר נפתח כשהסירה טובעת · עוד <b>${need}</b> נוסעים`:ok&&a.commented?"✅ אתם בתחרות! חפשו את השטר על הסיפון 💸":"🔒 השטר מופיע רק למי שעומד/ת בשני התנאים"}</div>`}
+  h+=`</div><div class="card"><div class="ct">🎯 משימות היום <small>מתחדשות בחצות</small></div>`;
+  if(!me)h+=`<div class="muted">עלו לסיפון כדי לקבל 3 משימות ביום עם בונוס מטבעות 🪙</div>`;
+  else if(!missions)h+=`<div class="muted">${LIVE?"טוען…":"זמין במשחק האמיתי"}</div>`;
+  else h+=missions.map(m=>{const pr=m.id.startsWith("coins")?Math.min(m.goal,Math.max(m.progress,coinsToday)):m.progress,pct=Math.round(100*pr/m.goal);
+    return `<div class="mrow${m.done?" done":""}${m.just?" pop":""}" data-act="${esc(m.id)}"><div class="mt"><span>${m.done?"✅ ":""}${esc(m.title)}</span><b>+${m.bonus} 🪙</b></div><div class="bar"><i style="width:${pct}%"></i></div><div class="mp">${m.done?"בוצע! הבונוס נוסף למטבעות שלכם":m.goal>1?pr+"/"+m.goal:"לחצו כאן כדי להתחיל"}</div></div>`}).join("");
+  h+=`</div>`;
+  if(me&&myStats){const s=myStats;h+=`<div class="card"><div class="ct">📊 הסטטיסטיקות שלי</div><div class="sgrid">${tile(fmtN(Math.max(s.coins_today||0,coinsToday)),"🪙 מטבעות היום")}${tile(fmtN(s.coins_total||0),"🪙 סה״כ מטבעות")}${tile((s.streak||0)+" 🔥","ימים ברצף (שיא "+(s.best_streak||0)+")")}${tile(s.missions||0,"🎯 משימות שבוצעו")}${tile(s.participations||0,"🎟️ השתתפויות בתחרות")}${tile(s.wins||0,"🏆 זכיות")}${tile(s.rank_today?"#"+s.rank_today:"–","📊 מקום היום")}${tile(s.rank_all?"#"+s.rank_all:"–","📊 מקום כללי")}</div></div>`}
+  const g=gStats;h+=`<div class="card"><div class="ct">🚢 הספינה במספרים</div><div class="sgrid">${tile(fmtN(g?g.passengers:n),"🧍 נוסעים")}${tile(g&&g.followers!=null?fmtN(g.followers):"–","📸 עוקבים באינסטגרם")}${tile(fmtN(g&&g.left!=null?g.left:need),"🌊 נוסעים עד הטביעה")}${tile(fmtN(g?g.coins_today:0),"🪙 מטבעות נאספו היום")}</div></div>`;
+  el.innerHTML=h;el.querySelectorAll(".mrow").forEach(r=>r.onclick=()=>missionAct(r.dataset.act));if(missions)missions.forEach(m=>m.just=false)}
+function openHub(){openSheet("#hubSheet");renderHub();syncMissions(true);loadStats()}
+$("#hubBtn").onclick=openHub;$("#accPill").onclick=openHub;
+$("#hubTop").onclick=()=>{closeSheets();openSide(true);const t=document.querySelector('.tabs button[data-tab="top"]');if(t)t.click()};
+
+/* boîte à idées */
+function updIdeaCnt(){$("#ideaCnt").textContent=$("#ideaIn").value.length+"/200"}
+function openIdea(){if(!meName||!byH.has(meName)){toast("קודם עולים לסיפון 🧍");openSheet("#joinSheet");return}
+  openSheet("#ideaSheet");$("#ideaErr").textContent="";updIdeaCnt();
+  if(LIVE)rpc("ideas_left",{h:meName}).then(r=>r.ok?r.json():null).then(n=>{if(n===0)$("#ideaErr").textContent="שלחתם כבר 3 רעיונות היום, תודה! חזרו מחר 💡"}).catch(()=>{})}
+$("#hubIdea").onclick=openIdea;$("#ideaIn").oninput=updIdeaCnt;
+$("#ideaGo").onclick=async()=>{const b=$("#ideaIn").value.trim(),err=$("#ideaErr");if(b.length<3){err.textContent="כתבו קצת יותר 🙂";return}
+  const lm=modLocal(b);if(lm){err.textContent=MOD_MSG[lm];return}$("#ideaGo").disabled=true;
+  try{if(LIVE){const r=await rpc("submit_idea",{h:meName,body:b});const j=await r.json().catch(()=>({}));if(!r.ok){err.textContent=errMsg(j,"משהו לא עבד, נסו שוב");return}}
+    $("#ideaIn").value="";updIdeaCnt();closeSheets();toast("💡 תודה! הרעיון נשלח לקפטן");syncMissions(true)}catch(e){err.textContent="אין חיבור, נסו שוב"}finally{$("#ideaGo").disabled=false}};
+
+/* admin : messages signalés */
+$("#repLoad").onclick=async()=>{const err=$("#adminErr"),pass=$("#adminPass").value,box=$("#repList");
+  try{const r=await rpc("admin_reported",{pass});if(!r.ok){err.textContent="סיסמה שגויה או שגיאה";return}adminPass=pass;const l=await r.json();
+    box.innerHTML=l.length?l.map(m=>`<div class="repl"><b dir="ltr">@${esc(m.handle)}</b> · 🚩 ${m.reports}${m.hidden?" · מוסתרת":""}<div>${esc(m.body)}</div><button data-del="${m.id}">🗑️ מחיקה</button><button data-res="${m.id}">↩️ החזרה</button></div>`).join(""):`<div class="empty">אין דיווחים 👍</div>`;
+    box.querySelectorAll("[data-del]").forEach(b=>b.onclick=async()=>{const id=+b.dataset.del;const r=await rpc("admin_delete_message",{pass:adminPass,mid:id});if(r.ok){b.parentElement.remove();msgs=msgs.filter(m=>m.id!==id);renderChat()}else toast("המחיקה לא עבדה")});
+    box.querySelectorAll("[data-res]").forEach(b=>b.onclick=async()=>{const r=await rpc("admin_restore_message",{pass:adminPass,mid:+b.dataset.res});if(r.ok){b.parentElement.remove();loadMsgs()}else toast("לא עבד")})}
+  catch(e){err.textContent="שגיאת חיבור"}};
 
 /* actualités */
 const DEFAULT_NEWS={id:"local-2",title:"ברוכים הבאים לסיפון! 🚢",body:"🌊 המטרה של כולנו: להטביע את הספינה!\n🧍 כל עוקב = נוסע. כל תגובה = VIP ⭐\n💸 כשהסירה טובעת (25 נוסעים), נפתחים שטר של 20₪ ביום, מוסתר בפינה רחוקה של הספינה\n📣 הזמינו חברים: כל חבר מקרב את הטביעה ואת השטרות!"};
@@ -979,10 +1143,10 @@ let pilotOn=false,myYaw=0,myRect=null,vy=0;const keys={},joyV={x:0,y:0};
 function rectsAll(){return [...ship.walk,...ship.top]}
 function inRect(r,x,z){return x>=r.x0&&x<=r.x1&&z>=r.z0&&z<=r.z1}
 function startPilot(){const p=byH.get(meName);if(!p||!p.slot)return;pilotOn=true;myPos.set(p.slot.x,p.slot.y,p.slot.z);myRect=rectsAll().find(r=>Math.abs(r.y-p.slot.y)<.01&&inRect(r,p.slot.x,p.slot.z))||rectsAll()[0];
-  closeSheets();$("#pilot").hidden=false;$("#top").classList.add("hide");$("#bottom").classList.add("hide");$("#chatBtn").classList.add("hide");$("#pilotName").textContent="@"+meName;
+  closeSheets();$("#pilot").hidden=false;$("#top").classList.add("hide");$("#bottom").classList.add("hide");$("#chatBtn").classList.add("hide");$("#hubBtn").classList.add("hide");$("#pilotName").textContent="@"+meName;
   controls.autoRotate=false;controls.minDistance=2;flyS.on=false;ring.visible=false;
   if(billetActive())toast("💸 חפשו את השטר על הסיפון!");else toast("🪙 אספו מטבעות על הסיפון!");loadCoinTop()}
-function stopPilot(){pilotOn=false;$("#pilot").hidden=true;if(mode==="sea"&&!REEL){$("#top").classList.remove("hide");$("#bottom").classList.remove("hide");$("#chatBtn").classList.remove("hide")}controls.minDistance=Math.max(3,ship.view.d*.18);rebuild()}
+function stopPilot(){pilotOn=false;$("#pilot").hidden=true;if(mode==="sea"&&!REEL){$("#top").classList.remove("hide");$("#bottom").classList.remove("hide");$("#chatBtn").classList.remove("hide");$("#hubBtn").classList.remove("hide")}controls.minDistance=Math.max(3,ship.view.d*.18);rebuild()}
 $("#walkBtn").onclick=startPilot;$("#exitPilot").onclick=stopPilot;
 $("#jumpB").onclick=()=>{if(myOff.jump<=0.001){vy=4.2;snd("whoosh")}};
 $("#deckB").onclick=()=>{const rs=rectsAll(),i=(rs.indexOf(myRect)+1)%rs.length;myRect=rs[i];myPos.set((myRect.x0+myRect.x1)/2,myRect.y,(myRect.z0+myRect.z1)/2);snd("whoosh")};
@@ -1096,12 +1260,12 @@ window.loop=loop;
   setShip(shipIdx(0));if(!window.CAP)loop();
   try{await Promise.race([loadAll(),new Promise(r=>setTimeout(r,6000))])}catch(e){toast("בעיית חיבור… מנסים שוב")}
   setShip(shipIdx(totalN()));updateHud();updateJoinBtn();
-  await loadEvent();refreshBillet();loadWins();loadMsgs();loadCoinTop();dailyCheckIn();
+  await loadEvent();refreshBillet();loadWins();loadMsgs();loadCoinTop();dailyCheckIn();loadStats();rtConnect();
   if(ADMIN){mode="sea";controls.enabled=true;$("#gate").hidden=true;showUI();openAdmin();const c=ship.view;camera.position.set(c.d*.95,c.h*1.3,c.d*.75);controls.target.set(0,c.h*.3,0)}
   else if(REEL||SINKREPLAY||window.CAP){$("#gate").hidden=true;started=true;
     if(SINKREPLAY){mode="sea";controls.enabled=true;hideUI(true);const c=ship.view;camera.position.set(c.d*.95,c.h*1.3,c.d*.75);controls.target.set(0,c.h*.3,0);
       if(shipI>=1)startSink(shipI-1,shipI);else{const n=totalN();startSink(0,1);SINK.fake=n}}}
-  setInterval(poll,20000);setInterval(loadMsgs,8000);setInterval(refreshBillet,30000);setInterval(renderHunt,1000);setInterval(loadEvent,60000);setInterval(()=>{loadWins();loadCoinTop()},60000);
+  setInterval(poll,20000);setInterval(loadMsgs,30000);setInterval(()=>{syncMissions();loadStats()},60000);setInterval(refreshBillet,30000);setInterval(()=>{renderHunt();renderAccPill()},1000);setInterval(loadEvent,60000);setInterval(()=>{loadWins();loadCoinTop()},60000);
 })();
 </script>
 </body>
