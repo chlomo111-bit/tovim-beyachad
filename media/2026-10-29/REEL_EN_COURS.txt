@@ -1,0 +1,5 @@
+Reel « יום 2 » du 29.10.2026 : DÉJÀ PRIS EN CHARGE par la session principale du jeu (montage en cours avec tools/reel_jour2.py,
+transcription mot à mot faite, publication programmée à 19:28 + commentaire CTA). Ne PAS monter ni publier un second reel aujourd'hui.
+Les règles du billet sont DÉJÀ en place (29.10.2026) : un seul billet/jour, débloqué au premier naufrage, visible seulement avec
+200 pièces du jour + commentaire du post du jour (tables billet_eligible / billet_gate, fonctions billet_access, billet_state,
+claim_treasure). Ne pas créer de table daily_commenters en double.
