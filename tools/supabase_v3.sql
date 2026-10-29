@@ -275,7 +275,8 @@ begin
     'streak', p.streak, 'best_streak', p.best_streak, 'refs', p.refs, 'since', (p.created_at at time zone 'Asia/Jerusalem')::date,
     'missions', (select count(*) from mission_done where handle = hid),
     'missions_today', (select count(*) from mission_done where handle = hid and day = d),
-    'participations', (select count(*) from coins_daily c join billet_eligible e on e.day = c.day and e.handle = c.handle where c.handle = hid and c.coins >= 200),
+    'participations', (select count(*) from coins_daily c join billet_eligible e on e.day = c.day and e.handle = c.handle where c.handle = hid and c.coins >= 200
+        and c.day >= coalesce((select (sunk_at at time zone 'Asia/Jerusalem')::date from sinks where ship_idx = 0), 'infinity'::date)),
     'wins', (select count(*) from treasure_wins where handle = hid),
     'rank_today', case when ct > 0 then (select count(*) + 1 from coins_daily where day = d and coins > ct and handle <> 'tovim_beyachad') end,
     'rank_all', case when ca > 0 then (select count(*) + 1 from coins where total > ca and handle <> 'tovim_beyachad') end,
