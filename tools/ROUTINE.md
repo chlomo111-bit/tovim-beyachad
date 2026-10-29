@@ -20,7 +20,7 @@ Shlomo a donné l'autonomie complète le 28.10.2026 : stories, reels, réponses 
 - Textes en hébreu, humains et courts. Style visuel : Heebo 900, blanc + mots clés #FFC24B, carte bleu nuit bordée de jaune.
 - Mention à la fin de toute description qui parle des billets : « המבצע אינו קשור לאינסטגרם ואינו ממומן על ידה. »
 - 5 hashtags : #טובעים_ביחד #משחק #ספינה #זכייה #ישראל
-- Billets (règle du 28.10.2026) : 3 billets de 20 ₪ par jour (60 ₪/jour), DÉBLOQUÉS SEULEMENT après le premier naufrage (25 passagers). Avant : le jeu affiche « 🔒 נפתחים כשהסירה טובעת · עוד X נוסעים ». Toujours le dire ainsi dans les textes (« השטרות נפתחים כשהסירה טובעת »). Jamais d'autres montants promis. Le billet est caché dans un coin éloigné du bateau, jamais sur un passager.
+- Billets (règle du 29.10.2026, remplace les 3 billets) : UN SEUL billet de 20 ₪ par jour (heure aléatoire entre 12:00 et 20:00), comme tous les jeux de Shlomo, DÉBLOQUÉS SEULEMENT après le premier naufrage (25 passagers). Avant : le jeu affiche « 🔒 נפתחים כשהסירה טובעת · עוד X נוסעים ». Toujours le dire ainsi dans les textes (« השטרות נפתחים כשהסירה טובעת »). Jamais d'autres montants promis. Le billet est caché dans un coin éloigné du bateau, jamais sur un passager.
 
 ## Règlement des commentaires (à appliquer à chaque passage)
 1. Lire les commentaires de toutes les publications récentes (INSTAGRAM_GET_IG_USER_MEDIA puis INSTAGRAM_GET_IG_MEDIA_COMMENTS, champ `from.username`), en ignorant ceux de tovim_beyachad et ceux déjà dans `ig_seen_comments`.
@@ -35,13 +35,13 @@ Shlomo a donné l'autonomie complète le 28.10.2026 : stories, reels, réponses 
 ## Le matin (tâche 08:00)
 1. Passage commentaires (règlement ci-dessus).
 2. Événement du jour : le commentaire le plus liké d'hier sous le reel, s'il est réalisable et sans risque (pas politique, pas haineux, pas de données perso) → `admin_set_event` n'est pas utilisable sans mot de passe : faire `insert into game_state(key,value) values ('event','{"type":"shark","title":"..."}') on conflict (key) do update set value=excluded.value, updated_at=now();` (types : none, storm, shark, iceberg, party, whale, kraken). Sinon en choisir un soi-même pour varier.
-3. Story 09:00 : fond avec `tools/story_fond.py` (vrais passagers depuis Supabase), texte avec `tools/story_texte.py` : « עוד X נוסעים והסירה טובעת » + « 💸 3 שטרות של 20₪ היום », lien en bio. Pousser dans media/AAAA-MM-JJ/, publier (media_type STORIES).
+3. Story 09:00 : fond avec `tools/story_fond.py` (vrais passagers depuis Supabase), texte avec `tools/story_texte.py` : « עוד X נוסעים והסירה טובעת » + « 💸 שטר של 20₪ היום », lien en bio. Pousser dans media/AAAA-MM-JJ/, publier (media_type STORIES).
 4. Préparer le reel du soir « יום N » (N = jours depuis le 28.10.2026, +1) : écrire le texte voix (hébreu, 20–30 s, balises d'émotion v3, hook fou au début, événement révélé à la fin, CTA « כתבו "עולה" ») l'enregistrer dans media/AAAA-MM-JJ/voix.txt, mais NE PAS l'envoyer le matin : programmer (send_later) l'envoi à Shlomo à 17:00, soit 2 à 3 heures avant la mise en ligne de 19:30 (SendUserMessage + PushNotification, chiffres actualisés), en lui demandant le MP3 Juniper. C'est la SEULE chose qu'on lui demande (consigne du 29.10.2026) ; tout le reste (programmations, montage, publication) se fait sans lui demander. Ne jamais publier un reel sans sa voix.
 
 ## Le soir (tâche 19:00)
 1. Passage commentaires.
 2. Gagnants des billets du jour : `select slot, handle, found_at from treasure_wins where day=(now() at time zone 'Asia/Jerusalem')::date order by slot;`
-3. Story du soir : gagnants (« 🏆 היום זכו: @… ») ou « 😱 שטר לא נמצא… מחר 3 שטרות חדשים », + nouveaux passagers du jour. Publier.
+3. Story du soir : gagnants (« 🏆 היום זכו: @… ») ou « 😱 שטר לא נמצא… מחר שטר חדש », + nouveaux passagers du jour. Publier.
 4. Ajouter une actualité dans le jeu si quelque chose de neuf : `insert into news(title, body) values (...)`.
 
 ## Reel (quand Shlomo envoie le MP3)
@@ -49,8 +49,8 @@ Shlomo a donné l'autonomie complète le 28.10.2026 : stories, reels, réponses 
 - Description en mini-histoire du jour avec les vrais joueurs tagués, « יום N », CTA « כתבו "עולה" 👇 », « ומה יקרה מחר? התגובה עם הכי הרבה לייקים קובעת 👇 », mention légale, 5 hashtags. Puis commentaire CTA.
 
 ## Objectif n°1 : croissance (consigne de Shlomo, 28.10.2026)
-Autonomie totale. Le but : un maximum d'abonnés, de commentaires et d'interactions, par tous les moyens HONNÊTES. Atout principal : le jeu fait gagner de l'argent réel (3 billets de 20 ₪ = 60 ₪/jour) dès que la barque a coulé : chaque nouveau passager rapproche le déblocage, c'est le moteur du parrainage.
-- Hooks : mettre l'argent réel en avant dès la 1re seconde (« משחק שמחלק כסף אמיתי כל יום 💸 », « מישהו לקח 20₪ תוך 3 דקות »). Ne jamais écrire « le seul jeu » ni promettre plus que 3×20 ₪/jour.
+Autonomie totale. Le but : un maximum d'abonnés, de commentaires et d'interactions, par tous les moyens HONNÊTES. Atout principal : le jeu fait gagner de l'argent réel (un billet de 20 ₪ par jour) dès que la barque a coulé : chaque nouveau passager rapproche le déblocage, c'est le moteur du parrainage.
+- Hooks : mettre l'argent réel en avant dès la 1re seconde (« משחק שמחלק כסף אמיתי כל יום 💸 », « מישהו לקח 20₪ תוך 3 דקות »). Ne jamais écrire « le seul jeu » ni promettre plus qu'un billet de 20 ₪ par jour.
 - Preuve sociale : chaque soir, montrer les vrais gagnants (@ tagués) ; plus les gens voient que d'autres gagnent, plus ils jouent.
 - Répondre à TOUS les commentaires des joueurs (pas seulement la bienvenue) : réponse courte, humaine, différente à chaque fois, qui pose une question ou relance (« ומי עוד עולה? 👀 »). Une seule réponse par commentaire.
 - Le commentaire le plus liké décide de l'événement du lendemain : le rappeler dans chaque reel et chaque description.

@@ -683,10 +683,10 @@ function secsToNext(){if(!billet||!billet.next_at)return null;return Math.max(0,
 function renderHunt(){
   const p=$("#huntPill");if(!CONFIG.BILLET.on||!billet){p.hidden=true;return}p.hidden=false;
   const s=secsToNext(),nx=s!=null?` · הבא בעוד <b style="font-variant-numeric:tabular-nums">${fmtCd(s)}</b>`:"";
-  if(billet.locked){const need=Math.max(0,UNLOCK_AT-totalN());p.innerHTML=`🔒 <b>3 שטרות של 20₪ ביום</b> נפתחים כשהסירה טובעת · עוד <b>${need}</b> נוסעים`;return}
+  if(billet.locked){const need=Math.max(0,UNLOCK_AT-totalN());p.innerHTML=`🔒 <b>שטר של 20₪ ביום</b> נפתח כשהסירה טובעת · עוד <b>${need}</b> נוסעים`;return}
   if(billetActive())p.innerHTML=`💸 שטר של <b>${billet.prize||20} ₪</b> מוסתר על הסיפון! <span style="opacity:.8">(הזיזו את הנוסע שלכם כדי למצוא)</span>`;
   else if(billet.winner)p.innerHTML=`🏆 <b dir="ltr">@${esc(billet.winner)}</b> מצא/ה את השטר${nx}`;
-  else p.innerHTML=`💸 3 שטרות של 20 ₪ ביום${nx}`;
+  else p.innerHTML=`💸 שטר של 20 ₪ כל יום${nx}`;
   if(s===0&&LIVE)setTimeout(refreshBillet,1500)}
 function billetCode(h){return "TB-"+(hashStr(CONFIG.BILLET.secret+billet.day+billet.slot+h)>>>0).toString(36).toUpperCase().slice(0,5)}
 let foundOpen=false;
@@ -698,7 +698,7 @@ $("#fClaim").onclick=async()=>{
   const h=cleanHandle($("#fHandle").value);if(!HANDLE_RE.test(h)){$("#fErr").textContent="שם משתמש לא תקין";return}
   if(!byH.has(h)){$("#fErr").textContent="קודם צריך לעלות לסיפון 🧍";return}
   $("#fClaim").disabled=true;let w,me;
-  try{if(LIVE){const r=await rpc("claim_treasure",{h});const rows=await r.json();if(!r.ok){$("#fErr").textContent=String(rows&&rows.message||"").includes("no_billet")?"השטר הבא עוד לא הוסתר… 💸":String(rows&&rows.message||"").includes("locked")?"🔒 השטרות נפתחים כשהסירה טובעת":"משהו לא עבד, נסו שוב";$("#fClaim").disabled=false;return}w=rows[0];me=!!(w&&w.is_me)}
+  try{if(LIVE){const r=await rpc("claim_treasure",{h});const rows=await r.json();if(!r.ok){$("#fErr").textContent=String(rows&&rows.message||"").includes("no_billet")?"השטר הבא עוד לא הוסתר… 💸":String(rows&&rows.message||"").includes("locked")?"🔒 השטר נפתח כשהסירה טובעת":"משהו לא עבד, נסו שוב";$("#fClaim").disabled=false;return}w=rows[0];me=!!(w&&w.is_me)}
     else{w={handle:h,found_at:new Date().toISOString()};me=true}}catch(e){$("#fErr").textContent="אין חיבור, נסו שוב";$("#fClaim").disabled=false;return}
   $("#fClaim").disabled=false;$("#fAsk").hidden=true;
   if(me){$("#fWin").hidden=false;$("#fPrize").textContent=(billet.prize||20)+" ₪";$("#fCode").textContent=billetCode(h);$("#fWhen").textContent=new Date(w.found_at).toLocaleString("he-IL",{timeZone:"Asia/Jerusalem"});snd("win");burstAt(noteMesh)}
