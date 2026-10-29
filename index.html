@@ -937,7 +937,7 @@ $("#chatForm").onsubmit=async e=>{e.preventDefault();const body=$("#chatIn").val
     msgs.push({id:Date.now(),handle:meName,body,created_at:new Date().toISOString()});$("#chatIn").value="";renderChat(true);if(LIVE)setTimeout(loadMsgs,800)}catch(x){toast("אין חיבור")}};
 
 /* actualités */
-const DEFAULT_NEWS={id:"local-2",title:"ברוכים הבאים לסיפון! 🚢",body:"🌊 המטרה של כולנו: להטביע את הספינה!\n🧍 כל עוקב = נוסע. כל תגובה = VIP ⭐\n💸 כשהסירה טובעת (25 נוסעים), נפתחים 3 שטרות של 20₪ ביום, מוסתרים בפינות רחוקות של הספינה\n📣 הזמינו חברים: כל חבר מקרב את הטביעה ואת השטרות!"};
+const DEFAULT_NEWS={id:"local-2",title:"ברוכים הבאים לסיפון! 🚢",body:"🌊 המטרה של כולנו: להטביע את הספינה!\n🧍 כל עוקב = נוסע. כל תגובה = VIP ⭐\n💸 כשהסירה טובעת (25 נוסעים), נפתחים שטר של 20₪ ביום, מוסתר בפינה רחוקה של הספינה\n📣 הזמינו חברים: כל חבר מקרב את הטביעה ואת השטרות!"};
 async function showNews(){let n=DEFAULT_NEWS;try{if(LIVE){const r=await sb("news?select=id,title,body&order=id.desc&limit=1");if(r.ok){const j=await r.json();if(j[0])n=j[0]}}}catch(e){}
   if(lstore("tb_news")===String(n.id))return;$("#newsTitle").textContent=n.title;$("#newsBody").textContent=n.body;$("#newsModal").hidden=false;
   $("#newsOk").onclick=()=>{$("#newsModal").hidden=true;lstore("tb_news",String(n.id))}}
