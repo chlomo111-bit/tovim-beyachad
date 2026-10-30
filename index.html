@@ -78,6 +78,7 @@ select.field{direction:rtl;font-size:16px}
 .lbl3{position:absolute;left:0;top:0;transform:translate(-50%,-100%);font:900 12px var(--display);direction:ltr;white-space:nowrap;padding:2px 7px;border-radius:999px;background:rgba(4,25,44,.72);color:#fff;border:1px solid rgba(255,255,255,.18);will-change:transform}
 .lbl3.vip{background:var(--gold);color:var(--ink);border-color:var(--gold)}
 .lbl3.me{background:#2FBF71;color:#fff;border-color:#2FBF71}
+.lbl3.crown{box-shadow:0 0 0 2px #FFD23F,0 0 14px rgba(255,210,63,.8)}
 .lbl3.cap{background:#fff;color:var(--ink);font-size:13px}
 /* pilotage */
 .pilot{position:absolute;inset:0;pointer-events:none}
@@ -322,6 +323,12 @@ select.field{direction:rtl;font-size:16px}
   <div id="toast" role="status"></div>
 </div>
 
+<div id="lotOv" class="overlay" hidden><div class="fcard">
+  <div class="sub" id="lotTitle" style="font-weight:900"></div>
+  <div class="big" id="lotName" dir="ltr" style="font-size:30px;word-break:break-all">…</div>
+  <div class="sub" id="lotSub"></div>
+  <button class="btn" id="lotOk" style="width:100%" hidden>יאללה! 🚢</button>
+</div></div>
 <div id="newsModal" class="overlay" hidden><div class="fcard">
   <div class="big" id="newsTitle" style="font-size:32px"></div>
   <div class="sub" id="newsBody" style="white-space:pre-line;text-align:right"></div>
@@ -363,9 +370,10 @@ const CONFIG = {
   DAY_START: "2026-10-28",   // jour 1 du jeu
   ACCOUNT: "tovim_beyachad",
   KEYWORD: "עולה",
-  BILLET: { on: true, secret: "tovim-beyachad-sea-7Q" }
+  BILLET: { on: false, secret: "tovim-beyachad-sea-7Q" }
 };
 const LIVE = !!(CONFIG.SUPABASE_URL && CONFIG.SUPABASE_KEY);
+var lot=null,CROWN_H="";  // loterie 20:00 + « המגיב של היום » (30.10.2026)
 const IG = "https://www.instagram.com/"+CONFIG.ACCOUNT+"/";
 
 /* ================= utils ================= */
@@ -537,6 +545,7 @@ function looks(p){
   if((p.streak||0)>=3)L.glasses=true;if((p.streak||0)>=7&&!st.hat)L.hat="tophat";
   if((p.refs||0)>=1&&!st.hat&&!L.hat)L.hat="tophat";
   if((p.streak||0)>=30||(p.refs||0)>=10)L.hat="crown";
+  if(p.handle===CROWN_H){L.hat="crown";L.glasses=false}
   L.vest=p.vip||(p.refs||0)>=3;return L}
 
 let P=[],byH=new Map(),meName=lstore("tb_me")||"";
@@ -791,7 +800,7 @@ function randWalk(R=Math.random){const rects=[...ship.walk,...ship.top],r=rects[
 function spawnCoins(){if(!ship)return;if(coinMesh.parent)coinMesh.parent.remove(coinMesh);ship.group.add(coinMesh);coins.length=0;for(let i=0;i<COIN_N;i++)coins.push(randWalk());coinMesh.visible=false}
 function updateCoins(t){if(!pilotOn){coinMesh.visible=false;return}coinMesh.visible=true;
   for(let i=0;i<COIN_N;i++){const c=coins[i];Q.setFromEuler(new THREE.Euler(Math.PI/2,t*3+i,0));V.set(c.x,c.y+Math.sin(t*3+i)*.08,c.z);S3.set(1,1,1);M4.compose(V,Q,S3);coinMesh.setMatrixAt(i,M4);
-    if(Math.hypot(c.x-myPos.x,c.z-myPos.z)<.6*Math.max(1,figS*1.4)&&Math.abs(c.y-.5-myPos.y)<1){coins[i]=randWalk();coinsToday++;coinsPending++;if(coinsToday===COINS_NEED){if(!LIVE)refreshBillet();toast("🪙 200 מטבעות! עכשיו אפשר לחפש את השטר 💸")}snd("blip");const el=$("#coinsToday");el.textContent=coinsToday;const pl=$("#coinPill");pl.classList.add("pop");setTimeout(()=>pl.classList.remove("pop"),150)}}
+    if(Math.hypot(c.x-myPos.x,c.z-myPos.z)<.6*Math.max(1,figS*1.4)&&Math.abs(c.y-.5-myPos.y)<1){coins[i]=randWalk();coinsToday++;coinsPending++;if(coinsToday===COINS_NEED){lotteryTick();toast(lot&&lot.commented?"🎟️ 200 מטבעות! אתם בהגרלה של 20 ₪ 🍀":"🪙 200 מטבעות! עכשיו רק להגיב על הפוסט של היום 💬")}snd("blip");const el=$("#coinsToday");el.textContent=coinsToday;const pl=$("#coinPill");pl.classList.add("pop");setTimeout(()=>pl.classList.remove("pop"),150)}}
   coinMesh.instanceMatrix.needsUpdate=true}
 setInterval(async()=>{if(!coinsPending||!LIVE||!meName)return;const n=Math.min(15,coinsPending);
   try{const r=await rpc("add_coins",{h:meName,n});if(r.ok){coinsPending-=n;const j=await r.json();if(j&&typeof j.today==="number"){syncMissions();coinsToday=j.today+coinsPending;$("#coinsToday").textContent=coinsToday;if(j.today>=COINS_NEED&&billet&&!billet.locked&&!(billet.access&&billet.access.ok)){billetBusy=0;refreshBillet()}}}}catch(e){}},2500);
@@ -906,10 +915,10 @@ function select(p,fly=true){
   if(p.isCaptain)ring.position.set(ship.bridge.x,ship.bridge.y+.03,ship.bridge.z);else if(p.slot)ring.position.set(p.slot.x,p.slot.y+.03,p.slot.z);ring.scale.setScalar(p.isCaptain?2.2:figS*1.6);
   $("#sHandle").textContent="@"+p.handle;
   const tags=[];if(p.isCaptain)tags.push("👨‍✈️ הקפטן של הספינה");else{tags.push(p.vip?"⭐ VIP":"🧍 נוסע/ת");const s=survived(p);tags.push("🌊 שרד/ה "+s+" טביעות");
-    if(p.streak)tags.push("🔥 "+p.streak+" ימים ברצף");if(p.refs)tags.push("📣 הביא/ה "+p.refs+" חברים");if(winsBy[p.handle])tags.push("💸 "+winsBy[p.handle]+" שטרות");
+    if(p.streak)tags.push("🔥 "+p.streak+" ימים ברצף");if(p.refs)tags.push("📣 הביא/ה "+p.refs+" חברים");if(winsBy[p.handle])tags.push("💸 "+winsBy[p.handle]+" שטרות");if(p.handle===CROWN_H)tags.push("👑 המגיב של היום");
     if(sinks.some(s=>s.handle===p.handle))tags.push("💥 הטביע/ה ספינה!")}
   $("#sMeta").innerHTML=tags.map(t=>`<span class="tag">${esc(t)}</span>`).join("");
-  const mine=p.handle===meName,noMe=!(meName&&byH.has(meName));$("#walkRow").hidden=!mine;$("#claimRow").hidden=!noMe||mine||!!p.isCaptain;$("#claimBtn").onclick=()=>{meName=p.handle;lstore("tb_me",meName);updateJoinBtn();dailyCheckIn();billetBusy=0;refreshBillet();select(p,false);toast("✅ מחובר/ת בתור @"+p.handle)};$("#joinRow").hidden=mine||!noMe||p.isCaptain;$("#shareRow").hidden=!mine;
+  const mine=p.handle===meName,noMe=!(meName&&byH.has(meName));$("#walkRow").hidden=!mine;$("#claimRow").hidden=!noMe||mine||!!p.isCaptain;$("#claimBtn").onclick=()=>{meName=p.handle;lstore("tb_me",meName);updateJoinBtn();dailyCheckIn();billetBusy=0;refreshBillet();lotteryTick();select(p,false);toast("✅ מחובר/ת בתור @"+p.handle)};$("#joinRow").hidden=mine||!noMe||p.isCaptain;$("#shareRow").hidden=!mine;
   $("#myBox").innerHTML=mine?myProgress(p):"";const ib=$("#inviteBtn");if(ib)ib.onclick=()=>invite(p.handle);
   openSheet("#pSheet");if(fly)flyTo(p)}
 function deselect(){sel=null;ring.visible=false}
@@ -1066,11 +1075,50 @@ function missionAct(id){const m=missions&&missions.find(x=>x.id===id);if(!m||m.d
   else if(id==="chat"){closeSheets();openSide(true);const t=document.querySelector('.tabs button[data-tab="chat"]');if(t)t.click()}
   else if(id.startsWith("coins")){closeSheets();startPilot()}}
 
+
+/* ================= LOTERIE 20 ₪ (20:00) + « המגיב של היום » — remplace le billet caché (30.10.2026) ================= */
+let lotSkew=0,lotNotified=false,lotBusy=false;
+async function lotteryTick(){if(!LIVE){lot={day:"demo",mine:coinsToday,commented:true,entrants:3,next_at:new Date(Date.now()+3600e3).toISOString(),draw_at:new Date(Date.now()+3600e3).toISOString(),now:new Date().toISOString()};renderLot();return}
+  try{const r=await rpc("lottery_state",{h:meName||""});if(r.ok){lot=await r.json();lotSkew=Date.parse(lot.now)-Date.now();
+    if(lot.mine>coinsToday&&lot.day){coinsToday=lot.mine;const el=$("#coinsToday");if(el)el.textContent=coinsToday}
+    const c=lot.crown||"";if(c!==CROWN_H){CROWN_H=c;if(ship)rebuild()}renderLot();renderAccPill();if(hubOpen())renderHub()}}catch(e){}}
+function lotLeft(){if(!lot||!lot.next_at)return null;return Math.max(0,Math.floor((Date.parse(lot.next_at)-(Date.now()+lotSkew))/1000))}
+function renderLot(){const p=$("#huntPill");if(!p)return;if(!lot||REEL){p.hidden=true;return}p.hidden=false;
+  const left=lotLeft(),T=left!=null?`<b style="font-variant-numeric:tabular-nums">${fmtCd(left)}</b>`:"",a=accNow(),me=!!(meName&&byH.has(meName));
+  const okP=a.coins>=COINS_NEED,okC=a.commented,fri=lot.next_day&&lot.next_day!==lot.day;
+  const DH=lot.friday||fri?"במוצאי שבת ב־20:00":"ב־20:00";
+  const chk=me?` · 🪙 <b>${Math.min(a.coins,COINS_NEED)}</b>/200 ${okP?"✓":"✗"} · 💬 ${okC?"✓":"✗"}`:` · 🪙 200 מטבעות + 💬 תגובה על הפוסט של היום`;
+  p.style.cursor="";p.onclick=null;
+  if(lot.shabbat){p.innerHTML=`🕯️ שבת שלום · 🎟️ ההגרלה של שישי ${fri||lot.friday?"במוצאי שבת ב־20:00":"הערב ב־20:00"}${T?" · בעוד "+T:""}`;return}
+  if(left===0&&lot.next_day){p.innerHTML=`🔴 ההגרלה בשידור חי עכשיו! 🎟️`;lotteryLive();return}
+  if(!lot.next_day){p.innerHTML=lot.last_winner&&lot.last_day===lot.day?`🎉 הזוכה בהגרלה של היום: <b dir="ltr">@${esc(lot.last_winner)}</b> · מחר הגרלה חדשה ב־20:00 🎟️`:`🎟️ ההגרלה של היום הסתיימה · מחר הגרלה חדשה ב־20:00`;return}
+  if(fri){p.innerHTML=`🎟️ קודם ההגרלה של שישי, ואחריה ההגרלה של היום · ב־20:00 · בעוד ${T}`;return}
+  if(me&&okP&&okC){p.innerHTML=`✅ אתם בהגרלה! 🎟️ 20 ₪ ${DH} · בעוד ${T}`;if(!lotNotified){lotNotified=true;notify("🎟️ אתם בהגרלה על 20 ₪ 🍀")}return}
+  if(me&&okP&&!okC){p.innerHTML=`🪙 200/200 ✓ · 💬 חסרה תגובה על הפוסט של היום ✗ · בלי תגובה אין הגרלה! 👉 אינסטגרם · בעוד ${T}`;p.style.cursor="pointer";p.onclick=()=>window.open(IG,"_blank");return}
+  if(left!=null&&left<=900)p.innerHTML=`🔴 ההגרלה בשידור חי בעוד ${T}${chk} · תישארו על הסיפון!`;
+  else p.innerHTML=`🎟️ הגרלה על <b>20 ₪</b> ${DH} · בעוד ${T}${chk}`}
+/* tirage EN DIRECT : à l'heure, le jeu lance le tirage (vendredi d'abord le samedi soir) puis montre le résultat */
+async function lotteryLive(){if(lotBusy||!LIVE)return;lotBusy=true;
+  try{const r=await rpc("lottery_live",{});if(r.ok){const j=await r.json();const todo=(j.recent||[]).filter(d=>!lstore("tb_lot_"+d.day));for(const d of todo){lstore("tb_lot_"+d.day,"1");await showDraw(d)}}}catch(e){}
+  await lotteryTick();setTimeout(()=>{lotBusy=false},20000)}
+function showDraw(d){return new Promise(res=>{const o=$("#lotOv"),nm=$("#lotName"),sub=$("#lotSub"),t=$("#lotTitle");
+  const dayName=new Date(d.day+"T12:00:00").toLocaleDateString("he-IL",{weekday:"long"});
+  t.textContent="🎟️ ההגרלה של יום "+dayName.replace("יום ","");o.hidden=false;$("#lotOk").hidden=true;
+  const pool=P.filter(p=>!p.isCaptain).map(p=>p.handle);if(d.winner&&!pool.includes(d.winner))pool.push(d.winner);
+  sub.textContent=(d.entrants||0)+" משתתפים";let k=0,dl=60;snd&&snd("blip");
+  const spin=()=>{if(pool.length)nm.textContent="@"+pool[Math.floor(Math.random()*pool.length)];k++;dl*=1.07;
+    if(k<38)setTimeout(spin,dl);else{
+      if(d.winner){nm.textContent="🎉 @"+d.winner;sub.innerHTML=`זכה/תה ב־<b>20 ₪</b>! 💸 (${d.entrants} משתתפים)<br>${d.winner===meName?"<b>זה אתם!</b> שלחו הודעה ל־@"+CONFIG.ACCOUNT+" באינסטגרם":""}`;try{snd("win")}catch(e){}}
+      else{nm.textContent="😱 אין זוכה";sub.textContent="אף אחד לא עמד בשני התנאים… מחר הגרלה חדשה ב־20:00"}
+      if(d.top)sub.innerHTML+=`<br><br>👑 <b>המגיב/ה של היום:</b> <b dir="ltr">@${esc(d.top)}</b> (${d.top_n} תגובות)<br>מחליט/ה מה יקרה מחר בספינה!`;
+      const ok=$("#lotOk");ok.hidden=false;ok.onclick=()=>{o.hidden=true;res()}}};
+  spin()})}
+
 /* concours du jour : où en est le joueur (X/200 + commentaire) */
-function accNow(){const a=(billet&&billet.access)||(myStats&&myStats.access)||{};const need=a.need||COINS_NEED;return {coins:Math.max(a.coins||0,coinsToday),need,commented:!!a.commented}}
+function accNow(){const need=COINS_NEED;return {coins:Math.max(lot?lot.mine||0:0,coinsToday),need,commented:!!(lot&&lot.commented)}}
 function renderAccPill(){const p=$("#accPill"),me=!!(meName&&byH.has(meName));p.hidden=!me||REEL;const cp=$("#comPill");
-  if(!me){if(cp)cp.textContent="";return}const a=accNow(),locked=!billet||billet.locked;
-  p.innerHTML=`${locked?"🔒":"🎟️"} 🪙 <b>${Math.min(a.coins,a.need)}</b>/${a.need} · 💬 ${a.commented?'<span class="ok">✓</span>':'<span class="no">✗</span>'}`;
+  if(!me){if(cp)cp.textContent="";return}const a=accNow();
+  p.innerHTML=`🎟️ 🪙 <b>${Math.min(a.coins,a.need)}</b>/${a.need} · 💬 ${a.commented?'<span class="ok">✓</span>':'<span class="no">✗</span>'}`;
   if(cp)cp.textContent=" · 💬 "+(a.commented?"✓":"✗");
   const left=missions?missions.filter(m=>!m.done).length:0,b=$("#hubBadge");b.hidden=!left;b.textContent=left}
 
@@ -1081,12 +1129,13 @@ async function loadStats(){if(!LIVE)return;try{const me=meName&&byH.has(meName);
   if(g&&g.ok)gStats=await g.json();if(m&&m.ok)myStats=await m.json();renderAccPill();if(hubOpen())renderHub()}catch(e){}}
 const tile=(v,l)=>`<div><b>${v}</b>${l}</div>`;
 function renderHub(){const el=$("#hubBody"),me=!!(meName&&byH.has(meName)),a=accNow(),locked=!billet||billet.locked,n=totalN(),need=Math.max(0,SHIPS[shipI].cap-n);let h="";
-  h+=`<div class="card"><div class="ct">🎟️ התחרות של היום <small>שטר של 20₪</small></div>`;
+  h+=`<div class="card"><div class="ct">🎟️ ההגרלה של היום <small>20₪ · ${lot&&lot.friday?"במוצאי שבת 20:00":"20:00"}</small></div>`;
   if(!me)h+=`<div class="muted">עלו לסיפון כדי להשתתף 🧍</div>`;
   else{const c=Math.min(a.coins,a.need),ok=a.coins>=a.need;
     h+=`<div>🪙 מטבעות היום: <b>${c}</b>/${a.need} ${ok?'<span class="ok">✓</span>':""}</div><div class="bar"><i style="width:${Math.round(100*c/a.need)}%"></i></div>`;
     h+=`<div>💬 תגובה על הפוסט של היום: ${a.commented?'<span class="ok">✓</span>':`<span class="no">✗</span> · <a href="${IG}" target="_blank" rel="noopener" style="color:var(--gold)">להגיב באינסטגרם</a>`}</div>`;
-    h+=`<div class="muted" style="margin-top:6px">${locked?`🔒 השטר נפתח כשהסירה טובעת · עוד <b>${need}</b> נוסעים`:ok&&a.commented?"✅ אתם בתחרות! חפשו את השטר על הסיפון 💸":"🔒 השטר מופיע רק למי שעומד/ת בשני התנאים"}</div>`}
+    h+=`<div class="muted" style="margin-top:6px">${ok&&a.commented?"✅ אתם בהגרלה! תישארו במשחק ב־20:00 לראות את ההגרלה בשידור חי 🍀":"צריך את שני התנאים כדי להיכנס להגרלה. הרשימה מתעדכנת ב־6:00, 12:00, 17:00 ו־19:55"}</div>`}
+  if(lot)h+=`<div class="muted" style="margin-top:6px">🎟️ משתתפים כרגע: <b>${lot.entrants||0}</b>${lot.top_now?` · 💬 המגיב/ה המוביל/ה היום: <b dir="ltr">@${esc(lot.top_now)}</b> (${lot.top_now_n})`:""}${lot.crown?` · 👑 המגיב/ה של היום: <b dir="ltr">@${esc(lot.crown)}</b>`:""}</div>`;
   h+=`</div><div class="card"><div class="ct">🎯 משימות היום <small>מתחדשות בחצות</small></div>`;
   if(!me)h+=`<div class="muted">עלו לסיפון כדי לקבל 3 משימות ביום עם בונוס מטבעות 🪙</div>`;
   else if(!missions)h+=`<div class="muted">${LIVE?"טוען…":"זמין במשחק האמיתי"}</div>`;
@@ -1120,7 +1169,7 @@ $("#repLoad").onclick=async()=>{const err=$("#adminErr"),pass=$("#adminPass").va
   catch(e){err.textContent="שגיאת חיבור"}};
 
 /* actualités */
-const DEFAULT_NEWS={id:"local-2",title:"ברוכים הבאים לסיפון! 🚢",body:"🌊 המטרה של כולנו: להטביע את הספינה!\n🧍 כל עוקב = נוסע. כל תגובה = VIP ⭐\n💸 כשהסירה טובעת (25 נוסעים), נפתחים שטר של 20₪ ביום, מוסתר בפינה רחוקה של הספינה\n📣 הזמינו חברים: כל חבר מקרב את הטביעה ואת השטרות!"};
+const DEFAULT_NEWS={id:"local-3",title:"🎟️ הגרלה של 20₪ כל ערב ב־20:00!",body:"🌊 המטרה של כולנו: להטביע את הספינה!\n🎟️ כל ערב ב־20:00 הגרלה בשידור חי כאן במשחק: זוכה אחד מקבל 20 ₪\n✅ כדי להשתתף: 💬 מגיבים על הפוסט של היום באינסטגרם + 🪙 אוספים 200 מטבעות במשחק באותו יום\n👑 מי שכותב הכי הרבה תגובות ביום מקבל כתר \"המגיב של היום\" ומחליט מה יקרה בספינה למחרת!\n🕯️ שישי: ההגרלה במוצאי שבת ב־20:00"};
 async function showNews(){let n=DEFAULT_NEWS;try{if(LIVE){const r=await sb("news?select=id,title,body&order=id.desc&limit=1");if(r.ok){const j=await r.json();if(j[0])n=j[0]}}}catch(e){}
   if(lstore("tb_news")===String(n.id))return;$("#newsTitle").textContent=n.title;$("#newsBody").textContent=n.body;$("#newsModal").hidden=false;
   $("#newsOk").onclick=()=>{$("#newsModal").hidden=true;lstore("tb_news",String(n.id))}}
@@ -1145,7 +1194,7 @@ function inRect(r,x,z){return x>=r.x0&&x<=r.x1&&z>=r.z0&&z<=r.z1}
 function startPilot(){const p=byH.get(meName);if(!p||!p.slot)return;pilotOn=true;myPos.set(p.slot.x,p.slot.y,p.slot.z);myRect=rectsAll().find(r=>Math.abs(r.y-p.slot.y)<.01&&inRect(r,p.slot.x,p.slot.z))||rectsAll()[0];
   closeSheets();$("#pilot").hidden=false;$("#top").classList.add("hide");$("#bottom").classList.add("hide");$("#chatBtn").classList.add("hide");$("#hubBtn").classList.add("hide");$("#pilotName").textContent="@"+meName;
   controls.autoRotate=false;controls.minDistance=2;flyS.on=false;ring.visible=false;
-  if(billetActive())toast("💸 חפשו את השטר על הסיפון!");else toast("🪙 אספו מטבעות על הסיפון!");loadCoinTop()}
+  toast(coinsToday>=COINS_NEED?"🪙 כבר יש לכם 200 היום! 🎟️ ההגרלה ב־20:00":"🪙 אספו 200 מטבעות היום = כרטיס להגרלה של 20 ₪");loadCoinTop()}
 function stopPilot(){pilotOn=false;$("#pilot").hidden=true;if(mode==="sea"&&!REEL){$("#top").classList.remove("hide");$("#bottom").classList.remove("hide");$("#chatBtn").classList.remove("hide");$("#hubBtn").classList.remove("hide")}controls.minDistance=Math.max(3,ship.view.d*.18);rebuild()}
 $("#walkBtn").onclick=startPilot;$("#exitPilot").onclick=stopPilot;
 $("#jumpB").onclick=()=>{if(myOff.jump<=0.001){vy=4.2;snd("whoosh")}};
@@ -1184,8 +1233,8 @@ function placeLabels(t){
   pool.forEach((d,i)=>{const p=lblList[i];if(!p){d.style.display="none";return}
     worldOf(p,TV);TV.y+=1.6*figS*(p.handle===meName?1.15:1)+(p.handle===meName&&pilotOn?myOff.jump:0);TV.project(camera);
     if(TV.z>1||Math.abs(TV.x)>1.1||Math.abs(TV.y)>1.1){d.style.display="none";return}
-    const txt="@"+p.handle;if(d._t!==txt){d._t=txt;d.textContent=txt}
-    const cls="lbl3"+(p.handle===meName?" me":p.vip?" vip":"");if(d.className!==cls)d.className=cls;
+    const txt=(p.handle===CROWN_H?"👑 ":"")+"@"+p.handle;if(d._t!==txt){d._t=txt;d.textContent=txt}
+    const cls="lbl3"+(p.handle===meName?" me":p.vip?" vip":"")+(p.handle===CROWN_H?" crown":"");if(d.className!==cls)d.className=cls;
     d.style.display="";d.style.transform=`translate(${(TV.x*.5+.5)*W}px,${(-TV.y*.5+.5)*H}px) translate(-50%,-100%)`});
   if(captain){captain.getWorldPosition(TV);TV.y+=3.3;TV.project(camera);if(TV.z<1&&Math.abs(TV.x)<1.1&&Math.abs(TV.y)<1.1){capLbl.style.display="";capLbl.textContent="👨‍✈️ @"+CAP_HANDLE();capLbl.style.transform=`translate(${(TV.x*.5+.5)*W}px,${(-TV.y*.5+.5)*H}px) translate(-50%,-100%)`}else capLbl.style.display="none"}
 }
@@ -1260,12 +1309,12 @@ window.loop=loop;
   setShip(shipIdx(0));if(!window.CAP)loop();
   try{await Promise.race([loadAll(),new Promise(r=>setTimeout(r,6000))])}catch(e){toast("בעיית חיבור… מנסים שוב")}
   setShip(shipIdx(totalN()));updateHud();updateJoinBtn();
-  await loadEvent();refreshBillet();loadWins();loadMsgs();loadCoinTop();dailyCheckIn();loadStats();rtConnect();
+  await loadEvent();lotteryTick();loadWins();loadMsgs();loadCoinTop();dailyCheckIn();loadStats();rtConnect();
   if(ADMIN){mode="sea";controls.enabled=true;$("#gate").hidden=true;showUI();openAdmin();const c=ship.view;camera.position.set(c.d*.95,c.h*1.3,c.d*.75);controls.target.set(0,c.h*.3,0)}
   else if(REEL||SINKREPLAY||window.CAP){$("#gate").hidden=true;started=true;
     if(SINKREPLAY){mode="sea";controls.enabled=true;hideUI(true);const c=ship.view;camera.position.set(c.d*.95,c.h*1.3,c.d*.75);controls.target.set(0,c.h*.3,0);
       if(shipI>=1)startSink(shipI-1,shipI);else{const n=totalN();startSink(0,1);SINK.fake=n}}}
-  setInterval(poll,20000);setInterval(loadMsgs,30000);setInterval(()=>{syncMissions();loadStats()},60000);setInterval(refreshBillet,30000);setInterval(()=>{renderHunt();renderAccPill()},1000);setInterval(loadEvent,60000);setInterval(()=>{loadWins();loadCoinTop()},60000);
+  setInterval(poll,20000);setInterval(loadMsgs,30000);setInterval(()=>{syncMissions();loadStats()},60000);setInterval(lotteryTick,30000);setInterval(()=>{renderLot();renderAccPill()},1000);setInterval(loadEvent,60000);setInterval(()=>{loadWins();loadCoinTop()},60000);
 })();
 </script>
 </body>
