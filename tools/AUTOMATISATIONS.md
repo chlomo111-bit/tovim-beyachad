@@ -18,7 +18,7 @@ Chaque réveil programme le suivant (send_later) après vérification list_trigg
 ## Ancienne tâche encore active (désactivation refusée par le système)
 - trig_01HzAmnDasTC7t7ZuPaG4AfS – story « The Noise arrive » sam. 31.10 19:08 (session neuve). Si elle tourne, c'est elle qui publie ; le réveil ci-dessus s'efface.
 
-## Anciennes tâches supprimées (texte dans ANCIENNES_TACHES.md)
-- trig_01BqmdaMTbTEuVF8eAqh3qe9 – passages 5:55 / 11:55 / 16:55 / 19:55
-- trig_015neEiXpEe68YX9aEkV5eaw – loterie 20:00
-- trig_014C857RU18g7hJGWDL5GqVe – production du matin 6:34
+## Anciennes tâches (texte dans ANCIENNES_TACHES.md)
+- trig_01BqmdaMTbTEuVF8eAqh3qe9 – passages 5:55 / 11:55 / 16:55 / 19:55 → SUPPRIMÉE
+- trig_014C857RU18g7hJGWDL5GqVe – production du matin 6:34 → SUPPRIMÉE
+- trig_015neEiXpEe68YX9aEkV5eaw – loterie 20:00 → suppression refusée, reste DÉSACTIVÉE (ne pas la réactiver)
