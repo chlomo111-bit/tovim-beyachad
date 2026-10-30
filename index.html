@@ -1247,7 +1247,7 @@ $("#shareClose").onclick=()=>$("#shareView").hidden=true;
 let pilotOn=false,myYaw=0,myRect=null,vy=0;const keys={},joyV={x:0,y:0};
 function rectsAll(){return [...ship.walk,...ship.top]}
 function inRect(r,x,z){return x>=r.x0&&x<=r.x1&&z>=r.z0&&z<=r.z1}
-function startPilot(){const p=byH.get(meName);if(!p||!p.slot)return;pilotOn=true;myPos.set(p.slot.x,p.slot.y,p.slot.z);myRect=rectsAll().find(r=>Math.abs(r.y-p.slot.y)<.01&&inRect(r,p.slot.x,p.slot.z))||rectsAll()[0];
+function startPilot(){const p=byH.get(meName);if(!p||!p.slot)return;pilotOn=true;/* 30.10.2026 : on démarre TOUJOURS sur le pont (jamais sur le toit) */myRect=ship.walk.find(r=>Math.abs(r.y-p.slot.y)<.01&&inRect(r,p.slot.x,p.slot.z))||ship.walk.reduce((a,r)=>(r.x1-r.x0)*(r.z1-r.z0)>(a.x1-a.x0)*(a.z1-a.z0)?r:a,ship.walk[0]);if(inRect(myRect,p.slot.x,p.slot.z)&&Math.abs(myRect.y-p.slot.y)<.01)myPos.set(p.slot.x,myRect.y,p.slot.z);else myPos.set((myRect.x0+myRect.x1)/2,myRect.y,(myRect.z0+myRect.z1)/2);
   closeSheets();$("#pilot").hidden=false;$("#top").classList.add("hide");$("#bottom").classList.add("hide");$("#chatBtn").classList.add("hide");$("#hubBtn").classList.add("hide");$("#pilotName").textContent="@"+meName;
   controls.autoRotate=false;controls.minDistance=2;flyS.on=false;ring.visible=false;
   toast(coinsToday>=COINS_NEED?"🪙 כבר יש לכם 200 היום! 🎟️ ההגרלה ב־20:00":"🪙 אספו 200 מטבעות היום = כרטיס להגרלה של 20 ₪");loadCoinTop()}
