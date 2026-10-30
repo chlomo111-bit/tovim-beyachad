@@ -485,7 +485,7 @@ function lifeboats(L,x0,x1,y,w){for(let x=x0;x<x1;x+=3.2){addBox(L,2.2,.55,.9,x,
 function funnel(L,x,y,w,h,c,cTop,cBand){addBox(L,w,h,w*.8,x,y+h/2,0,c);if(cBand)addBox(L,w*1.02,h*.14,w*.82,x,y+h*.7,0,cBand);addBox(L,w*1.04,h*.16,w*.84,x,y+h*.92,0,cTop)}
 
 /* chaque bateau : géométrie + zones où marchent les passagers (rects) */
-const SHIP_SCALE={row:2.4,fish:2,ferry:1.7,liner:1.5,cruise:1.35,mega:1.35};
+const SHIP_SCALE={row:3.2,fish:3,ferry:2.5,liner:2.1,cruise:1.85,mega:1.85}; /* agrandis encore le 30.10.2026 (Shlomo) */
 function buildShip(kind){
   const L=[],walk=[],top=[];let bridge,len,beam,draft,view;
   if(kind==="row"){
@@ -575,9 +575,9 @@ function pickDraw(){
   const keep=new Set();const out=[];const add=p=>{if(p&&!keep.has(p.handle)){keep.add(p.handle);out.push(p)}};
   add(byH.get(meName));P.filter(p=>p.vip).slice(-800).forEach(add);for(let i=P.length-1;i>=0&&out.length<MAXD;i--)add(P[i]);return out}
 function computeSlots(n){
-  const rects=[...ship.top.map(r=>({...r,top:1})),...ship.walk.map(r=>({...r,top:0}))];
+  const rects=ship.walk.map(r=>({...r,top:0})); /* 30.10.2026 (Shlomo) : tout le monde apparaît sur le pont, jamais sur le toit */
   let area=0;rects.forEach(r=>area+=(r.x1-r.x0)*(r.z1-r.z0));
-  let sp=clamp(Math.sqrt(area/Math.max(n,1))*.92,.18,1.05);let pts=[];
+  let sp=clamp(Math.sqrt(area/Math.max(n,1))*.92,.18,2.4); /* 30.10.2026 : répartis sur tout le pont */let pts=[];
   for(let tries=0;tries<6;tries++){pts=[];for(const r of rects){for(let x=r.x0+sp/2;x<=r.x1-sp/2+1e-6;x+=sp)for(let z=r.z0+sp/2;z<=r.z1-sp/2+1e-6;z+=sp)pts.push({x,z,y:r.y,top:r.top})}
     if(pts.length>=n)break;sp*=.88}
   if(hideSpot)pts=pts.filter(q=>Math.abs(q.y-hideSpot.y)>.2||Math.hypot(q.x-hideSpot.x,q.z-hideSpot.z)>.9);
