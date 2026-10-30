@@ -64,6 +64,13 @@ for kind, t0 in events:
         n = int(2.5 * SR); f = np.linspace(120, 600, n); put(np.sin(2 * np.pi * np.cumsum(f) / SR) * env(n, .1, 2.6) * .25, t0)
     elif kind == "pop":
         n = int(.12 * SR); put(np.sin(2 * np.pi * np.cumsum(np.linspace(500, 1200, n)) / SR) * env(n, .002, .12) * .35, t0)
+    elif kind == "news":  # jingle de journal télé (« מבזק ») ~2,6 s
+        notes = [(0, (392, 523.25, 659.25), .22), (.28, (392, 523.25, 659.25), .22), (.56, (440, 587.33, 698.46), .22), (.9, (523.25, 659.25, 783.99, 1046.5), 1.6)]
+        for dt, ch, du in notes:
+            n = int(du * SR); s2 = sum(np.sign(np.sin(2 * np.pi * f * np.arange(n) / SR)) * .5 + np.sin(2 * np.pi * f * np.arange(n) / SR) for f in ch)
+            put(lowpass(s2, 2600) * env(n, .004, du) * .16, t0 + dt)
+        for dt in (0, .28, .56, .9):
+            n = int(.35 * SR); put(np.sin(2 * np.pi * np.cumsum(np.linspace(110, 55, n)) / SR) * env(n, .002, .35) * .7, t0 + dt)
     elif kind == "ding":
         for k2, f in enumerate((784, 988, 1318, 1568)):
             n = int(.4 * SR); put(tri(f, n) * env(n, .003, .4) * .22, t0 + k2 * .08)
