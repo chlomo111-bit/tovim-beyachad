@@ -329,6 +329,14 @@ select.field{direction:rtl;font-size:16px}
   <div class="sub" id="lotSub"></div>
   <button class="btn" id="lotOk" style="width:100%" hidden>יאללה! 🚢</button>
 </div></div>
+<div id="tvModal" class="overlay" hidden><div class="fcard">
+  <div class="big" style="font-size:30px">📺 חדשות הספינה</div>
+  <div class="sub" style="margin-top:4px">התגובה של היום – זו שקיבלה הכי הרבה לייקים</div>
+  <div id="tvQuote" style="margin:14px 0;padding:14px;border-radius:14px;background:rgba(255,194,75,.12);border:2px solid #FFC24B;font-weight:900;font-size:20px;line-height:1.35;text-align:right"></div>
+  <div class="sub" id="tvWho" style="text-align:right"></div>
+  <div class="sub" style="text-align:right;margin-top:6px">🛥️ חפשו את האולפן הצף ליד הספינה!</div>
+  <button class="btn" id="tvOk" style="width:100%">יאללה! 🚢</button>
+</div></div>
 <div id="newsModal" class="overlay" hidden><div class="fcard">
   <div class="big" id="newsTitle" style="font-size:32px"></div>
   <div class="sub" id="newsBody" style="white-space:pre-line;text-align:right"></div>
@@ -627,6 +635,54 @@ function buildCaptain(){
   const halo=new THREE.Mesh(new THREE.TorusGeometry(.26,.04,6,20),new THREE.MeshBasicMaterial({color:0xFFE27A}));halo.rotation.x=Math.PI/2;halo.position.y=1.82;g.add(halo);g.userData.halo=halo;
   g.scale.setScalar(1.4);return g}
 
+/* ================= 📺 ATELIER TV FLOTTANT « חדשות הספינה » (règle de Shlomo du 30.10.2026) ================= */
+let tv={day:"",handle:"",text:"",likes:0},tvGroup=null,tvScreen=null;
+function tvWrap(x,txt,maxW){const w=String(txt).split(/\s+/),L=[];let cur="";for(const word of w){const t=cur?cur+" "+word:word;if(x.measureText(t).width>maxW&&cur){L.push(cur);cur=word}else cur=t}if(cur)L.push(cur);return L}
+function tvDraw(){if(!tvScreen)return;const c=tvScreen.userData.c,x=c.getContext("2d"),W=c.width,H=c.height;
+  const g=x.createLinearGradient(0,0,0,H);g.addColorStop(0,"#0B2547");g.addColorStop(1,"#04192C");x.fillStyle=g;x.fillRect(0,0,W,H);
+  x.fillStyle="#E8262C";x.fillRect(0,0,W,120);x.fillStyle="#fff";x.direction="rtl";x.textAlign="right";x.font="900 76px Heebo, sans-serif";x.fillText("💬 התגובה של היום",W-40,90);
+  x.fillStyle="#FFC24B";x.font="900 46px Heebo, sans-serif";x.fillText("הכי הרבה לייקים · היא קובעת מה קורה היום",W-40,190);
+  const txt=tv.text||"מה יקרה מחר? כתבו בתגובות 👇";x.fillStyle="#fff";x.font="900 64px Heebo, sans-serif";const lines=tvWrap(x,"\""+txt+"\"",W-90).slice(0,4);lines.forEach((l,i)=>x.fillText(l,W-45,300+i*80));
+  x.fillStyle="#FFC24B";x.font="900 56px Heebo, sans-serif";x.textAlign="left";x.direction="ltr";x.fillText((tv.handle?"@"+tv.handle:"@tovim_beyachad")+"   ❤️ "+(tv.likes||0),45,H-50);x.direction="rtl";
+  x.fillStyle="#E8262C";x.fillRect(0,H-12,W,12);tvScreen.material.map.needsUpdate=true}
+function buildTV(){const g=new THREE.Group(),L=[];
+  // ponton
+  addBox(L,9.6,1.1,6,0,-.25,0,"#16365E");addBox(L,9.7,.18,6.1,0,.25,0,"#FFC24B");addBox(L,9.2,.12,5.6,0,.38,0,"#2A2F3A");
+  // mur du fond + cadre de l'écran
+  addBox(L,9,4.6,.3,0,2.7,-2.5,"#0E1E36");addBox(L,6.5,4.2,.12,-1.2,2.85,-2.33,"#FFC24B");
+  // enseigne sur le toit
+  addBox(L,5.2,.8,.3,0,5.35,-2.5,"#E8262C");addBox(L,.15,.9,.15,-2.2,5.1,-2.5,"#888");addBox(L,.15,.9,.15,2.2,5.1,-2.5,"#888");
+  // bureau du journal
+  addBox(L,2.2,1,1,3.4,.95,.4,"#E8262C");addBox(L,2.4,.12,1.2,3.4,1.5,.4,"#FFFFFF");addBox(L,1,.45,.05,3.4,1,.91,"#FFC24B");
+  // projecteurs
+  for(const sx of[-4,4.1]){addBox(L,.12,3.2,.12,sx,2,-1.6,"#555");addBox(L,.6,.4,.5,sx,3.7,-1.7,"#222");addBox(L,.5,.3,.05,sx,3.7,-1.44,"#FFF4C2")}
+  // caméra sur trépied
+  addBox(L,.1,1.2,.1,-3.4,1,2.3,"#333");addBox(L,.55,.4,.8,-3.4,1.75,2.2,"#1A1A1A");addBox(L,.25,.25,.25,-3.4,1.75,1.7,"#444");
+  // lampe ON AIR
+  addBox(L,.9,.35,.1,-3.3,4.6,-2.32,"#E8262C");
+  g.add(vmesh(L));
+  // écran (texture)
+  const c=document.createElement("canvas");c.width=1024;c.height=644;const tex=new THREE.CanvasTexture(c);
+  tvScreen=new THREE.Mesh(new THREE.PlaneGeometry(6.2,3.9),new THREE.MeshBasicMaterial({map:tex}));tvScreen.position.set(-1.2,2.85,-2.25);tvScreen.userData.c=c;g.add(tvScreen);
+  // texte de l'enseigne
+  const c2=document.createElement("canvas");c2.width=512;c2.height=80;const x2=c2.getContext("2d");x2.fillStyle="#E8262C";x2.fillRect(0,0,512,80);x2.fillStyle="#fff";x2.font="900 54px Heebo, sans-serif";x2.textAlign="center";x2.direction="rtl";x2.fillText("חדשות הספינה",256,60);
+  const sign=new THREE.Mesh(new THREE.PlaneGeometry(5,.78),new THREE.MeshBasicMaterial({map:new THREE.CanvasTexture(c2)}));sign.position.set(0,5.35,-2.34);g.add(sign);
+  // présentatrice
+  const P=[];addBox(P,.36,.5,.22,0,.25,0,"#1B2A4A");addBox(P,.46,.56,.28,0,.78,0,"#D62C4F");addBox(P,.14,.3,.03,0,.85,.15,"#FFFFFF");
+  addBox(P,.34,.34,.34,0,1.23,0,"#F2D0B1");addBox(P,.42,.2,.42,0,1.44,-.02,"#5A3420");addBox(P,.42,.5,.12,0,1.16,-.2,"#5A3420");addBox(P,.08,.42,.36,.2,1.2,-.03,"#5A3420");addBox(P,.08,.42,.36,-.2,1.2,-.03,"#5A3420");
+  addBox(P,.07,.07,.03,.08,1.27,.18,"#1A1A1A");addBox(P,.07,.07,.03,-.08,1.27,.18,"#1A1A1A");addBox(P,.14,.04,.03,0,1.15,.18,"#C2185B");
+  addBox(P,.12,.4,.12,.3,.75,.15,"#D62C4F");addBox(P,.06,.06,.2,.3,.95,.3,"#333");
+  const host=vmesh(P);host.scale.setScalar(1.9);host.position.set(3.4,.45,-.4);g.add(host);g.userData.host=host;
+  const on=new THREE.Mesh(new THREE.SphereGeometry(.12,8,6),new THREE.MeshBasicMaterial({color:0xFF3030}));on.position.set(-3.3,4.6,-2.2);g.add(on);g.userData.on=on;
+  tvDraw();return g}
+function placeTV(){if(!ship)return;if(!tvGroup){tvGroup=buildTV();sea.add(tvGroup)}const S=Math.max(1,ship.len/14);tvGroup.scale.setScalar(S);
+  tvGroup.position.set(ship.len*.15,0,-(ship.beam/2+5.5*S));tvGroup.rotation.y=-.35;tvGroup.userData.S=S}
+function tvFrame(t){if(!tvGroup)return;const p=tvGroup.position;p.y=waveY(p.x,p.z,t)*.6+.15;tvGroup.rotation.z=Math.sin(t*.8)*.02;
+  if(tvGroup.userData.host)tvGroup.userData.host.rotation.y=Math.sin(t*.7)*.18;if(tvGroup.userData.on)tvGroup.userData.on.visible=Math.sin(t*4)>-.3}
+async function loadTV(){if(LIVE){try{const r=await sb("game_state?select=value&key=eq.tv");if(r.ok){const j=await r.json();if(j[0]&&j[0].value)tv=j[0].value}}catch(e){}}tvDraw()}
+function showTV(){if(!tv.text||!tv.day||lstore("tb_tv")===tv.day)return false;$("#tvQuote").textContent="« "+tv.text+" »";$("#tvWho").textContent="✍️ @"+tv.handle+" · ❤️ "+(tv.likes||0)+" לייקים · וזה מה שקורה היום בספינה!";$("#tvModal").hidden=false;
+  $("#tvOk").onclick=()=>{$("#tvModal").hidden=true;lstore("tb_tv",tv.day);showNews()};return true}
+
 /* ================= DONNÉES ================= */
 let sinks=[],ev={type:"none"},billet=null;
 function totalN(){return P.length}
@@ -667,7 +723,7 @@ function setShip(i){
   shipRoot.add(ship.group);
   if(!captain)captain=buildCaptain();ship.group.add(captain);captain.position.copy(ship.bridge);captain.rotation.y=Math.PI/2;
   controls.minDistance=Math.max(3,ship.view.d*.18);controls.maxDistance=ship.view.d*2.6;
-  placeEventProps();rebuild();placeBillet();spawnCoins();
+  placeEventProps();placeTV();rebuild();placeBillet();spawnCoins();
 }
 function fill(){const n=totalN(),c=SHIPS[shipI].cap;return clamp(n/c,0,1)}
 function updateHud(){
@@ -1262,7 +1318,7 @@ function introFrame(t,dt){
   if(k>=END)endIntro();
 }
 function endIntro(){if(mode==="sea")return;mode="sea";$("#gate").hidden=true;caption("");$("#skip").hidden=true;controls.enabled=true;lstore("tb_seen","1");
-  if(REEL){startReel();return}showUI();showNews();
+  if(REEL){startReel();return}showUI();if(!showTV())showNews();
   const last=lstore("tb_ship");if(last!==null&&+last<shipI&&shipI>=1){setTimeout(()=>startSink(shipI-1,shipI),600)}else lstore("tb_ship",String(shipI));
   if(lstore("tb_ref"))setTimeout(()=>{if(!meName)openSheet("#joinSheet")},1500)}
 $("#skip").onclick=()=>{if(SINK.on){endSink();return}stopVoice();introT=END;caption("");endIntro()};
@@ -1289,7 +1345,7 @@ function loop(){
   if(SND.ac)musicTick();
   if(mode==="intro"&&!started){earth.rotation.y=t*.04;camera.position.copy(ED).multiplyScalar(4.2).add(new THREE.Vector3(0,.9,0));camera.lookAt(0,0,0);renderer.render(space,camera);return}
   if(mode==="intro"&&started&&ship){introFrame(t,dt);if(introT<IT.space)return}
-  updateWater(t);evFrame(t,dt);
+  updateWater(t);evFrame(t,dt);tvFrame(t);
   if(ship&&!SINK.on){const y=baseShipY();ship.group.position.y=y+waveY(0,0,t)*.45;ship.group.rotation.z=-fill()*.06+(waveY(3,0,t)-waveY(-3,0,t))*.02;ship.group.rotation.x=(waveY(0,2,t)-waveY(0,-2,t))*.03}
   if(SINK.on)sinkFrame(t,dt);
   if(captain&&captain.userData.halo)captain.children[1].rotation.z=t;
@@ -1309,7 +1365,7 @@ window.loop=loop;
   setShip(shipIdx(0));if(!window.CAP)loop();
   try{await Promise.race([loadAll(),new Promise(r=>setTimeout(r,6000))])}catch(e){toast("בעיית חיבור… מנסים שוב")}
   setShip(shipIdx(totalN()));updateHud();updateJoinBtn();
-  await loadEvent();lotteryTick();loadWins();loadMsgs();loadCoinTop();dailyCheckIn();loadStats();rtConnect();
+  await loadEvent();loadTV();lotteryTick();loadWins();loadMsgs();loadCoinTop();dailyCheckIn();loadStats();rtConnect();
   if(ADMIN){mode="sea";controls.enabled=true;$("#gate").hidden=true;showUI();openAdmin();const c=ship.view;camera.position.set(c.d*.95,c.h*1.3,c.d*.75);controls.target.set(0,c.h*.3,0)}
   else if(REEL||SINKREPLAY||window.CAP){$("#gate").hidden=true;started=true;
     if(SINKREPLAY){mode="sea";controls.enabled=true;hideUI(true);const c=ship.view;camera.position.set(c.d*.95,c.h*1.3,c.d*.75);controls.target.set(0,c.h*.3,0);
