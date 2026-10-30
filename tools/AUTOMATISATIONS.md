@@ -15,6 +15,9 @@ Chaque réveil programme le suivant (send_later) après vérification list_trigg
 |---|---|---|
 | trig_01NFMPq5od89FDmyTs6tBfCK | sam. 31.10 19:08 | Story « The Noise arrive » + actualité. RÈGLE au réveil : si l'ancienne tâche trig_01HzAmnDasTC7t7ZuPaG4AfS est encore active ou a déjà tourné (story déjà en ligne), NE RIEN FAIRE → jamais 2 stories. |
 
+| trig_01FHvjCXSV5iEK4CuKfhSaak | sam. 31.10 20:40 | Contrôle : réveils de dimanche présents (sinon les créer ici), tirages vendredi + samedi faits, story The Noise publiée une seule fois. |
+| (à la réception du MP3) | — | Vidéo « יום 4 » montée ici, bureau + chat, publication programmée sam. 19:30. |
+
 ## Ancienne tâche encore active (désactivation refusée par le système)
 - trig_01HzAmnDasTC7t7ZuPaG4AfS – story « The Noise arrive » sam. 31.10 19:08 (session neuve). Si elle tourne, c'est elle qui publie ; le réveil ci-dessus s'efface.
 
