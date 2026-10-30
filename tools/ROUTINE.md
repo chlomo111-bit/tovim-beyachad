@@ -81,6 +81,8 @@ SQL : `tools/supabase_v3.sql` (déjà appliqué en ligne). Dans le jeu : bouton 
 5. SendUserMessage + PushNotification à Shlomo : « Loterie <jour> : gagnant @x (N participants) → 20 ₪ à payer par Bit. Meilleur commentateur : @y ». Sans gagnant : une ligne.
 
 ## Reel (quand Shlomo envoie le MP3)
+- RÈGLE DE SHLOMO (30.10.2026) : les vidéos du bateau sont générées UNIQUEMENT dans le chat vidéo du bateau (session_01K8i1w2qgRnPHdCG96nmz35), jamais par les automatisations. Les automatisations écrivent le texte voix (media/AAAA-MM-JJ/voix.txt) et l'envoient à Shlomo en lui demandant d'envoyer le MP3 DANS LE CHAT VIDÉO ; elles ne montent ni ne publient de reel. Si un reel du jour existe déjà (media/AAAA-MM-JJ/reel_*.mp4 ou REEL_EN_COURS.txt), ne rien faire.
+- Chaque vidéo terminée est enregistrée sur le bureau du Mac (dossier « טובעים ביחד - vidéos », nom « טובעים ביחד - יום N - JJ-MM.mp4 ») ET envoyée dans le chat vidéo.
 - Capture du vrai jeu avec `tools/reel_lancement.py` comme modèle (scènes, CAP, 1080×1920 30 i/s), musique `tools/musique_reel.py`, montage ffmpeg (H.264 -preset veryfast -crf 20, AAC), textes calés sur les pauses de la voix (ffmpeg silencedetect). Couverture dédiée (jamais noire).
 - Description : mini-histoire du jour avec les vrais joueurs tagués, « יום N », « 🎟️ הגרלה על 20₪ כל ערב ב־20:00: מגיבים על הפוסט של היום + 200 מטבעות במשחק », « ומה יקרה מחר? התגובה עם הכי הרבה לייקים קובעת 👇 », mention légale, 5 hashtags. Puis commentaire CTA.
 

@@ -22,3 +22,6 @@ Chaque réveil programme le suivant (send_later) après vérification list_trigg
 - trig_01BqmdaMTbTEuVF8eAqh3qe9 – passages 5:55 / 11:55 / 16:55 / 19:55 → SUPPRIMÉE
 - trig_014C857RU18g7hJGWDL5GqVe – production du matin 6:34 → SUPPRIMÉE
 - trig_015neEiXpEe68YX9aEkV5eaw – loterie 20:00 → suppression refusée, reste DÉSACTIVÉE (ne pas la réactiver)
+
+## Vidéos (règle de Shlomo, 30.10.2026)
+Générées UNIQUEMENT dans le chat vidéo (session_01K8i1w2qgRnPHdCG96nmz35). Le chat d'automatisation envoie seulement le texte voix à Shlomo (MP3 à envoyer dans le chat vidéo). Chaque vidéo : bureau du Mac (« טובעים ביחד - vidéos ») + envoyée dans le chat vidéo.
