@@ -856,7 +856,7 @@ function randWalk(R=Math.random){const rects=[...ship.walk,...ship.top],r=rects[
 function spawnCoins(){if(!ship)return;if(coinMesh.parent)coinMesh.parent.remove(coinMesh);ship.group.add(coinMesh);coins.length=0;for(let i=0;i<COIN_N;i++)coins.push(randWalk());coinMesh.visible=false}
 function updateCoins(t){if(!pilotOn){coinMesh.visible=false;return}coinMesh.visible=true;
   for(let i=0;i<COIN_N;i++){const c=coins[i];Q.setFromEuler(new THREE.Euler(Math.PI/2,t*3+i,0));V.set(c.x,c.y+Math.sin(t*3+i)*.08,c.z);S3.set(1,1,1);M4.compose(V,Q,S3);coinMesh.setMatrixAt(i,M4);
-    if(Math.hypot(c.x-myPos.x,c.z-myPos.z)<.6*Math.max(1,figS*1.4)&&Math.abs(c.y-.5-myPos.y)<1){coins[i]=randWalk();coinsToday++;coinsPending++;if(coinsToday===COINS_NEED){lotteryTick();toast(lot&&lot.commented?"🎟️ 200 מטבעות! אתם בהגרלה של 20 ₪ 🍀":"🪙 200 מטבעות! עכשיו רק להגיב על הפוסט של היום 💬")}snd("blip");const el=$("#coinsToday");el.textContent=coinsToday;const pl=$("#coinPill");pl.classList.add("pop");setTimeout(()=>pl.classList.remove("pop"),150)}}
+    if(Math.hypot(c.x-myPos.x,c.z-myPos.z)<.6*Math.max(1,figS*1.4)&&Math.abs(c.y-.5-myPos.y)<1){coins[i]=randWalk();coinsToday++;coinsPending++;if(coinsToday===COINS_NEED){lotteryTick();toast(lot&&lot.commented?"🎟️ 200 מטבעות! אתם בהגרלה של הערב 🍀":"🪙 200 מטבעות! עכשיו רק להגיב על הפוסט של היום 💬")}snd("blip");const el=$("#coinsToday");el.textContent=coinsToday;const pl=$("#coinPill");pl.classList.add("pop");setTimeout(()=>pl.classList.remove("pop"),150)}}
   coinMesh.instanceMatrix.needsUpdate=true}
 setInterval(async()=>{if(!coinsPending||!LIVE||!meName)return;const n=Math.min(15,coinsPending);
   try{const r=await rpc("add_coins",{h:meName,n});if(r.ok){coinsPending-=n;const j=await r.json();if(j&&typeof j.today==="number"){syncMissions();coinsToday=j.today+coinsPending;$("#coinsToday").textContent=coinsToday;if(j.today>=COINS_NEED&&billet&&!billet.locked&&!(billet.access&&billet.access.ok)){billetBusy=0;refreshBillet()}}}}catch(e){}},2500);
@@ -1149,7 +1149,7 @@ function renderLot(){const p=$("#huntPill");if(!p)return;if(!lot||REEL){p.hidden
   if(left===0&&lot.next_day){p.innerHTML=`🔴 ההגרלה בשידור חי עכשיו! 🎟️`;lotteryLive();return}
   if(!lot.next_day){p.innerHTML=lot.last_winner&&lot.last_day===lot.day?`🎉 הזוכה בהגרלה של היום: <b dir="ltr">@${esc(lot.last_winner)}</b> · מחר הגרלה חדשה ב־20:00 🎟️`:`🎟️ ההגרלה של היום הסתיימה · מחר הגרלה חדשה ב־20:00`;return}
   if(fri){p.innerHTML=`🎟️ קודם ההגרלה של שישי, ואחריה ההגרלה של היום · ב־20:00 · בעוד ${T}`;return}
-  if(me&&okP&&okC){p.innerHTML=`✅ אתם בהגרלה! 🎟️ 20 ₪ ${DH} · בעוד ${T}`;if(!lotNotified){lotNotified=true;notify("🎟️ אתם בהגרלה על 20 ₪ 🍀")}return}
+  if(me&&okP&&okC){p.innerHTML=`✅ אתם בהגרלה! 🎟️ 1,000 מטבעות + כוח מיוחד ${DH} · בעוד ${T}`;if(!lotNotified){lotNotified=true;notify("🎟️ אתם בהגרלה של הערב 🍀")}return}
   if(me&&okP&&!okC){p.innerHTML=`🪙 200/200 ✓ · 💬 חסרה תגובה על הפוסט של היום ✗ · בלי תגובה אין הגרלה! 👉 אינסטגרם · בעוד ${T}`;p.style.cursor="pointer";p.onclick=()=>window.open(IG,"_blank");return}
   if(left!=null&&left<=900)p.innerHTML=`🔴 ההגרלה בשידור חי בעוד ${T}${chk} · תישארו על הסיפון!`;
   else p.innerHTML=`🎟️ הגרלה על <b>20 ₪</b> ${DH} · בעוד ${T}${chk}`}
@@ -1164,7 +1164,7 @@ function showDraw(d){return new Promise(res=>{const o=$("#lotOv"),nm=$("#lotName
   sub.textContent=(d.entrants||0)+" משתתפים";let k=0,dl=60;snd&&snd("blip");
   const spin=()=>{if(pool.length)nm.textContent="@"+pool[Math.floor(Math.random()*pool.length)];k++;dl*=1.07;
     if(k<38)setTimeout(spin,dl);else{
-      if(d.winner){nm.textContent="🎉 @"+d.winner;sub.innerHTML=`זכה/תה ב־<b>20 ₪</b>! 💸 (${d.entrants} משתתפים)<br>${d.winner===meName?"<b>זה אתם!</b> שלחו הודעה ל־@"+CONFIG.ACCOUNT+" באינסטגרם":""}`;try{snd("win")}catch(e){}}
+      if(d.winner){nm.textContent="🎉 @"+d.winner;sub.innerHTML=`זכה/תה ב־<b>1,000 מטבעות</b> 🪙 ומחליט/ה מה יקרה מחר בספינה! ✨ (${d.entrants} משתתפים)<br>${d.winner===meName?"<b>זה אתם!</b> כתבו בתגובה באינסטגרם @"+CONFIG.ACCOUNT+" מה יקרה מחר":""}`;try{snd("win")}catch(e){}}
       else{nm.textContent="😱 אין זוכה";sub.textContent="אף אחד לא עמד בשני התנאים… מחר הגרלה חדשה ב־20:00"}
       if(d.top)sub.innerHTML+=`<br><br>👑 <b>המגיב/ה של היום:</b> <b dir="ltr">@${esc(d.top)}</b> (${d.top_n} תגובות)<br>מחליט/ה מה יקרה מחר בספינה!`;
       const ok=$("#lotOk");ok.hidden=false;ok.onclick=()=>{o.hidden=true;res()}}};
@@ -1185,7 +1185,7 @@ async function loadStats(){if(!LIVE)return;try{const me=meName&&byH.has(meName);
   if(g&&g.ok)gStats=await g.json();if(m&&m.ok)myStats=await m.json();renderAccPill();if(hubOpen())renderHub()}catch(e){}}
 const tile=(v,l)=>`<div><b>${v}</b>${l}</div>`;
 function renderHub(){const el=$("#hubBody"),me=!!(meName&&byH.has(meName)),a=accNow(),locked=!billet||billet.locked,n=totalN(),need=Math.max(0,SHIPS[shipI].cap-n);let h="";
-  h+=`<div class="card"><div class="ct">🎟️ ההגרלה של היום <small>20₪ · ${lot&&lot.friday?"במוצאי שבת 20:00":"20:00"}</small></div>`;
+  h+=`<div class="card"><div class="ct">🎟️ ההגרלה של היום <small>🪙 1,000 + כוח מיוחד · ${lot&&lot.friday?"במוצאי שבת 20:00":"20:00"}</small></div>`;
   if(!me)h+=`<div class="muted">עלו לסיפון כדי להשתתף 🧍</div>`;
   else{const c=Math.min(a.coins,a.need),ok=a.coins>=a.need;
     h+=`<div>🪙 מטבעות היום: <b>${c}</b>/${a.need} ${ok?'<span class="ok">✓</span>':""}</div><div class="bar"><i style="width:${Math.round(100*c/a.need)}%"></i></div>`;
@@ -1225,7 +1225,7 @@ $("#repLoad").onclick=async()=>{const err=$("#adminErr"),pass=$("#adminPass").va
   catch(e){err.textContent="שגיאת חיבור"}};
 
 /* actualités */
-const DEFAULT_NEWS={id:"local-3",title:"🎟️ הגרלה של 20₪ כל ערב ב־20:00!",body:"🌊 המטרה של כולנו: להטביע את הספינה!\n🎟️ כל ערב ב־20:00 הגרלה בשידור חי כאן במשחק: זוכה אחד מקבל 20 ₪\n✅ כדי להשתתף: 💬 מגיבים על הפוסט של היום באינסטגרם + 🪙 אוספים 200 מטבעות במשחק באותו יום\n👑 מי שכותב הכי הרבה תגובות ביום מקבל כתר \"המגיב של היום\" ומחליט מה יקרה בספינה למחרת!\n🕯️ שישי: ההגרלה במוצאי שבת ב־20:00"};
+const DEFAULT_NEWS={id:"local-4",title:"🎟️ הגרלה כל ערב ב־20:00: 1,000 מטבעות + כוח מיוחד!",body:"🌊 המטרה של כולנו: להטביע את הספינה!\n🎟️ כל ערב ב־20:00 הגרלה בשידור חי כאן במשחק: הזוכה מקבל 1,000 מטבעות 🪙 ומחליט מה יקרה מחר בספינה ✨\n✅ כדי להשתתף: 💬 מגיבים על הפוסט של היום באינסטגרם + 🪙 אוספים 200 מטבעות במשחק באותו יום\n👑 מי שכותב הכי הרבה תגובות ביום מקבל כתר \"המגיב של היום\" ומחליט מה יקרה בספינה למחרת!\n🕯️ שישי: ההגרלה במוצאי שבת ב־20:00"};
 async function showNews(){let n=DEFAULT_NEWS;try{if(LIVE){const r=await sb("news?select=id,title,body&order=id.desc&limit=1");if(r.ok){const j=await r.json();if(j[0])n=j[0]}}}catch(e){}
   if(lstore("tb_news")===String(n.id))return;$("#newsTitle").textContent=n.title;$("#newsBody").textContent=n.body;$("#newsModal").hidden=false;
   $("#newsOk").onclick=()=>{$("#newsModal").hidden=true;lstore("tb_news",String(n.id))}}
