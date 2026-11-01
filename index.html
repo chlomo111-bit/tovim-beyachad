@@ -754,7 +754,18 @@ function onCount(){
 const evRoot=new THREE.Group();sea.add(evRoot);
 let rain=null,confetti=null,partyLights=[],evProps={},lightningT=8;
 function points(n,size,color){const g=new THREE.BufferGeometry();g.setAttribute("position",new THREE.BufferAttribute(new Float32Array(n*3),3));return new THREE.Points(g,new THREE.PointsMaterial({size,color,transparent:true,opacity:.85,depthWrite:false}))}
-function placeEventProps(){
+/* 🐬 statue du dauphin (vœu de @shahar_b.y, 1.11.2026) : sur le toit de la cabine, libre depuis que tout le monde apparaît sur le pont */
+let dolphinMesh=null;
+function makeDolphin(){const L=[];addBox(L,1.3,.32,1.3,0,.16,0,"#C9A227");addBox(L,1.0,.1,1.0,0,.37,0,"#E4C25A");
+  for(let i=0;i<7;i++){const u=i/6,x=-.95+.32*i,y=.75+Math.sin(u*Math.PI)*.85;addBox(L,.4,.36,.32,x,y,0,"#5B8FD9");addBox(L,.34,.12,.26,x,y-.2,0,"#DCE9F7")}
+  addBox(L,.34,.12,.14,1.25,.86,0,"#4C7FC7");addBox(L,.08,.08,.34,.85,1.37,0,"#111");addBox(L,.16,.3,.08,0,1.75,0,"#4C7FC7");
+  addBox(L,.12,.34,.5,-1.12,.92,0,"#4C7FC7");addBox(L,.12,.22,.12,-1.0,.62,0,"#4C7FC7");
+  const m=vmesh(L);m.userData.dolphin=1;return m}
+function placeDolphin(){if(!ship||!ship.top||!ship.top.length)return;if(!dolphinMesh)dolphinMesh=makeDolphin();
+  const r=ship.top.reduce((a,b)=>(b.x1-b.x0)*(b.z1-b.z0)>(a.x1-a.x0)*(a.z1-a.z0)?b:a,ship.top[0]);
+  const S=clamp(Math.min(r.x1-r.x0,r.z1-r.z0)/3.4,.8,2.6);dolphinMesh.scale.setScalar(S);dolphinMesh.position.set((r.x0+r.x1)/2,r.y,(r.z0+r.z1)/2);dolphinMesh.rotation.y=Math.PI/2;
+  if(dolphinMesh.parent!==ship.group)ship.group.add(dolphinMesh)}
+function placeEventProps(){placeDolphin();
   while(evRoot.children.length)evRoot.remove(evRoot.children[0]);evProps={};partyLights=[];rain=null;confetti=null;
   if(!ship)return;const Ls=ship.len,type=ev.type;
   waveAmpT=type==="storm"?1.1:.32;
