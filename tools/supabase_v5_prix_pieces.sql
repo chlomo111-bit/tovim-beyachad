@@ -1,5 +1,6 @@
 -- V5 (31.10.2026, décision de Shlomo) : plus d'argent réel à partir du 1.11.2026.
 -- Le gagnant de la loterie reçoit 1 000 pièces dans le jeu + le pouvoir de décider d'un événement extraordinaire le lendemain.
+-- APPLIQUÉ en ligne le 01/11/2026 20:05 (la fonction run_lottery n'était pas à jour : prix du 1/11 crédité à la main à @shahar_b.y).
 alter table public.lottery_draws add column if not exists prize_coins int not null default 0;
 alter table public.lottery_draws add column if not exists winner_wish text;
 alter table public.lottery_draws add column if not exists winner_wish_status text not null default 'none';
