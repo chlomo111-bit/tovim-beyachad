@@ -176,6 +176,12 @@ select.field{direction:rtl;font-size:16px}
 .lbgap{text-align:center;color:var(--muted);line-height:1}
 .msg .rep{all:unset;cursor:pointer;float:left;font-size:12px;opacity:.45}
 .msg .rep:hover{opacity:1}
+.ftop{margin-top:6px;display:grid;gap:4px}.ftop div{display:flex;justify-content:space-between;gap:8px;font-size:14px}
+.hgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(92px,1fr));gap:8px;margin-top:6px}
+.hitem{background:rgba(0,0,0,.22);border:1.5px solid var(--line);border-radius:14px;padding:8px 6px;text-align:center}.hitem.on{border-color:var(--gold)}
+.hitem .he{font-size:28px}.hitem .hn{font:800 12px var(--display);margin:2px 0 6px}
+.hb{all:unset;cursor:pointer;display:block;font:900 13px var(--display);padding:6px 4px;border-radius:10px;background:rgba(255,255,255,.12)}.hb.buy{background:var(--gold);color:#1a1a1a}
+#fishB.busy{opacity:.5}
 .chatrules{font-size:12px;color:var(--muted);margin:0 2px 8px;line-height:1.4}
 .repl{font-size:13px;padding:8px;border-radius:10px;background:rgba(255,255,255,.05);margin-bottom:6px}
 .repl button{all:unset;cursor:pointer;margin-inline-start:8px;color:var(--gold);font-weight:700}
@@ -299,10 +305,10 @@ select.field{direction:rtl;font-size:16px}
 
   <div class="pilot" id="pilot" hidden>
     <div class="pilothint" id="pilotName"></div>
-    <div class="coinpill" id="coinPill">🪙 אספו מטבעות · <b id="coinsToday">0</b>/200 היום<span id="comPill"></span></div>
+    <div class="coinpill" id="coinPill">🪙 אספו מטבעות · <b id="coinsToday">0</b>/100 היום<span id="comPill"></span></div>
     <button class="btn ghost" id="exitPilot">סיום</button>
     <div id="joy"><div id="knob"></div></div>
-    <div class="ud"><button id="jumpB" aria-label="קפיצה">⤴️</button><button id="deckB" aria-label="סיפון אחר">🔄</button></div>
+    <div class="ud"><button id="fishB" aria-label="לדוג">🎣</button><button id="jumpB" aria-label="קפיצה">⤴️</button><button id="deckB" aria-label="סיפון אחר">🔄</button></div>
   </div>
   <button id="chatBtn" class="chatfab hide" aria-label="צ'אט">💬<span id="chatBadge" hidden></span></button>
   <button id="hubBtn" class="chatfab hubfab hide" aria-label="משימות וסטטיסטיקות">🎯<span id="hubBadge" hidden></span></button>
@@ -544,8 +550,10 @@ const SKIN=["#F2D0B1","#E0B48C","#C68E62","#8D5A3B"],PANTS=["#2E3A59","#3A3A3A",
 const COLOR_WORDS={"אדום":"#E5484D","כחול":"#3E8BFF","ירוק":"#2FBF71","סגול":"#A35CFF","ורוד":"#FF7AB6","כתום":"#FF8A1F","צהוב":"#FFD23F","לבן":"#FFFFFF","שחור":"#222222"};
 const HAT_WORDS={"כובע":"cap","כובע קש":"straw","כובע גרב":"beanie","מגבעת":"tophat","כתר":"crown"};
 const PARTS={legs:[.34,.46,.2,0,.23,0],torso:[.44,.5,.26,0,.71,0],head:[.32,.32,.32,0,1.12,0],hat:null,glasses:[.34,.08,.05,0,1.15,.17],vest:[.48,.38,.3,0,.73,0]};
-const HATS={cap:[.36,.1,.38,0,1.33,.03],straw:[.64,.07,.64,0,1.31,0],beanie:[.34,.16,.34,0,1.34,0],tophat:[.28,.32,.28,0,1.44,0],crown:[.34,.14,.34,0,1.36,0]};
-const HAT_COL={cap:null,straw:"#E8C77A",beanie:null,tophat:"#1B1B1B",crown:"#FFD23F"};
+const HATS={cap:[.36,.1,.38,0,1.33,.03],straw:[.64,.07,.64,0,1.31,0],beanie:[.34,.16,.34,0,1.34,0],tophat:[.28,.32,.28,0,1.44,0],crown:[.34,.14,.34,0,1.36,0],bucket:[.46,.12,.46,0,1.33,0],chef:[.3,.36,.3,0,1.46,0],party:[.16,.38,.16,0,1.49,0],pirate:[.56,.15,.3,0,1.35,0],trophy:[.38,.22,.38,0,1.39,0]};
+const HAT_COL={cap:null,straw:"#E8C77A",beanie:null,tophat:"#1B1B1B",crown:"#FFD23F",bucket:"#5E8C5A",chef:"#FFFFFF",party:"#FF4D6D",pirate:"#141414",trophy:"#FFB000"};
+/* boutique de chapeaux (1.11.2026, idée de @mor.levi134) — prix = hat_price() côté Supabase */
+const SHOP=[{id:"cap",n:"כובע מצחייה",e:"🧢",p:100},{id:"beanie",n:"כובע גרב",e:"🧶",p:150},{id:"straw",n:"כובע קש",e:"👒",p:200},{id:"bucket",n:"כובע דייגים",e:"🎣",p:250},{id:"chef",n:"כובע שף",e:"👨‍🍳",p:350},{id:"party",n:"כובע מסיבה",e:"🥳",p:350},{id:"pirate",n:"כובע פיראט",e:"🏴‍☠️",p:500},{id:"tophat",n:"מגבעת",e:"🎩",p:700}];
 function looks(p){
   const R=rng(hashStr(p.handle)+7),st=p.style||{};
   const L={skin:SKIN[Math.floor(R()*4)],pants:PANTS[Math.floor(R()*4)],shirt:SHIRTS[Math.floor(R()*SHIRTS.length)],hat:R()<.45?["cap","straw","beanie"][Math.floor(R()*3)]:null,hatCol:SHIRTS[Math.floor(R()*8)],glasses:R()<.2,yaw:R()*Math.PI*2,ph:R()*6.28};
@@ -784,7 +792,7 @@ const noteMesh=(()=>{const L=[];addBox(L,.9,.04,.46,0,0,0,"#E7637A");addBox(L,.8
 const IL_FMT=new Intl.DateTimeFormat("en-CA",{timeZone:"Asia/Jerusalem",year:"numeric",month:"2-digit",day:"2-digit"});
 const ilDay=()=>IL_FMT.format(new Date());
 const UNLOCK_AT=25; // les billets s'ouvrent au premier naufrage
-const COINS_NEED=200;
+const COINS_NEED=100; /* 1.11.2026 : seuil abaissé à 100 (Shlomo) */
 function acc(){if(!billet||billet.locked)return null;if(!LIVE)return {coins:coinsToday,need:COINS_NEED,commented:true,ok:coinsToday>=COINS_NEED};
   const a=billet.access||{};const c=Math.max(a.coins||0,coinsToday);return {coins:c,need:a.need||COINS_NEED,commented:!!a.commented,ok:!!a.ok}}
 function billetOpen(){return CONFIG.BILLET.on&&billet&&!billet.locked&&billet.slot&&!billet.winner}
@@ -840,7 +848,7 @@ $("#fClaim").onclick=async()=>{
   const h=cleanHandle($("#fHandle").value);if(!HANDLE_RE.test(h)){$("#fErr").textContent="שם משתמש לא תקין";return}
   if(!byH.has(h)){$("#fErr").textContent="קודם צריך לעלות לסיפון 🧍";return}
   $("#fClaim").disabled=true;let w,me;
-  try{if(LIVE){const r=await rpc("claim_treasure",{h});const rows=await r.json();if(!r.ok){$("#fErr").textContent=String(rows&&rows.message||"").includes("no_billet")?"השטר הבא עוד לא הוסתר… 💸":String(rows&&rows.message||"").includes("locked")?"🔒 השטר נפתח כשהסירה טובעת":String(rows&&rows.message||"").includes("not_commented")?"🔒 רק מי שהגיב/ה היום על הפוסט של היום יכול/ה לזכות":String(rows&&rows.message||"").includes("not_enough_coins")?"🔒 צריך 200 מטבעות מהיום כדי לזכות":"משהו לא עבד, נסו שוב";$("#fClaim").disabled=false;return}w=rows[0];me=!!(w&&w.is_me)}
+  try{if(LIVE){const r=await rpc("claim_treasure",{h});const rows=await r.json();if(!r.ok){$("#fErr").textContent=String(rows&&rows.message||"").includes("no_billet")?"השטר הבא עוד לא הוסתר… 💸":String(rows&&rows.message||"").includes("locked")?"🔒 השטר נפתח כשהסירה טובעת":String(rows&&rows.message||"").includes("not_commented")?"🔒 רק מי שהגיב/ה היום על הפוסט של היום יכול/ה לזכות":String(rows&&rows.message||"").includes("not_enough_coins")?"🔒 צריך 100 מטבעות מהיום כדי לזכות":"משהו לא עבד, נסו שוב";$("#fClaim").disabled=false;return}w=rows[0];me=!!(w&&w.is_me)}
     else{w={handle:h,found_at:new Date().toISOString()};me=true}}catch(e){$("#fErr").textContent="אין חיבור, נסו שוב";$("#fClaim").disabled=false;return}
   $("#fClaim").disabled=false;$("#fAsk").hidden=true;
   if(me){$("#fWin").hidden=false;$("#fPrize").textContent=(billet.prize||20)+" ₪";$("#fCode").textContent=billetCode(h);$("#fWhen").textContent=new Date(w.found_at).toLocaleString("he-IL",{timeZone:"Asia/Jerusalem"});snd("win");burstAt(noteMesh)}
@@ -856,7 +864,7 @@ function randWalk(R=Math.random){const rects=[...ship.walk,...ship.top],r=rects[
 function spawnCoins(){if(!ship)return;if(coinMesh.parent)coinMesh.parent.remove(coinMesh);ship.group.add(coinMesh);coins.length=0;for(let i=0;i<COIN_N;i++)coins.push(randWalk());coinMesh.visible=false}
 function updateCoins(t){if(!pilotOn){coinMesh.visible=false;return}coinMesh.visible=true;
   for(let i=0;i<COIN_N;i++){const c=coins[i];Q.setFromEuler(new THREE.Euler(Math.PI/2,t*3+i,0));V.set(c.x,c.y+Math.sin(t*3+i)*.08,c.z);S3.set(1,1,1);M4.compose(V,Q,S3);coinMesh.setMatrixAt(i,M4);
-    if(Math.hypot(c.x-myPos.x,c.z-myPos.z)<.6*Math.max(1,figS*1.4)&&Math.abs(c.y-.5-myPos.y)<1){coins[i]=randWalk();coinsToday++;coinsPending++;if(coinsToday===COINS_NEED){lotteryTick();toast(lot&&lot.commented?"🎟️ 200 מטבעות! אתם בהגרלה של הערב 🍀":"🪙 200 מטבעות! עכשיו רק להגיב על הפוסט של היום 💬")}snd("blip");const el=$("#coinsToday");el.textContent=coinsToday;const pl=$("#coinPill");pl.classList.add("pop");setTimeout(()=>pl.classList.remove("pop"),150)}}
+    if(Math.hypot(c.x-myPos.x,c.z-myPos.z)<.6*Math.max(1,figS*1.4)&&Math.abs(c.y-.5-myPos.y)<1){coins[i]=randWalk();coinsToday++;coinsPending++;if(coinsToday===COINS_NEED){lotteryTick();toast(lot&&lot.commented?"🎟️ "+COINS_NEED+" מטבעות! אתם בהגרלה של הערב 🍀":"🪙 "+COINS_NEED+" מטבעות! עכשיו רק להגיב על הפוסט של היום 💬")}snd("blip");const el=$("#coinsToday");el.textContent=coinsToday;const pl=$("#coinPill");pl.classList.add("pop");setTimeout(()=>pl.classList.remove("pop"),150)}}
   coinMesh.instanceMatrix.needsUpdate=true}
 setInterval(async()=>{if(!coinsPending||!LIVE||!meName)return;const n=Math.min(15,coinsPending);
   try{const r=await rpc("add_coins",{h:meName,n});if(r.ok){coinsPending-=n;const j=await r.json();if(j&&typeof j.today==="number"){syncMissions();coinsToday=j.today+coinsPending;$("#coinsToday").textContent=coinsToday;if(j.today>=COINS_NEED&&billet&&!billet.locked&&!(billet.access&&billet.access.ok)){billetBusy=0;refreshBillet()}}}}catch(e){}},2500);
@@ -1143,7 +1151,7 @@ function renderLot(){const p=$("#huntPill");if(!p)return;if(!lot||REEL){p.hidden
   const left=lotLeft(),T=left!=null?`<b style="font-variant-numeric:tabular-nums">${fmtCd(left)}</b>`:"",a=accNow(),me=!!(meName&&byH.has(meName));
   const okP=a.coins>=COINS_NEED,okC=a.commented,fri=lot.next_day&&lot.next_day!==lot.day;
   const DH=lot.friday||fri?"במוצאי שבת ב־20:00":"ב־20:00";
-  const chk=me?` · 🪙 <b>${Math.min(a.coins,COINS_NEED)}</b>/200 ${okP?"✓":"✗"} · 💬 ${okC?"✓":"✗"}`:` · 🪙 200 מטבעות + 💬 תגובה על הפוסט של היום`;
+  const chk=me?` · 🪙 <b>${Math.min(a.coins,COINS_NEED)}</b>/${COINS_NEED} ${okP?"✓":"✗"} · 💬 ${okC?"✓":"✗"}`:` · 🪙 200 מטבעות + 💬 תגובה על הפוסט של היום`;
   p.style.cursor="";p.onclick=null;
   if(lot.shabbat){p.innerHTML=`🕯️ שבת שלום · 🎟️ ההגרלה של שישי ${fri||lot.friday?"במוצאי שבת ב־20:00":"הערב ב־20:00"}${T?" · בעוד "+T:""}`;return}
   if(left===0&&lot.next_day){p.innerHTML=`🔴 ההגרלה בשידור חי עכשיו! 🎟️`;lotteryLive();return}
@@ -1192,7 +1200,7 @@ function renderHub(){const el=$("#hubBody"),me=!!(meName&&byH.has(meName)),a=acc
     h+=`<div>💬 תגובה על הפוסט של היום: ${a.commented?'<span class="ok">✓</span>':`<span class="no">✗</span> · <a href="${IG}" target="_blank" rel="noopener" style="color:var(--gold)">להגיב באינסטגרם</a>`}</div>`;
     h+=`<div class="muted" style="margin-top:6px">${ok&&a.commented?"✅ אתם בהגרלה! תישארו במשחק ב־20:00 לראות את ההגרלה בשידור חי 🍀":"צריך את שני התנאים כדי להיכנס להגרלה. הרשימה מתעדכנת ב־6:00, 12:00, 17:00 ו־19:55"}</div>`}
   if(lot)h+=`<div class="muted" style="margin-top:6px">🎟️ משתתפים כרגע: <b>${lot.entrants||0}</b>${lot.top_now?` · 💬 המגיב/ה המוביל/ה היום: <b dir="ltr">@${esc(lot.top_now)}</b> (${lot.top_now_n})`:""}${lot.crown?` · 👑 המגיב/ה של היום: <b dir="ltr">@${esc(lot.crown)}</b>`:""}</div>`;
-  h+=`</div><div class="card"><div class="ct">🎯 משימות היום <small>מתחדשות בחצות</small></div>`;
+  h+=`</div>`+fishCard(me)+shopCard(me)+`<div class="card"><div class="ct">🎯 משימות היום <small>מתחדשות בחצות</small></div>`;
   if(!me)h+=`<div class="muted">עלו לסיפון כדי לקבל 3 משימות ביום עם בונוס מטבעות 🪙</div>`;
   else if(!missions)h+=`<div class="muted">${LIVE?"טוען…":"זמין במשחק האמיתי"}</div>`;
   else h+=missions.map(m=>{const pr=m.id.startsWith("coins")?Math.min(m.goal,Math.max(m.progress,coinsToday)):m.progress,pct=Math.round(100*pr/m.goal);
@@ -1200,8 +1208,8 @@ function renderHub(){const el=$("#hubBody"),me=!!(meName&&byH.has(meName)),a=acc
   h+=`</div>`;
   if(me&&myStats){const s=myStats;h+=`<div class="card"><div class="ct">📊 הסטטיסטיקות שלי</div><div class="sgrid">${tile(fmtN(Math.max(s.coins_today||0,coinsToday)),"🪙 מטבעות היום")}${tile(fmtN(s.coins_total||0),"🪙 סה״כ מטבעות")}${tile((s.streak||0)+" 🔥","ימים ברצף (שיא "+(s.best_streak||0)+")")}${tile(s.missions||0,"🎯 משימות שבוצעו")}${tile(s.participations||0,"🎟️ השתתפויות בתחרות")}${tile(s.wins||0,"🏆 זכיות")}${tile(s.rank_today?"#"+s.rank_today:"–","📊 מקום היום")}${tile(s.rank_all?"#"+s.rank_all:"–","📊 מקום כללי")}</div></div>`}
   const g=gStats;h+=`<div class="card"><div class="ct">🚢 הספינה במספרים</div><div class="sgrid">${tile(fmtN(g?g.passengers:n),"🧍 נוסעים")}${tile(g&&g.followers!=null?fmtN(g.followers):"–","📸 עוקבים באינסטגרם")}${tile(fmtN(g&&g.left!=null?g.left:need),"🌊 נוסעים עד הטביעה")}${tile(fmtN(g?g.coins_today:0),"🪙 מטבעות נאספו היום")}</div></div>`;
-  el.innerHTML=h;el.querySelectorAll(".mrow").forEach(r=>r.onclick=()=>missionAct(r.dataset.act));if(missions)missions.forEach(m=>m.just=false)}
-function openHub(){openSheet("#hubSheet");renderHub();syncMissions(true);loadStats()}
+  el.innerHTML=h;el.querySelectorAll(".mrow").forEach(r=>r.onclick=()=>missionAct(r.dataset.act));el.querySelectorAll("[data-buy]").forEach(b=>b.onclick=()=>buyHat(b.dataset.buy));el.querySelectorAll("[data-wear]").forEach(b=>b.onclick=()=>wearHat(b.dataset.wear));{const fg=$("#fishGo");if(fg)fg.onclick=()=>{closeSheets();startPilot();setTimeout(()=>toast("🎣 לחצו על החכה למטה כדי לדוג"),1500)}}if(missions)missions.forEach(m=>m.just=false)}
+function openHub(){openSheet("#hubSheet");renderHub();syncMissions(true);loadStats();loadFishShop()}
 $("#hubBtn").onclick=openHub;$("#accPill").onclick=openHub;
 $("#hubTop").onclick=()=>{closeSheets();openSide(true);const t=document.querySelector('.tabs button[data-tab="top"]');if(t)t.click()};
 
@@ -1225,7 +1233,7 @@ $("#repLoad").onclick=async()=>{const err=$("#adminErr"),pass=$("#adminPass").va
   catch(e){err.textContent="שגיאת חיבור"}};
 
 /* actualités */
-const DEFAULT_NEWS={id:"local-4",title:"🎟️ הגרלה כל ערב ב־20:00: 1,000 מטבעות + כוח מיוחד!",body:"🌊 המטרה של כולנו: להטביע את הספינה!\n🎟️ כל ערב ב־20:00 הגרלה בשידור חי כאן במשחק: הזוכה מקבל 1,000 מטבעות 🪙 ומחליט מה יקרה מחר בספינה ✨\n✅ כדי להשתתף: 💬 מגיבים על הפוסט של היום באינסטגרם + 🪙 אוספים 200 מטבעות במשחק באותו יום\n👑 מי שכותב הכי הרבה תגובות ביום מקבל כתר \"המגיב של היום\" ומחליט מה יקרה בספינה למחרת!\n🕯️ שישי: ההגרלה במוצאי שבת ב־20:00"};
+const DEFAULT_NEWS={id:"local-5",title:"🎟️ הגרלה כל ערב ב־20:00: 1,000 מטבעות + כוח מיוחד!",body:"🌊 המטרה של כולנו: להטביע את הספינה!\n🎟️ כל ערב ב־20:00 הגרלה בשידור חי כאן במשחק: הזוכה מקבל 1,000 מטבעות 🪙 ומחליט מה יקרה מחר בספינה ✨\n✅ כדי להשתתף: 💬 מגיבים על הפוסט של היום באינסטגרם + 🪙 אוספים 100 מטבעות במשחק באותו יום\n👑 מי שכותב הכי הרבה תגובות ביום מקבל כתר \"המגיב של היום\" ומחליט מה יקרה בספינה למחרת!\n🕯️ שישי: ההגרלה במוצאי שבת ב־20:00"};
 async function showNews(){let n=DEFAULT_NEWS;try{if(LIVE){const r=await sb("news?select=id,title,body&order=id.desc&limit=1");if(r.ok){const j=await r.json();if(j[0])n=j[0]}}}catch(e){}
   if(lstore("tb_news")===String(n.id))return;$("#newsTitle").textContent=n.title;$("#newsBody").textContent=n.body;$("#newsModal").hidden=false;
   $("#newsOk").onclick=()=>{$("#newsModal").hidden=true;lstore("tb_news",String(n.id))}}
@@ -1250,10 +1258,51 @@ function inRect(r,x,z){return x>=r.x0&&x<=r.x1&&z>=r.z0&&z<=r.z1}
 function startPilot(){const p=byH.get(meName);if(!p||!p.slot)return;pilotOn=true;/* 30.10.2026 : on démarre TOUJOURS sur le pont (jamais sur le toit) */myRect=ship.walk.find(r=>Math.abs(r.y-p.slot.y)<.01&&inRect(r,p.slot.x,p.slot.z))||ship.walk.reduce((a,r)=>(r.x1-r.x0)*(r.z1-r.z0)>(a.x1-a.x0)*(a.z1-a.z0)?r:a,ship.walk[0]);if(inRect(myRect,p.slot.x,p.slot.z)&&Math.abs(myRect.y-p.slot.y)<.01)myPos.set(p.slot.x,myRect.y,p.slot.z);else myPos.set((myRect.x0+myRect.x1)/2,myRect.y,(myRect.z0+myRect.z1)/2);
   closeSheets();$("#pilot").hidden=false;$("#top").classList.add("hide");$("#bottom").classList.add("hide");$("#chatBtn").classList.add("hide");$("#hubBtn").classList.add("hide");$("#pilotName").textContent="@"+meName;
   controls.autoRotate=false;controls.minDistance=2;flyS.on=false;ring.visible=false;
-  toast(coinsToday>=COINS_NEED?"🪙 כבר יש לכם 200 היום! 🎟️ ההגרלה ב־20:00":"🪙 אספו 200 מטבעות היום = כרטיס להגרלה של 20 ₪");loadCoinTop()}
+  toast(coinsToday>=COINS_NEED?"🪙 כבר יש לכם "+COINS_NEED+" היום! 🎟️ ההגרלה ב־20:00":"🪙 אספו "+COINS_NEED+" מטבעות היום = כרטיס להגרלה · 🎣 אפשר גם לדוג!");loadCoinTop()}
 function stopPilot(){pilotOn=false;$("#pilot").hidden=true;if(mode==="sea"&&!REEL){$("#top").classList.remove("hide");$("#bottom").classList.remove("hide");$("#chatBtn").classList.remove("hide");$("#hubBtn").classList.remove("hide")}controls.minDistance=Math.max(3,ship.view.d*.18);rebuild()}
 $("#walkBtn").onclick=startPilot;$("#exitPilot").onclick=stopPilot;
 $("#jumpB").onclick=()=>{if(myOff.jump<=0.001){vy=4.2;snd("whoosh")}};
+
+/* ================= PÊCHE (1.11.2026, idée de @shahar_b.y) ================= */
+let fishBoard=null,myHatsD=null,fishBusy=false,fishLine=null,fishT0=0;
+function ensureLine(){if(fishLine)return;const g=new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(),new THREE.Vector3()]);
+  fishLine=new THREE.Line(g,new THREE.LineBasicMaterial({color:0xffffff}));fishLine.frustumCulled=false;
+  fishLine.userData.bob=new THREE.Mesh(new THREE.SphereGeometry(.09,8,6),new THREE.MeshLambertMaterial({color:0xFF3B30}));}
+function lineFrame(t){if(!fishLine||!fishLine.parent)return;const side=myPos.z>=0?1:-1,a=new THREE.Vector3(myPos.x+.1,myPos.y+1.1*figS,myPos.z+side*.25*figS),
+  b=new THREE.Vector3(myPos.x+.4,-.15+Math.sin(t*6)*.04,side*(ship.beam/2+1.6));fishLine.geometry.setFromPoints([a,b]);fishLine.userData.bob.position.copy(b)}
+const fmtKg=g=>g<=0?"":g<1000?g+" גרם":(g/1000).toFixed(g<10000?1:0)+" ק״ג";
+async function doFish(){if(fishBusy||!pilotOn)return;if(!meName||!byH.has(meName)){toast("קודם עולים לסיפון 🧍");return}
+  fishBusy=true;$("#fishB").classList.add("busy");ensureLine();ship.group.add(fishLine);ship.group.add(fishLine.userData.bob);snd("whoosh");toast("🎣 זרקתם חכה… מחכים לנשנוש");
+  const wait=new Promise(r=>setTimeout(r,1800+Math.random()*1400));let res=null;
+  try{if(LIVE){const r=await rpc("catch_fish",{h:meName});res=r.ok?await r.json():{error:"net"}}else{const g=Math.floor(Math.random()*3000);res={species:"דניס",emoji:"🐠",grams:g,coins:Math.max(1,Math.round(g/200)),rank:1,left:39}}}catch(e){res={error:"net"}}
+  await wait;ship.group.remove(fishLine);ship.group.remove(fishLine.userData.bob);fishBusy=false;$("#fishB").classList.remove("busy");
+  if(!res||res.error){toast(res&&res.error==="wait"?"⏳ רגע… הדגים עוד בורחים ("+res.wait+" שניות)":res&&res.error==="limit"?"🎣 סיימתם את 40 הזריקות של היום – חוזרים מחר!":"🌊 החכה נקרעה… נסו שוב");return}
+  coinsToday+=res.coins;coinsPending=coinsPending||0;$("#coinsToday").textContent=coinsToday;try{snd(res.grams>=5000?"win":"coin")}catch(e){}
+  toast(res.grams<=0?`👢 שלפתם נעל ישנה 😂 +${res.coins} 🪙`:`${res.emoji} ${res.species} של ${fmtKg(res.grams)}! +${res.coins} 🪙 · מקום ${res.rank} השבוע`);
+  if(coinsToday>=COINS_NEED&&coinsToday-res.coins<COINS_NEED)setTimeout(()=>toast("🎟️ "+COINS_NEED+" מטבעות! עכשיו רק להגיב על הפוסט של היום 💬"),2600);
+  fishBoard=null;if(typeof lotteryTick==="function")lotteryTick()}
+$("#fishB").onclick=doFish;addEventListener("keydown",e=>{if(pilotOn&&e.key.toLowerCase()==="f")doFish()});
+async function loadFishShop(){if(!LIVE||!meName)return;try{const [a,b]=await Promise.all([rpc("fish_board",{h:meName}),rpc("my_hats",{h:meName})]);
+  if(a.ok)fishBoard=await a.json();if(b.ok)myHatsD=await b.json();if(hubOpen())renderHub()}catch(e){}}
+function fishCard(me){let h=`<div class="card"><div class="ct">🎣 תחרות הדייג של השבוע <small>הדג הכי כבד מנצח</small></div>`;
+  h+=`<div class="muted">דגים מהסיפון 🎣 · כל דג = מטבעות · במוצאי שבת: 🥇 1,000 מטבעות + גביע על הראש · 🥈 500 · 🥉 250</div>`;
+  const b=fishBoard;if(b&&b.top&&b.top.length)h+=`<div class="ftop">`+b.top.slice(0,5).map((x,i)=>`<div><span>${["🥇","🥈","🥉","4.","5."][i]} <b dir="ltr">@${esc(x.handle)}</b></span><span>${x.emoji} ${fmtKg(x.grams)}</span></div>`).join("")+`</div>`;
+  else h+=`<div class="muted" style="margin-top:6px">עוד אף אחד לא דג השבוע… תהיו הראשונים! 🐟</div>`;
+  if(me)h+=`<div style="margin-top:8px">${b&&b.mybest!=null?`הדג הכי כבד שלכם: <b>${fmtKg(b.mybest)}</b> · מקום <b>${b.myrank}</b>`:"עוד לא דגתם השבוע"}${b?` · נשארו <b>${b.left}</b> זריקות היום`:""}</div><button class="btn" id="fishGo" style="margin-top:8px;width:100%">🎣 לדוג עכשיו</button>`;
+  if(b&&b.last&&b.last.first)h+=`<div class="muted" style="margin-top:6px">🏆 אלוף השבוע שעבר: <b dir="ltr">@${esc(b.last.first)}</b></div>`;
+  return h+`</div>`}
+function shopCard(me){if(!me)return "";const d=myHatsD,own=new Set(d?d.owned:[]),wear=d?d.wearing:null;
+  let h=`<div class="card"><div class="ct">🎩 חנות הכובעים <small>${d?"🪙 יש לכם "+fmtN(d.coins):""}</small></div><div class="hgrid">`;
+  h+=SHOP.map(x=>{const o=own.has(x.id),w=wear===x.id;return `<div class="hitem${w?" on":""}"><div class="he">${x.e}</div><div class="hn">${x.n}</div>${o?(w?`<button class="hb" data-wear="none">✓ לובשים</button>`:`<button class="hb" data-wear="${x.id}">ללבוש</button>`):`<button class="hb buy" data-buy="${x.id}">🪙 ${x.p}</button>`}</div>`}).join("");
+  if(own.has("trophy"))h+=`<div class="hitem${wear==="trophy"?" on":""}"><div class="he">🏆</div><div class="hn">גביע הדייגים</div><button class="hb" data-wear="${wear==="trophy"?"none":"trophy"}">${wear==="trophy"?"✓ לובשים":"ללבוש"}</button></div>`;
+  return h+`</div><div class="muted" style="margin-top:6px">👑 הכתר שמור למגיב/ה של היום · 🏆 הגביע לאלוף/ת הדייג</div></div>`}
+function applyHat(hat){const p=byH.get(meName);if(!p)return;p.style={...(p.style||{}),hat};rebuild()}
+async function buyHat(id){const x=SHOP.find(s=>s.id===id);if(!x||!LIVE)return;try{const r=await rpc("buy_hat",{h:meName,hat:id}),j=r.ok?await r.json():{error:"net"};
+  if(j.ok){toast(`${x.e} קניתם ${x.n}! כולם רואים אותו על הסיפון`);snd("coin");applyHat(id)}
+  else toast(j.error==="not_enough"?`🪙 חסרים לכם ${x.p-j.coins} מטבעות – לכו לדוג! 🎣`:j.error==="owned"?"כבר יש לכם את הכובע הזה":"משהו השתבש, נסו שוב");
+  myHatsD=null;loadFishShop()}catch(e){toast("שגיאת חיבור")}}
+async function wearHat(id){if(!LIVE)return;try{const r=await rpc("wear_hat",{h:meName,hat:id});if(r.ok){applyHat(id);toast(id==="none"?"הורדתם את הכובע":"✨ לבשתם כובע חדש!")}loadFishShop()}catch(e){}}
+
 $("#deckB").onclick=()=>{const rs=rectsAll(),i=(rs.indexOf(myRect)+1)%rs.length;myRect=rs[i];myPos.set((myRect.x0+myRect.x1)/2,myRect.y,(myRect.z0+myRect.z1)/2);snd("whoosh")};
 addEventListener("keydown",e=>{keys[e.key.toLowerCase()]=true;if(pilotOn&&e.key===" ")$("#jumpB").click()});addEventListener("keyup",e=>keys[e.key.toLowerCase()]=false);
 {const joy=$("#joy"),knob=$("#knob");let id=null;
@@ -1271,7 +1320,7 @@ function pilotFrame(t,dt){
   const w=ship.group.localToWorld(myPos.clone()).add(new THREE.Vector3(0,.8*figS,0));controls.target.lerp(w,dt*6);
   const d=camera.position.distanceTo(controls.target);if(d>5)camera.position.lerp(controls.target.clone().add(camera.position.clone().sub(controls.target).normalize().multiplyScalar(5)),dt*2);
   if(billetActive()&&noteMesh.visible&&Math.hypot(noteMesh.position.x-myPos.x,noteMesh.position.z-myPos.z)<Math.max(.8,figS*1.2)&&Math.abs(noteMesh.position.y-.45-myPos.y)<1.2)treasureFound();
-  updateCoins(t);
+  updateCoins(t);lineFrame(t);
 }
 
 /* ================= ÉTIQUETTES ================= */
