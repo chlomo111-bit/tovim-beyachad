@@ -80,13 +80,14 @@ def main():
                 shot(re.sub(r"\bK\b", f"{i/30:.4f}", per))
             print(name, "images", start, "->", frame[0] - 1, flush=True)
 
-        pg.evaluate("""mode='sea';started=true;setShip(shipIdx(totalN()));setEvent({type:'party',title:''});
+        pg.evaluate("""mode='sea';started=true;setShip(shipIdx(totalN()));setEvent({type:'none',title:''});
 tv={day:'2026-11-01',handle:'shahar_b.y',text:'תעשו שיציבו פסל בספינה של דולפין או סוס ים',likes:0};tvDraw();
 document.querySelector('#gate').hidden=true;R.hideTop();
 const HS=['pirate','chef','party','bucket','straw','tophat','cap','beanie'];P.forEach((p,i)=>{if(i%3===0)p.style={hat:HS[i%HS.length]}});rebuild();""")
         V="const c=ship.view;"
         # 0–9.9 : naufrage de la barque → tout le monde passe sur le bateau de pêche
         scene("s1", 9.9, "tvGroup.visible=false;startSink(0,1);flash(1,.6)",
+              "{const O=(SINK.swapped?ship:SINK.old),c=O.view,a=.65+K*.03;R.cam(Math.cos(a)*c.d*.75,c.h*1.2+2.5,Math.sin(a)*c.d*.75,0,c.h*.15,0)}"
               "R.cap(K<1.1?'זה <em>קרה!</em> 😱':K<3.3?'הסירה הראשונה <em>טבעה!</em> 🌊':K<6.5?'<em>25 נוסעים</em>…<small>והיא פשוט לא החזיקה</small>':K<8.15?'כולם <em>קפצו למים!</em> 🏊':'…ועלו ל<em>ספינת הדייגים</em> 🎣')")
         pg.evaluate("endSink();setShip(1);rebuild();tvGroup.visible=false")
         # 9.9–13.4 : יום חמישי על הסיפון, וכבר 39 נוסעים
@@ -94,7 +95,7 @@ const HS=['pirate','chef','party','bucket','straw','tophat','cap','beanie'];P.fo
               V+"R.orbit(K,c.d*.7,c.h*1.6+3,c.h*.1,1.1,0.16);R.cap(K<1.4?'<em>יום 5</em> על הסיפון 🚢':'וכבר <em>39 נוסעים</em>!')")
         # 13.4–18.2 : ושחר ביקשה פסל דולפין ענק… והנה הוא עומד על הסיפון
         scene("s3", 18.2, "R.hideTop();flash(.5,.3)",
-              "{const w=dolphinMesh.getWorldPosition(new THREE.Vector3()),a=.9+K*.18,d=16-K*1.2;R.cam(w.x+Math.cos(a)*d,w.y+5.5-K*.4,w.z+Math.sin(a)*d,w.x,w.y+1.6,w.z)}"
+              "{const w=dolphinMesh.getWorldPosition(new THREE.Vector3()),a=.75+K*.06,d=24-K*.8;R.cam(w.x+Math.cos(a)*d,w.y+7-K*.3,w.z+Math.sin(a)*d,w.x,w.y+1.8,w.z)}"
               "R.cap(K<2.5?'<span dir=ltr>@shahar_b.y</span> ביקשה <em>פסל דולפין</em> 🐬':'והנה הוא… <em>על הסיפון!</em> ✨')")
         # 18.2–22.4 : PAUSE journal du jour au studio TV (commentaire le plus liké)
         scene("pause", 22.4, "tvGroup.visible=true;R.top('📺','חדשות הספינה');flash(.9,.4)",
@@ -107,11 +108,11 @@ const HS=['pirate','chef','party','bucket','straw','tophat','cap','beanie'];P.fo
               V+"R.orbit(K,c.d*.8,c.h*2+4,c.h*.1,2.3,0.11);R.cap(K<2.6?'שווה <em>1,000 מטבעות</em> 🪙':'והזוכה <em>מחליט/ה</em> מה יקרה מחר! ✨')")
         # 27.6–31.95 : מגיבים על הפוסט של היום, אוספים רק 100 מטבעות, ואתם בפנים
         scene("s6", 31.95, "R.top('יום 5','<b>39</b>/100 נוסעים')",
-              V+"R.orbit(K,c.d*.45,c.h*1.4+2,c.h*.2,3.2,0.14);"
+              V+"R.orbit(K,c.d*.62,c.h*1.9+4,c.h*.15,3.2,0.12);"
               "R.cap(K<1.7?'💬 מגיבים על <em>הפוסט של היום</em>':K<3.4?'💬 מגיבים על <em>הפוסט של היום</em><small>+ 🪙 רק 100 מטבעות</small>':'ואתם <em>בפנים!</em> 🎟️')")
         # 31.95–35.9 : ובקרוב על הסיפון… חכות דייג וכובעים לקנות
         scene("s7", 35.9, "R.hideTop();flash(.5,.3)",
-              V+"{const p=draw[3]||draw[0];const w=worldOf(p,new THREE.Vector3());R.cam(w.x+3.4,w.y+2.6,w.z+4.2,w.x,w.y+.9,w.z)}"
+              V+"{const p=draw[3]||draw[0];const w=worldOf(p,new THREE.Vector3());R.cam(w.x+7.5,w.y+5,w.z+9,w.x,w.y+1,w.z)}"
               "R.cap(K<1.6?'ובקרוב על הסיפון… 👀':'🎣 <em>חכות דייג</em> + 🎩 <em>כובעים</em>!')")
         # 35.9–40.4 : ומה יקרה מחר? התגובה עם הכי הרבה לייקים קובעת
         scene("s8", 40.4, "flash(.4,.3)",
