@@ -90,10 +90,10 @@ window.mkLine=function(h){const p=byH.get(h);if(!p||!p.slot)return null;const g=
   ship.group.add(l);ship.group.add(b);const o={h,l,b,p};FL.push(o);return o};
 window.lineTick=function(t,lift){for(const o of FL){const s=o.p.slot,side=s.z>=0?1:-1,a=new THREE.Vector3(s.x+.15,s.y+1.15*figS,s.z+side*.3*figS);
   const by=(o.h===lift.h?lift.y:-.15+Math.sin(t*5+s.x)*.05);const b=new THREE.Vector3(s.x+.6,by,side*(ship.beam/2+2.2));
-  o.l.geometry.setFromPoints([a,b]);o.b.position.copy(b);if(o.fish){o.fish.position.set(b.x,b.y-.9,b.z);o.fish.rotation.z=Math.sin(t*9)*.35}}};
+  o.l.geometry.setFromPoints([a,b]);o.b.position.copy(b);if(o.fish){o.fish.position.set(b.x,b.y-.3,b.z);o.fish.rotation.z=Math.sin(t*9)*.35}}};
 window.mkShark=function(){const L=[];for(let k=0;k<6;k++){const s=1-Math.abs(k-1.5)/5;addBox(L,.45,.55*s+.15,.45*s+.12,0,-k*.42,0,'#6F7F8F')}
   addBox(L,.12,.35,.4,0,-.9,.25,'#5E6E7E');addBox(L,.1,.5,.1,0,.1,.0,'#5E6E7E');addBox(L,.5,.12,.5,0,-2.5,0,'#5E6E7E');addBox(L,.4,.06,.3,0,.18,.0,'#E8EEF3');
-  const m=vmesh(L);m.scale.setScalar(Math.max(1,figS*1.6));return m};
+  const m=vmesh(L);m.scale.setScalar(Math.max(1.4,figS*1.9));return m};
 ['dor_solomovich','yardensolomovich','ilaybaryosef','avivi.nave'].forEach(mkLine);
 {const d=FL.find(o=>o.h==='dor_solomovich');if(d){d.fish=mkShark();ship.group.add(d.fish);d.fish.visible=false}}
 window.LIFT={h:'',y:-.15};
@@ -101,14 +101,14 @@ window.capHook=function(t){lineTick(t,LIFT)};""")
         V="const c=ship.view;"
         # 0–3.75 : לוויתן ענק… שוחה ממש ליד ספינת הדייגים
         scene("s1", 3.75, "tvGroup.visible=false;flash(1,.6)",
-              "{const w=evProps.whale;const c=ship.view;if(w){const p=w.getWorldPosition(new THREE.Vector3());const a=Math.atan2(p.z,p.x)+.5;R.cam(p.x*.35+Math.cos(a)*c.d*.55,c.h*1.5+3,p.z*.35+Math.sin(a)*c.d*.55,p.x*.55,.4,p.z*.55)}else R.orbit(K,c.d*.8,c.h*2,0,1,.1)}"
+              "{const w=evProps.whale;const c=ship.view;if(w){const p=w.getWorldPosition(new THREE.Vector3());const m=p.clone().multiplyScalar(.5);const a=Math.atan2(p.z,p.x)+Math.PI/2+.35+K*.04;const D=Math.max(c.d*1.1,p.length()*1.25);R.cam(m.x+Math.cos(a)*D,c.h*2.2+6,m.z+Math.sin(a)*D,m.x,.8,m.z)}else R.orbit(K,c.d*.8,c.h*2,0,1,.1)}"
               "R.cap(K<1.4?'🐋 <em>לוויתן ענק</em>!':'שוחה ממש ליד <em>ספינת הדייגים</em>')")
         # 3.75–7.2 : יום שישי על הסיפון, וכבר 43 נוסעים
         scene("s2", 7.2, "R.top('יום 6','<b>43</b>/100 נוסעים');flash(.5,.3)",
               V+"R.orbit(K,c.d*.7,c.h*1.6+3,c.h*.1,1.4,0.16);R.cap(K<1.45?'<em>יום 6</em> על הסיפון 🚢':'וכבר <em>43 נוסעים</em>!')")
         # 7.2–12.2 : ושחר זכתה אתמול באלף מטבעות… וגם הייתה המגיבה של היום
         scene("s3", 12.2, "R.hideTop();flash(.5,.3)",
-              "{const p=byH.get('shahar_b.y');const w=worldOf(p,new THREE.Vector3());const a=.6+K*.08;R.cam(w.x+Math.cos(a)*6.5,w.y+3.6,w.z+Math.sin(a)*6.5,w.x,w.y+1.1,w.z)}"
+              "{const p=byH.get('shahar_b.y');const w=worldOf(p,new THREE.Vector3());const a=.6+K*.06;R.cam(w.x+Math.cos(a)*8,w.y+7.5,w.z+Math.sin(a)*8,w.x,w.y+1.2,w.z)}"
               "R.cap(K<2.9?'<span dir=ltr>@shahar_b.y</span> זכתה ב־<em>1,000 מטבעות</em> 🪙':'וגם <em>המגיבה של היום</em> 👑')")
         # 12.2–14.9 : PAUSE studio TV « ועכשיו… החדשות של היום »
         scene("pause", 14.9, "tvGroup.visible=true;R.top('📺','חדשות הספינה');flash(.9,.4)",
@@ -117,13 +117,11 @@ window.capHook=function(t){lineTick(t,LIFT)};""")
               "R.cam(ax+(bx-ax)*e,ay+(by-ay)*e+Math.sin(e*Math.PI)*5,az+(bz-az)*e,(p.x+.9*S)*e,(p.y+2.3*S)*e,(p.z-1*S)*e)}"
               "R.cap(K<.6?'<span style=\"background:#E8262C;color:#fff;padding:6px 26px;border-radius:14px\">🔴 מבזק</span>':'ועכשיו… <em>חדשות הספינה</em> 📺')")
         # 14.9–20.2 : תחרות הדיג השתגעה! דור דג כריש תינוק של 54 קילו
-        scene("s5", 20.2, "tvGroup.visible=false;R.top('🎣','תחרות הדיג');flash(.6,.3)",
-              "{const d=FL.find(o=>o.h==='dor_solomovich');const p=d.p;const w=worldOf(p,new THREE.Vector3());const side=p.slot.z>=0?1:-1;"
-              "if(K>2.1){d.fish.visible=true;LIFT.h='dor_solomovich';LIFT.y=Math.min(2.6,-.15+(K-2.1)*2.2)}"
-              "R.cam(w.x+7,w.y+3.2,w.z+side*9.5,w.x+.4,w.y+.6,w.z+side*3)}"
+        scene("s5", 20.2, "tvGroup.visible=false;if(evProps.whale)evProps.whale.visible=false;if(evProps.spout)evProps.spout.visible=false;R.top('🎣','תחרות הדיג');flash(.6,.3)",
+              "{if(evProps.whale)evProps.whale.visible=false;if(evProps.spout)evProps.spout.visible=false;const p=byH.get('dor_solomovich');const w=worldOf(p,new THREE.Vector3());const side=p.slot.z>=0?1:-1;const a=(side>0?1.2:-1.2)+K*.05;R.cam(w.x+Math.cos(a)*8.5,w.y+6.5,w.z+Math.sin(a)*8.5,w.x,w.y+1.2,w.z)}"
               "R.cap(K<2.1?'🎣 תחרות הדיג <em>השתגעה!</em>':'<span dir=ltr>@dor_solomovich</span> דג <em>כריש תינוק</em><small>54 ק״ג! 🦈</small>')")
         # 20.2–24.3 : ירדן ועילאי צמודים אליו. מי ייקח את גביע הדייגים בשבת?
-        scene("s6", 24.3, "flash(.4,.3)",
+        scene("s6", 24.3, "flash(.4,.3);if(evProps.whale)evProps.whale.visible=true;if(evProps.spout)evProps.spout.visible=true",
               V+"{const a=byH.get('yardensolomovich'),b=byH.get('ilaybaryosef');const wa=worldOf(a,new THREE.Vector3()),wb=worldOf(b,new THREE.Vector3());const m=wa.clone().add(wb).multiplyScalar(.5);"
               "const ang=.9+K*.1;R.cam(m.x+Math.cos(ang)*12,m.y+6,m.z+Math.sin(ang)*12,m.x,m.y+1,m.z)}"
               "R.cap(K<1.9?'<span dir=ltr>@yardensolomovich</span> ו־<span dir=ltr>@ilaybaryosef</span><small>צמודים אליו!</small>':'מי ייקח את <em>גביע הדייגים</em> בשבת? 🏆')")
