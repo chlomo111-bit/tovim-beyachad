@@ -96,44 +96,48 @@ window.mkShark=function(){const L=[];for(let k=0;k<6;k++){const s=1-Math.abs(k-1
   addBox(L,.12,.35,.4,0,-.9,.25,'#5E6E7E');addBox(L,.1,.5,.1,0,.1,.0,'#5E6E7E');addBox(L,.5,.12,.5,0,-2.5,0,'#5E6E7E');addBox(L,.4,.06,.3,0,.18,.0,'#E8EEF3');
   const m=vmesh(L);m.scale.setScalar(Math.max(1.4,figS*1.9));return m};
 ['ilaybaryosef','yardensolomovich','dor_solomovich'].forEach(mkLine);
-{const d=FL.find(o=>o.h==='ilaybaryosef');if(d){d.fish=mkShark();ship.group.add(d.fish);d.fish.visible=false}}
 window.LIFT={h:'',y:-.15};
 window.capHook=function(t){lineTick(t,LIFT)};""")
         V="SINKV();const c=ship.view;"
-        # 0–2.6 : המטרה שלנו: להטביע את הספינה!
-        scene("s1", 2.6, "tvGroup.visible=false;flash(1,.6)",
-              V+"R.orbit(K,c.d*.95-K*2,c.h*1.8+5-K,c.h*.1,0.5,0.22);R.cap(K<1.0?'המטרה שלנו:':'<em>להטביע</em> את הספינה! 🌊')")
-        # 2.6–7.7 : אתמול 43 נוסעים… והיום? 59!
-        scene("s2", 7.7, "R.top('יום 7','<b>59</b>/100 נוסעים');flash(.5,.3)",
-              V+"R.orbit(K,c.d*.7,c.h*1.5+3,c.h*.1,1.3,0.15);R.cap(K<2.8?'אתמול <em>43 נוסעים</em>…':'והיום? <em>59</em>! 🚢')")
-        # 7.7–10.0 : הספינה כבר 60% מתחת למים
-        scene("s3", 10.0, "R.hideTop();flash(.6,.3)",
-              V+"{const a=2.6+K*.12;R.cam(Math.cos(a)*c.d*.62,.9+K*.15,Math.sin(a)*c.d*.62,0,c.h*.15,0)}R.cap('הספינה כבר <em>60%</em> מתחת למים 😱')")
-        # 10.0–14.8 : עברנו את ה־50 → 100 מטבעות לכולם
-        scene("s4", 14.8, "R.top('🎉','בונוס לכולם');flash(.6,.3)",
-              V+"R.orbit(K,c.d*.55,c.h*1.3+2.5,c.h*.2,3.4,0.14);R.cap(K<2.3?'עברנו את <em>ה־50</em>…':'כל הנוסעים קיבלו<small>🪙 100 מטבעות!</small>')")
-        # 14.8–18.0 : PAUSE studio TV
-        scene("pause", 18.0, "tvGroup.visible=true;R.top('📺','חדשות הספינה');flash(.9,.4)",
-              V+"{const k=Math.min(1,K/1.5),e=k*k*(3-2*k),p=tvGroup.position,S=tvGroup.userData.S;"
-              "const ax=c.d*.4,ay=c.h*2+4,az=c.d*.8,bx=p.x+2.6*S,by=p.y+3.3*S,bz=p.z+12.5*S;"
-              "R.cam(ax+(bx-ax)*e,ay+(by-ay)*e+Math.sin(e*Math.PI)*5,az+(bz-az)*e,(p.x+.9*S)*e,(p.y+2.3*S)*e,(p.z-1*S)*e)}"
-              "R.cap(K<.7?'<span style=\"background:#E8262C;color:#fff;padding:6px 26px;border-radius:14px\">🔴 מבזק</span>':'ועכשיו… <em>חדשות הספינה</em> 📺')")
-        # 18.0–25.4 : התגובה של היום: עמית… הכריש שלו 26 ק״ג על המסך
-        scene("s5", 25.4, "flash(.4,.3)",
-              V+"{const p=tvGroup.position,S=tvGroup.userData.S;const a=K*.03;R.cam(p.x+(2.2+Math.sin(a)*2)*S,p.y+3.0*S,p.z+(9.5-K*.25)*S,p.x+.9*S,p.y+2.3*S,p.z-1*S)}"
-              "R.cap(K<1.6?'💬 <em>התגובה של היום</em>':K<4.1?'<span dir=ltr>@amit_azulay23</span> ביקש<small>שהדג שלו יוצג על הסיפון</small>':'הכריש שלו, <em>26 ק״ג</em>, על המסך! 🦈')")
-        # 25.4–29.3 : וטל הפכה לדי-ג'יי: מסיבת ריקודים על הסיפון
-        scene("s6", 29.3, "tvGroup.visible=false;R.top('🎧','מסיבה על הסיפון');flash(.7,.3)",
-              V+"{const p=byH.get('tal_neo_nitzan');if(p&&p.slot){const w=worldOf(p,new THREE.Vector3());const a=.7+K*.12;R.cam(w.x+Math.cos(a)*9,w.y+6.5,w.z+Math.sin(a)*9,w.x,w.y+1,w.z)}else R.orbit(K,c.d*.6,c.h*1.4+3,c.h*.2,4.2,0.15)}"
-              "R.cap(K<1.9?'<span dir=ltr>@tal_neo_nitzan</span> הפכה ל־<em>DJ</em> 🎧':'<em>מסיבת ריקודים</em> על הסיפון! 🕺')")
-        # 29.3–34.0 : ובתחרות הדיג? עילאי עם כריש של כמעט 60 ק״ג
-        scene("s7", 34.0, "R.top('🎣','תחרות הדיג');flash(.6,.3);LIFT.h='ilaybaryosef';{const d=FL.find(o=>o.h==='ilaybaryosef');if(d&&d.fish)d.fish.visible=true}",
-              V+"{const p=byH.get('ilaybaryosef');const w=worldOf(p,new THREE.Vector3());const side=p.slot.z>=0?1:-1;const a=(side>0?1.2:-1.2)+K*.05;"
-              "LIFT.y=-.15+Math.max(0,K-1.8)*1.6;R.cam(w.x+Math.cos(a)*9,w.y+6,w.z+Math.sin(a)*9,w.x,w.y+.6,w.z+side*2)}"
-              "R.cap(K<2.0?'🎣 ובתחרות <em>הדיג</em>?':'<span dir=ltr>@ilaybaryosef</span> עם כריש של<small>כמעט 60 ק״ג! 🦈</small>')")
-        # 34.0–38.6 : מה יקרה בפרק הבא? התגובה עם הכי הרבה לייקים קובעת
-        scene("s8", 38.6, "LIFT.h='';R.hideTop();flash(.4,.3)",
-              V+"R.orbit(K,c.d*.85+K*1.5,c.h*2.2+4+K*.5,0,4.6,0.08);R.cap(K<1.9?'מה יקרה <em>בפרק הבא</em>? 👀':'התגובה עם <em>הכי הרבה לייקים</em> קובעת 👇')")
+        TV=("{const k=Math.min(1,K/1.5),e=k*k*(3-2*k),p=tvGroup.position,S=tvGroup.userData.S;"
+            "const ax=c.d*.4,ay=c.h*2+4,az=c.d*.8,bx=p.x+2.6*S,by=p.y+3.3*S,bz=p.z+12.5*S;"
+            "R.cam(ax+(bx-ax)*e,ay+(by-ay)*e+Math.sin(e*Math.PI)*5,az+(bz-az)*e,(p.x+.9*S)*e,(p.y+2.3*S)*e,(p.z-1*S)*e)}")
+        WH="{const w=evProps.whale;if(w){const p=w.getWorldPosition(new THREE.Vector3());const m=p.clone().multiplyScalar(.5);const a=Math.atan2(p.z,p.x)+Math.PI/2+.35+K*.05;const D=Math.max(c.d*1.0,p.length()*1.15)*ZM;R.cam(m.x+Math.cos(a)*D+SH,c.h*1.6+4+SH,m.z+Math.sin(a)*D,m.x,.5,m.z)}else R.orbit(K,c.d*.8,c.h*1.6+3,0,1,.1)}"
+        # 0–4.6 : כל עוקב חדש עולה לספינה… והמטרה שלנו: להטביע אותה
+        scene("s1", 4.6, "tvGroup.visible=false;flash(1,.6)",
+              V+"R.orbit(K,c.d*.95-K*1.5,c.h*1.8+5-K*.6,c.h*.1,0.5,0.18);R.cap(K<2.2?'כל עוקב חדש = <em>נוסע</em> 🚢':'המטרה: <em>להטביע</em> את הספינה! 🌊')")
+        # 4.6–9.3 : אתמול 43… והיום 61
+        scene("s2", 9.3, "R.top('יום 7','<b>61</b>/100 נוסעים');flash(.5,.3)",
+              V+"R.orbit(K,c.d*.7,c.h*1.5+3,c.h*.1,1.3,0.15);R.cap(K<2.6?'אתמול <em>43 נוסעים</em>…':'והיום? <em>61</em>! 🚀')")
+        # 9.3–14.0 : 60% מתחת למים… והמים ממשיכים לעלות
+        scene("s3", 14.0, "R.hideTop();flash(.6,.3)",
+              "RS=.59+K*.012;"+V+"{const a=2.6+K*.1;R.cam(Math.cos(a)*c.d*.62,.9+K*.12,Math.sin(a)*c.d*.62,0,c.h*.15,0)}R.cap(K<2.9?'הספינה כבר <em>60%</em> מתחת למים 😱':'והמים <em>ממשיכים לעלות</em>… 🌊')")
+        # 14.0–20.3 : עברנו את 50 וגם 60 → פעמיים 100 מטבעות
+        scene("s4", 20.3, "RS=.645;R.top('🎉','בונוס לכולם');flash(.6,.3)",
+              V+"R.orbit(K,c.d*.55,c.h*1.3+2.5,c.h*.2,3.4,0.12);R.cap(K<3.3?'עברנו את <em>ה־50</em> וגם את <em>ה־60</em>!':'כל נוסע קיבל<small>🪙 2 × 100 מטבעות!</small>')")
+        # 20.3–22.8 : ועכשיו… חדשות הספינה
+        scene("pause", 22.8, "tvGroup.visible=true;R.top('📺','חדשות הספינה');flash(.9,.4)",
+              V+TV+"R.cap(K<.6?'<span style=\"background:#E8262C;color:#fff;padding:6px 26px;border-radius:14px\">🔴 מבזק</span>':'ועכשיו… <em>חדשות הספינה</em> 📺')")
+        # 22.8–30.6 : התגובה עם הכי הרבה לייקים: עמית… הכריש 26 ק״ג על המסך
+        scene("s5", 30.6, "flash(.4,.3)",
+              V+"{const p=tvGroup.position,S=tvGroup.userData.S;R.cam(p.x+(2.4-K*.12)*S,p.y+3.0*S,p.z+(10.5-K*.3)*S,p.x+.9*S,p.y+2.3*S,p.z-1*S)}"
+              "R.cap(K<2.1?'💬 התגובה עם <em>הכי הרבה לייקים</em>':K<4.5?'<span dir=ltr>@amit_azulay23</span> ביקש<small>לראות את הדג שתפס</small>':'הכריש שלו, <em>26 ק״ג</em>, על המסך! 🦈')")
+        # 30.6–34.6 : וטל הפכה לדי-ג'יי. כל הספינה רוקדת
+        scene("s6", 34.6, "tvGroup.visible=false;R.top('🎧','מסיבה על הסיפון');flash(.7,.3)",
+              V+"{const p=byH.get('tal_neo_nitzan');if(p&&p.slot){const w=worldOf(p,new THREE.Vector3());const a=.7+K*.14;R.cam(w.x+Math.cos(a)*9,w.y+6.5,w.z+Math.sin(a)*9,w.x,w.y+1,w.z)}else R.orbit(K,c.d*.6,c.h*1.4+3,c.h*.2,4.2,0.15)}"
+              "R.cap(K<1.9?'<span dir=ltr>@tal_neo_nitzan</span> הפכה ל־<em>DJ</em> 🎧':'כל הספינה <em>רוקדת</em>! 🕺')")
+        # 34.6–39.9 : בהגרלה של אתמול אף אחד לא נכנס. 1000 מטבעות נשארו בקופה
+        scene("s7", 39.9, "R.top('🎟️','ההגרלה');flash(.6,.3)",
+              V+"R.orbit(K,c.d*.8-K*.8,c.h*2+4,c.h*.1,2.4,0.1);R.cap(K<3.3?'בהגרלה של אתמול…<small><em>אף אחד</em> לא נכנס 😮</small>':'<em>1,000 מטבעות</em><small>נשארו בקופה 🪙</small>')")
+        # 39.9–44.8 : רק שאף אחד לא שם לב… שהלוויתן עדיין מסתובב מתחת לספינה
+        scene("s8", 44.8, "R.hideTop();setEvent({type:'whale',title:''});flash(.5,.5)",
+              "const ZM=1-K*.04,SH=0;"+V+WH+"R.cap(K<1.9?'רק שאף אחד <em>לא שם לב</em>…':'ה<em>לוויתן</em> עדיין מסתובב<small>מתחת לספינה 🐋</small>')")
+        # 44.8–47.8 : ואוראל אומר שהוא הולך לחצות אותה לשניים!
+        scene("s9", 47.8, "flash(1,.4)",
+              "const ZM=.75,SH=Math.sin(K*40)*.25;"+V+WH+"R.cap('<span dir=ltr>@1orel_bar_on7</span> אומר שהוא<small>יחצה אותה <em>לשניים</em>! 😱</small>')")
+        # 47.8–52.2 : מה יקרה בפרק הבא? התגובה עם הכי הרבה לייקים קובעת
+        scene("s10", 52.2, "flash(.4,.3)",
+              V+"R.orbit(K,c.d*.85+K*1.5,c.h*2.2+4+K*.5,0,4.6,0.08);R.cap(K<1.5?'מה יקרה <em>בפרק הבא</em>? 👀':'התגובה עם <em>הכי הרבה לייקים</em> קובעת 👇')")
 
         print("TOTAL images", frame[0], "ERREURS", errs[:5])
         b.close()
