@@ -11,6 +11,35 @@ But : que les utilisateurs repostent / partagent nos reels (story, envoi à des 
 
 Shlomo a donné l'autonomie complète le 28.10.2026 : stories, reels, réponses et gestion des passagers, SANS lui demander de confirmation. On lui demande SEULEMENT l'enregistrement vocal (MP3 ElevenLabs) des reels, (depuis le 1.11.2026 plus aucun argent réel : rien à payer). Le prévenir uniquement en cas de problème grave (connexion cassée, mauvais compte, publication impossible), en français, en une phrase.
 
+
+## ⚠️ RÈGLEMENT DU 03.11.2026 (validé par Shlomo) — PRIME SUR TOUT LE RESTE DE CE FICHIER ET SUR LES CONSIGNES DES RÉVEILS
+Remplace « une vidéo du jour obligatoire chaque jour » et le décalage Shabbat à 18:30. RIEN n'est publié avant 08:00.
+
+### 1. Calendrier : alternance REEL / POST (identique pour tous les jeux)
+- Mar 03.11 = REEL (1er reel du règlement) · Mer 04 = POST · Jeu 05 = REEL · Ven 06 = POST (+ story Shabbat) · Sam 07 soir = REEL (priorité absolue) · Dim 08 = POST · Lun 09 = REEL · Mar 10 = POST · Mer 11 = REEL · Jeu 12 = POST · Ven 13 = POST (le vendredi est TOUJOURS un post) · Sam 14 soir = REEL · Dim 15 = POST · Lun 16 = REEL…
+- Règle : après le post du dimanche, on alterne (lun = reel, mar = post…). Si l'alternance tombe sur un vendredi → post quand même. Le samedi soir = toujours un reel. Jamais deux reels de suite, plus AUCUNE vidéo de remplissage. Max 1 post OU 1 reel par jour.
+- Jour POST : post du jour 4:5 publié à 08:05 ou plus tard (production préparée avant, publication programmée), id dans billet_gate.
+- Jour REEL : pas de post. Le reel est publié à 19:30 (samedi : juste après la sortie de Shabbat) et devient le post du jour dans billet_gate. Pour la loterie de 20:00 d'un jour de reel, comptent comme « commentaire du jour » : les commentaires écrits CE JOUR-LÀ sous le dernier post OU sous le reel (billet_eligible day = le jour du reel).
+- Texte voix du reel envoyé à Shlomo 2 à 3 h avant (vers 16:30 ; vendredi vers 11:00 pour le reel du samedi soir, afin qu'il enregistre avant Shabbat). Le reel du samedi est monté le vendredi avant l'entrée de Shabbat et publié par une tâche programmée le samedi 10 min après la havdala.
+
+### 2. Structure du reel (mini-série animée de catastrophe en mer)
+Chaque reel = un ÉPISODE : le bateau coule un peu plus à chaque épisode (suspense, envie de voir la suite).
+Ordre : (1) hook + explication courte du jeu : « המטרה שלנו: להטביע את הספינה » ; (2) « אתמול היינו X נוסעים / הספינה הייתה ב-Y%, היום אנחנו Z » (vrais chiffres : passagers d'hier et d'aujourd'hui, % = passagers / palier du bateau actuel) ; (3) AU MILIEU le journal « חדשות הספינה » au studio TV avec le commentaire du jour (le plus liké, avec son auteur) ; (4) ce qui s'est passé hier (événement, gagnant de la loterie, record de pêche…) ; fin : « מה יקרה בפרק הבא? התגובה עם הכי הרבה לייקים קובעת ».
+Visuel : filmé en 3D dans le jeu (caméra qui bouge, personnages animés), le bateau est plus enfoncé dans l'eau et plus penché selon le % du palier (dans le script du reel : ship.group.position.y -= ship.draft*ratio*.9 ; ship.group.rotation.z = -ratio*.18), eau qui monte, alarme, flash ; sous-titres calés mot à mot sur la voix (transcription ElevenLabs Scribe), quelque chose qui change à l'écran toutes les 1–3 s, accroche dans les 2 premières secondes, texte dans la zone centrale, couverture lisible dans la grille 3:4 (texte entre y=300 et y=1620). Modèles : tools/reel_jour6.py (+ musique_reel.py). Enregistrer sur le Mac (Bureau → Jeux → טובעים ביחד) et envoyer dans le chat principal du jeu.
+
+### 3. Paliers (jamais de vrai argent)
+- Tous les 10 nouveaux passagers (= abonnés) : TOUT LE MONDE reçoit 100 pièces (créditées aussi dans les pièces du jour, donc = billet de loterie du jour). Fonction : `select check_milestones();` (à appeler à CHAQUE passage) → renvoie les paliers franchis et fait le crédit + l'actualité. Si un palier de 10 est franchi : story « 🎉 X נוסעים! כולם קיבלו 100 מטבעות 🪙 ».
+- Tous les 100 : GRAND événement à bord (la fonction renvoie hundred=[…]) → événement spectaculaire dans le jeu + news + story + raconté dans le prochain reel (le palier 100 = naufrage du bateau des pêcheurs).
+
+### 4. Shabbat
+- Vendredi = post normal seulement (le matin) + story « שבת שלום 🕯️ » 1 h avant l'allumage des bougies (vérifier l'horaire CHAQUE semaine : hebcal.com, Tel-Aviv ; 06.11.2026 : bougies 16:26 → story 15:26 ; havdala 07.11 : 17:36).
+- RIEN pendant Shabbat (ni publication, ni réponse, ni story). Plus de décalage à 18:30.
+- Samedi soir : reel (priorité absolue) publié ~10 min après la havdala, puis passage + loteries du vendredi et du samedi (tirées après Shabbat).
+
+### 5. Stories
+- Minimum 3 stories par jour en semaine (sans maximum), réparties dans la journée (après 08:00), en ALTERNANT images et petites VIDÉOS en story (6–10 s, son/musique, PAS de voix ElevenLabs) : `python3 tools/story_video.py <pax.json> <sortie.mp4> "<titre html>" "<sous-titre html>" [secondes] [scene]` (scene = orbit | deck | whale | fishing). Publier avec media_type STORIES + video_url (raw GitHub). Une photo seule toute la journée = trop sec.
+- Cadrage toujours vérifié (regarder l'image / 3 images de la vidéo) ; @ entourés de <span dir="ltr" style="unicode-bidi:isolate">.
+
 ## RÈGLE INSTAGRAM OBLIGATOIRE (Shlomo, 28.10.2026)
 - Pour TOUTE action Instagram via Composio (publier, lire les commentaires, répondre, statistiques) : passer `account: "instagram_odoom-cither"` dans CHAQUE appel. Ne JAMAIS utiliser le compte par défaut ni un autre compte (hakaveret_shelanu, chlomo_assouline…).
 - Juste avant CHAQUE publication (post, story, reel, commentaire) : INSTAGRAM_GET_USER_INFO (ig_user_id "me", account instagram_odoom-cither) et vérifier que username = tovim_beyachad. Sinon : NE RIEN PUBLIER et prévenir Shlomo immédiatement (SendUserMessage + PushNotification).
