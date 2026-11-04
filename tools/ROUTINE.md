@@ -40,6 +40,23 @@ Visuel : filmé en 3D dans le jeu (caméra qui bouge, personnages animés), le b
 - Minimum 3 stories par jour en semaine (sans maximum), réparties dans la journée (après 08:00), en ALTERNANT images et petites VIDÉOS en story (6–10 s, son/musique, PAS de voix ElevenLabs) : `python3 tools/story_video.py <pax.json> <sortie.mp4> "<titre html>" "<sous-titre html>" [secondes] [scene]` (scene = orbit | deck | whale | fishing). Publier avec media_type STORIES + video_url (raw GitHub). Une photo seule toute la journée = trop sec.
 - Cadrage toujours vérifié (regarder l'image / 3 images de la vidéo) ; @ entourés de <span dir="ltr" style="unicode-bidi:isolate">.
 
+## 🚀 PLAN CROISSANCE DU 04.11.2026 (Shlomo : « applique tout ») — s'ajoute au règlement du 03.11
+Constat : à la même heure (19:00), les reels vont de 206 à 1 636 vues ; celui du 2.11 (20 partages) nommait des joueurs en compétition. Le contenu partageable compte plus que l'heure.
+1. **Avant chaque reel/post, écrire dans voix.txt / description.txt : « Qui va envoyer ça à qui, et pourquoi ? »**
+2. **DUEL dans chaque reel** : 2 joueurs nommés (@) s'affrontent (record de pêche de la semaine, meilleur recruteur, vœux opposés…) ; le public vote en commentaire (« 1 = @a · 2 = @b »). Le résultat est annoncé dans l'épisode suivant.
+3. **Phrase de partage à la fin de chaque reel ET dans la légende** : ex. « תייגו את החבר שהיה טובע ראשון 😂 » (varier chaque jour).
+4. **Story récap le lendemain matin** (après 08:00) avec les @ des joueurs cités dans le reel → ils la repartagent.
+5. **Bienvenue** : à chaque passage, chaque nouveau passager (table passengers, créés depuis le dernier passage) → une story « 🚢 @… עלה/תה לספינה! » (plusieurs noms par story si besoin, jamais deux fois le même).
+6. **« השם שלך מחכה על הסיפון »** : une story tous les 2 jours (lun, mer, ven…) : « עוקבים ועוד לא עליתם? השם שלכם מחכה על הסיפון 🚢 · הקישור בביו ». Objectif : faire entrer les ~30 abonnés qui ne sont pas passagers (96 abonnés / 64 passagers le 4.11).
+7. **Compte à rebours du naufrage dans CHAQUE contenu** : « עוד N נוסעים והספינה טובעת! » (N = 100 − passagers, vrai chiffre). Préparer le reel du naufrage à l'avance.
+8. **Sondage du jour en story** : l'API ne permet pas le sticker sondage → story question « מה עדיף? 🐋 או 🤿 – ענו בתגובה לפוסט / בהודעה » ; compter les réponses (commentaires + DM) et le dire dans l'épisode.
+9. **Nouveautés du jeu à mettre en avant** (SQL V8) :
+   - 🎣 Boutique de cannes (idée de @amit_azulay23 – le citer) : pro 300, carbone 800, légendaire 1 500 pièces ; plus la canne est chère, plus les gros poissons arrivent.
+   - 🔥 Série : 3 jours d'affilée = +150 pièces, 7 jours = +500 + 👨‍✈️ chapeau de capitaine.
+   - 🧰 Coffre du jour caché sur le pont (place différente chaque jour) : +200 pièces, une fois par jour → story indice le matin « תיבת אוצר מוסתרת היום על הסיפון – מי ימצא ראשון? ».
+   - 🏅 Recruteurs de la semaine (recruit_board()) : samedi soir après Shabbat, `select public.award_recruiter_week();` → 500 pièces + chapeau de capitaine au gagnant, annoncé dans le reel du samedi soir.
+10. **Test d'horaire** : le reel du jeudi 12.11 sort à 17:30 (au lieu de 19:00), texte voix envoyé vers 14:30 ; comparer ses vues/partages à 24 h avec les reels de 19:00, puis décider avec Shlomo. Tous les autres reels restent à 19:00.
+
 ## RÈGLE INSTAGRAM OBLIGATOIRE (Shlomo, 28.10.2026)
 - Pour TOUTE action Instagram via Composio (publier, lire les commentaires, répondre, statistiques) : passer `account: "instagram_odoom-cither"` dans CHAQUE appel. Ne JAMAIS utiliser le compte par défaut ni un autre compte (hakaveret_shelanu, chlomo_assouline…).
 - Juste avant CHAQUE publication (post, story, reel, commentaire) : INSTAGRAM_GET_USER_INFO (ig_user_id "me", account instagram_odoom-cither) et vérifier que username = tovim_beyachad. Sinon : NE RIEN PUBLIER et prévenir Shlomo immédiatement (SendUserMessage + PushNotification).
