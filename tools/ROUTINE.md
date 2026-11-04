@@ -40,6 +40,9 @@ Visuel : filmé en 3D dans le jeu (caméra qui bouge, personnages animés), le b
 - Minimum 3 stories par jour en semaine (sans maximum), réparties dans la journée (après 08:00), en ALTERNANT images et petites VIDÉOS en story (6–10 s, son/musique, PAS de voix ElevenLabs) : `python3 tools/story_video.py <pax.json> <sortie.mp4> "<titre html>" "<sous-titre html>" [secondes] [scene]` (scene = orbit | deck | whale | fishing). Publier avec media_type STORIES + video_url (raw GitHub). Une photo seule toute la journée = trop sec.
 - Cadrage toujours vérifié (regarder l'image / 3 images de la vidéo) ; @ entourés de <span dir="ltr" style="unicode-bidi:isolate">.
 
+## 🎙️ VOIX DES REELS (Shlomo, 04.11.2026 20:50) — remplace « Shlomo génère la voix »
+Claude fait TOUT lui-même : texte + voix + montage + publication. Voix : ElevenLabs, Juniper (voice_id aMSt68OGf4xUZAnLpTU8), modèle eleven_v3, 1 seule génération (generations_count=1), tags d'émotion, nombres en lettres. Le MP3 se télécharge directement depuis elevenlabsusercontent.com (domaine autorisé par Shlomo). Envoyer la voix à Shlomo dans le chat pour info, sans attendre sa réponse. Ne plus lui demander de MP3.
+
 ## 🚀 PLAN CROISSANCE DU 04.11.2026 (Shlomo : « applique tout ») — s'ajoute au règlement du 03.11
 Constat : à la même heure (19:00), les reels vont de 206 à 1 636 vues ; celui du 2.11 (20 partages) nommait des joueurs en compétition. Le contenu partageable compte plus que l'heure.
 1. **Avant chaque reel/post, écrire dans voix.txt / description.txt : « Qui va envoyer ça à qui, et pourquoi ? »**
