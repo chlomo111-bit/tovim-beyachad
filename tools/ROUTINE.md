@@ -41,6 +41,24 @@ Visuel : filmé en 3D dans le jeu (caméra qui bouge, personnages animés), le b
   ➜ MISE À JOUR 04.11 (Shlomo) : les stories VIDÉO ont maintenant des PAROLES. Écrire une phrase courte en hébreu (3–8 s, humaine, qui pousse à agir : commenter, venir sur le bateau, taguer un ami), générer la voix (ElevenLabs Juniper aMSt68OGf4xUZAnLpTU8, eleven_v3, 1 génération, tags d'émotion), télécharger le MP3, puis `VOIX=<mp3> python3 tools/story_video.py …` (musique baissée automatiquement sous la voix). Les stories image restent sans son.
 - Cadrage toujours vérifié (regarder l'image / 3 images de la vidéo) ; @ entourés de <span dir="ltr" style="unicode-bidi:isolate">.
 
+## ✉️ CROSSOVER « L'ENVELOPPE » — samedi 07.11.2026, 19:00, les 5 jeux (Shlomo, 04.11) — PRIME pour ces dates
+Coordinateur = le chat de השכנים (@hashchenim) : LUI SEUL compte les partages, choisit les gagnants de l'énigme et annonce la révélation. Nous : uniquement notre jeu, sur notre compte.
+- Histoire : le même soir, chaque jeu reçoit la même enveloppe que Dana (papier crème, cachet rouge), expéditeur inconnu. L'expéditeur (le lapin blanc de השכנים) et le mot (5 lettres) ne doivent JAMAIS être écrits ni laissés deviner avant la révélation.
+- BATEAU : la baleine remonte avec l'enveloppe dans la bouche, les plongeurs (כת הצוללנים) essaient de la voler. Notre lettre : א (2/5). Compte suivant : @the_noise_2026. (Boucle : ruche → bateau → Noise → savta → השכנים → ruche.)
+- Reel du samedi 07.11 à 19:00 PILE (pas 17:45) : 0–2 s gros plan sur l'enveloppe + « המכתב הגיע גם אלינו… ✉️ » ; puis rappel normal (hier X / aujourd'hui Y) + journal avec le commentaire le plus liké (le vote reste respecté) ; puis l'événement de la lettre ; 6 dernières secondes IDENTIQUES aux 5 comptes : silhouette d'un lapin blanc qui saute dans un portail (2 s, sans le nommer) → grande carte « אות 2 מתוך 5: « א » » → « מי שולח את המכתבים? 5 עולמות, 5 אותיות 🔎 » → « האות הבאה אצל @the_noise_2026 » → « שלחו לחבר שיעזור לכם לפתור 📩 ». Monté et vérifié VENDREDI avant 15:00 ; rien publié entre la story שבת שלום (ven. 15:26) et la sortie de Shabbat.
+- Légende (modèle commun) :
+  {1 phrase : la baleine est remontée avec une enveloppe dans la bouche… et les plongeurs veulent la voler} ✉️
+  המכתב הגיע לכל 5 העולמות באותו לילה.
+  אות 2 מתוך 5: « א » – האות הבאה אצל @the_noise_2026
+  אספו את כל 5 האותיות וכתבו את המילה בתגובות 👇
+  אם 5 הסרטונים יגיעו ביחד ל־50 שיתופים – כל השחקנים בכל העולמות מקבלים בונוס, ונגלה מי שולח את המכתבים.
+  @hakaveret_shelanu @tovim_beyachad @the_noise_2026 @hasavta.shelanu @hashchenim
+  #השכנים #סדרה #אתםמחליטים #משחק #תעלומה
+- Commentaires de l'énigme (tous les passages, dès samedi) : à toute proposition de mot (juste ou fausse), répondre naturellement SANS dire si c'est juste (ex. « רשמנו 👀 נגלה בקרוב… »). Ne jamais annoncer de gagnant de l'énigme.
+- Dimanche 08.11 (jour POST) : à 12:00 et 19:00, story « 📩 {total}/50 שיתופים – עוד קצת ונגלה מי שולח את המכתבים! » en lisant le champ "shares" de media/crossover/status.json du dépôt hasavta-shelanu (ne jamais recompter soi-même).
+- Lundi 09.11 (jour REEL) : si total ≥ 50 → révélation dans השכנים ; nous donnons le bonus en pièces (300 pièces à chaque passager, credit_coins) et on en parle dans notre reel. Sous 50 → même règle prolongée jusqu'à mercredi 11.11 (stories 12:00/19:00 avec le total).
+- Aucun vrai argent. Ne jamais toucher aux automatisations des autres jeux.
+
 ## 🎙️ VOIX DES REELS (Shlomo, 04.11.2026 20:50) — remplace « Shlomo génère la voix »
 Claude fait TOUT lui-même : texte + voix + montage + publication. Voix : ElevenLabs, Juniper (voice_id aMSt68OGf4xUZAnLpTU8), modèle eleven_v3, 1 seule génération (generations_count=1), tags d'émotion, nombres en lettres. Le MP3 se télécharge directement depuis elevenlabsusercontent.com (domaine autorisé par Shlomo). Envoyer la voix à Shlomo dans le chat pour info, sans attendre sa réponse. Ne plus lui demander de MP3.
 
