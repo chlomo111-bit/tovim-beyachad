@@ -38,6 +38,7 @@ Visuel : filmé en 3D dans le jeu (caméra qui bouge, personnages animés), le b
 
 ### 5. Stories
 - Minimum 3 stories par jour en semaine (sans maximum), réparties dans la journée (après 08:00), en ALTERNANT images et petites VIDÉOS en story (6–10 s, son/musique, PAS de voix ElevenLabs) : `python3 tools/story_video.py <pax.json> <sortie.mp4> "<titre html>" "<sous-titre html>" [secondes] [scene]` (scene = orbit | deck | whale | fishing). Publier avec media_type STORIES + video_url (raw GitHub). Une photo seule toute la journée = trop sec.
+  ➜ MISE À JOUR 04.11 (Shlomo) : les stories VIDÉO ont maintenant des PAROLES. Écrire une phrase courte en hébreu (3–8 s, humaine, qui pousse à agir : commenter, venir sur le bateau, taguer un ami), générer la voix (ElevenLabs Juniper aMSt68OGf4xUZAnLpTU8, eleven_v3, 1 génération, tags d'émotion), télécharger le MP3, puis `VOIX=<mp3> python3 tools/story_video.py …` (musique baissée automatiquement sous la voix). Les stories image restent sans son.
 - Cadrage toujours vérifié (regarder l'image / 3 images de la vidéo) ; @ entourés de <span dir="ltr" style="unicode-bidi:isolate">.
 
 ## 🎙️ VOIX DES REELS (Shlomo, 04.11.2026 20:50) — remplace « Shlomo génère la voix »

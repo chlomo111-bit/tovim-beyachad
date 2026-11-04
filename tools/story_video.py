@@ -2,6 +2,7 @@
 Règlement du 03.11 : les stories alternent image / vidéo courte avec son.
 Usage :
   python3 tools/story_video.py <dossier_three3> <passagers.json> <sortie.mp4> <scene> "<titre html>" "<carte html>" "<petite ligne>" [duree] [focus_handle]
+  VOIX=chemin.mp3 (variable d'environnement, optionnelle) : courte phrase parlée (Juniper, eleven_v3, 1 génération) — depuis le 04.11 (Shlomo) les stories vidéo ont des paroles ; la durée s'allonge à voix + 1 s, musique baissée sous la voix.
   scene = orbit (tour du bateau) | deck (gros plan sur un passager, focus_handle) | flyby (survol bas le long de la coque) | sink (le bateau penche/s'enfonce)
   titre/carte : même style que story_texte.py (Heebo 900, mots clés <em> en jaune). Laisser "" pour ne pas afficher.
   Pour un @ dans du texte hébreu : <span dir="ltr" style="unicode-bidi:isolate">@pseudo</span>.
@@ -11,6 +12,10 @@ from playwright.sync_api import sync_playwright
 
 SP, PAXF, OUT, SCENE, TOP, MID, BOT = sys.argv[1:8]
 D = float(sys.argv[8]) if len(sys.argv) > 8 else 8.0
+VOIX = os.environ.get("VOIX")
+if VOIX:
+    vd = float(subprocess.run(["ffprobe", "-v", "error", "-show_entries", "format=duration", "-of", "csv=p=0", VOIX], capture_output=True, text=True).stdout.strip() or 0)
+    D = max(D, round(vd + 1.2, 2))
 FOCUS = sys.argv[9] if len(sys.argv) > 9 else ""
 T = SP + "/node_modules/three/"; F = SP + "/node_modules/@fontsource/heebo/files/"
 HERE = os.path.dirname(os.path.abspath(__file__)); ROOT = os.path.dirname(HERE)
@@ -69,9 +74,9 @@ ev = "whoosh:0.05,ding:0.6" + (",splash:%.2f" % (D * .55) if SCENE in ("sink", "
 subprocess.run([sys.executable, HERE + "/musique_reel.py", f"{tmp}/m.wav", str(D), ev], check=True)
 # texte : apparaît en fondu à 0,4 s, petit zoom continu sur l'image
 subprocess.run(["ffmpeg", "-y", "-loglevel", "error", "-framerate", str(FPS), "-i", f"{tmp}/f%04d.png",
-    "-loop", "1", "-framerate", str(FPS), "-t", str(D), "-i", f"{tmp}/txt.png", "-i", f"{tmp}/m.wav",
-    "-filter_complex", "[0:v]scale=1080:1920,setsar=1[bg];[1:v]format=rgba,fade=in:st=0.4:d=0.35:alpha=1[tx];[bg][tx]overlay=0:0:format=auto,format=yuv420p[v]",
-    "-map", "[v]", "-map", "2:a", "-t", str(D), "-c:v", "libx264", "-preset", "veryfast", "-crf", "19",
+    "-loop", "1", "-framerate", str(FPS), "-t", str(D), "-i", f"{tmp}/txt.png", "-i", f"{tmp}/m.wav", *(["-i", VOIX] if VOIX else []),
+    "-filter_complex", "[0:v]scale=1080:1920,setsar=1[bg];[1:v]format=rgba,fade=in:st=0.4:d=0.35:alpha=1[tx];[bg][tx]overlay=0:0:format=auto,format=yuv420p[v]" + (";[3:a]adelay=500|500,apad[vo];[2:a]volume=0.25[mu];[vo][mu]amix=inputs=2:duration=longest:normalize=0,alimiter=limit=0.95[a]" if VOIX else ""),
+    "-map", "[v]", "-map", "[a]" if VOIX else "2:a", "-t", str(D), "-c:v", "libx264", "-preset", "veryfast", "-crf", "19",
     "-c:a", "aac", "-b:a", "192k", "-movflags", "+faststart", OUT], check=True)
 shutil.rmtree(tmp, ignore_errors=True)
 print("ok", OUT, D, "s")
