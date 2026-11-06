@@ -1,10 +1,7 @@
-[excited] המטרה שלנו: להטביע את הספינה!
-[dramatic] בפרק הקודם היינו שישים וחמישה נוסעים… והיום? שישים ושבעה! הספינה כבר שני שלישים מתחת למים.
-[shocked] ובשישי בבוקר… מטאוריט נפל ממש ליד הספינה!
-[pause]
-[news anchor] ועכשיו… חדשות הספינה!
-[pause]
-[impressed] עידו זכה באלף מטבעות… ועמית שוב המגיב של היום, והוא רוצה חנות ציוד דיג אמיתית!
-[excited] ודו־קרב הדיג: עילאי, איתן וליאם… פחות משלושה קילו ביניהם!
-[dramatic] הלילה: גביע הדייגים… ושתי הגרלות של אלף מטבעות, של שישי ושל שבת!
-[mischievously] מה יקרה בפרק הבא? התגובה עם הכי הרבה לייקים קובעת.
+# CROSSOVER « L'ENVELOPPE » (07.11, 19:00). Qui envoie à qui ? Les joueurs des 5 jeux s'envoient les vidéos entre amis pour reconstituer le mot (5 lettres sur 5 comptes) ; ceux du bateau ont la 2e lettre → ils la partagent à ceux des autres jeux. Ilay/Eitan partagent pour le duel.
+[whispers] המכתב הגיע גם אלינו…
+[dramatic] מאז הפרק הקודם עלו עוד שלושה נוסעים: שישים ותשעה! עוד שלושים ואחד, והספינה טובעת.
+[news anchor] בחדשות הספינה: עילאי מוביל בדו־קרב, ומטאוריט נפל ליד הספינה בזכות הזוכה בהגרלה.
+[shocked] ופתאום… הלוויתן קפץ מהמים, עם מעטפה בפה!
+[urgent] והצוללנים כבר שוחים אליו, כדי לגנוב אותה…
+[mysterious] אות שתיים מתוך חמש: אָלֶף. האות הבאה אצל דה נויז. שלחו לחבר שיעזור לכם לפתור.
