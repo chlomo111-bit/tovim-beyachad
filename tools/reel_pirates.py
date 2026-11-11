@@ -104,6 +104,7 @@ window.SHOT=function(u){const z0=-(ship.beam/2+ship.len*.6);BALLS.forEach((b,i)=
 window.POST=function(){ship.group.position.y-=ship.draft*SNK;ship.group.rotation.z+=-SNK*.35;ship.group.rotation.x+=SNK*.08};
 {const _ff=flyFrame;window.flyFrame=function(dt){_ff(dt);try{POST()}catch(e){}}}
 PIR.visible=false;window.capHook=function(t){};""")
+        if os.environ.get("NOTEXT"): pg.add_style_tag(content="#cap,#reelTop{display:none!important}")
         V="const c=ship.view;"
         PV="{const p=PIR.position;R.cam(p.x+ZX*ship.len,p.y+ship.len*.32,p.z+ship.len*ZZ,p.x,p.y+ship.len*.15,p.z)}"
         # 0–3.5 : 100 עוקבים… ושודדי ים תקפו את הספינה!
