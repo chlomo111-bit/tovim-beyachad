@@ -40,7 +40,7 @@ while t < D:
     if rng.random() < .6:
         f = SC[rng.integers(len(SC))]; m = int(.35 * SR)
         s = tri(f, m) * env(m, .005, .35) * .07; ii = int((t + (beat / 2 if rng.random() < .3 else 0)) * SR)
-        music[ii:min(N, ii + m)] += s[:min(N, ii + m) - ii]
+        if ii < N: music[ii:min(N, ii + m)] += s[:min(N, ii + m) - ii]
     t += beat; st += 1
 music *= np.clip(tt / 1.0, 0, 1) * np.clip((D - tt) / 1.5, 0, 1)
 
