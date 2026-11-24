@@ -58,9 +58,9 @@ if(T<6.2){vx=VX-2+T*.35;vy=.3+Math.sin(T*1.6)*.1;vz=Math.sin(T*1.3)*.015}
 else if(T<8.0){const k=E((T-6.2)/1.8);vx=VX-2+6.2*.35+k*.6;vy=.3-k*9.5;vz=k*.62}
 else if(T<8.15){vx=VX;vy=-9.5;vz=.62}
 else{const k=E((T-8.15)/2.4);vx=VX;vy=L_(-13,.45,k)+(k>=1?Math.sin(T*1.1)*.05:0);vz=(1-k)*.35;vry=-.5+k*.35}
-S.vasa.visible=!(T>14.4&&T<16.55);S.vasa.position.set(vx,vy,-11);S.vasa.rotation.z=vz;S.vasa.rotation.y=vry;S.vasa.scale.setScalar(1.15);
-S.mus.visible=T>9.6&&T<11.2;const hid=((T>3.3&&T<11.0)||(T>14.4&&T<16.55));S.ev.scale.setScalar(.9);
-S.ev.visible=T>=13.6&&T<16.55;
+S.vasa.visible=!(T>14.4&&T<16.25);S.vasa.position.set(vx,vy,-11);S.vasa.rotation.z=vz;S.vasa.rotation.y=vry;S.vasa.scale.setScalar(1.15);
+S.mus.visible=T>9.6&&T<11.2;const hid=((T>3.3&&T<11.0)||(T>14.4&&T<16.25));S.ev.scale.setScalar(.9);
+S.ev.visible=T>=13.6&&T<16.25;
 {const k=E((T-14.9)/1.5);S.ev.position.y=L_(13,-27,k);S.ev.rotation.z=k*.04;
  const r=T-16.0;S.ring.visible=false;if(r>0){const s=1+r*5;S.ring.scale.set(s,1,s);S.ring.position.y=.35}}
 S.ice.forEach(m=>{m.position.y=Math.sin(T*.8+m.userData.p)*.12});
@@ -79,7 +79,7 @@ else{zR=-.2;rL=1.9+Math.sin(T*9)*.35}
 S.armR.rotation.set(xR,0,zR);S.armL.rotation.set(0,0,rL);
 const K=[[0,3.4,4.9,8.6,-2.0,4.2,-5],[2.9,2.6,4.8,7.4,-1.6,4.2,-5],[3.4,-10,7,22,-4,3.8,-11],[6.0,-8,7,21,-4,3.4,-11],[7.9,-7,6.5,21,-4,1.2,-11],
  [8.3,-8,6.5,20,-4,1.8,-11],[10.6,-6,7.5,22,-4,3.8,-11],[11.2,.5,4.3,6.2,.2,4.1,0],[14.2,-.2,4.2,5.4,.2,4.0,0],
- [14.5,2,9,14,7,9,-24],[16.2,2,6,14,7,2,-24],[16.55,0,4.4,5.0,0,4.2,0],[18.5,0,4.4,4.4,0,4.2,0]];
+ [14.5,2,9,14,7,9,-24],[16.2,2,6,14,7,2,-24],[16.25,0,4.4,5.0,0,4.2,0],[18.5,0,4.4,4.4,0,4.2,0]];
 let i=0;while(i<K.length-2&&T>=K[i+1][0])i++;
 const a=K[i],b=K[i+1];const kk=E((T-a[0])/Math.max(.01,b[0]-a[0]));const cut=(b[0]-a[0])<.55;
 const g=cut?(T>=b[0]-.05?1:0):kk;
